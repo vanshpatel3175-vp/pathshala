@@ -1,0 +1,107 @@
+from django.db import models
+from django.contrib.auth.models import User
+from dashboard.models import Institution
+
+class SchoolAdminProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='school_profile')
+    institution = models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True, related_name='admins')
+    phone = models.CharField(max_length=20)
+    state = models.CharField(max_length=100, default='Gujarat')
+    city = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"Profile for {self.user.email} ({self.institution.name if self.institution else 'Pending Approval'})"
+
+class Branch(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('disabled', 'Disabled'),
+    ]
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='branches')
+    name = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
+    branch_code = models.CharField(max_length=50, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.institution.name}"
+
+    @property
+    def school_id(self):
+        return self.institution_id
+
+    @property
+    def branch_name(self):
+        return self.name
+
+    @branch_name.setter
+    def branch_name(self, value):
+        self.name = value
+
+class Student(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='students')
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
+
+    def __str__(self):
+        return f"{self.name} ({self.branch.name})"
+
+class Teacher(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='teachers')
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
+
+    def __str__(self):
+        return f"{self.name} ({self.branch.name})"
+
+class StaffMember(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='staff_members')
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    role = models.CharField(max_length=100) # e.g. "Clark", "Trusti"
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
+
+    def __str__(self):
+        return f"{self.name} - {self.role} ({self.branch.name})"
+
+class BranchRequest(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    ]
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='branch_requests')
+    request_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
+    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_branch_requests')
+    approved_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Request for {self.institution.name} ({self.status})"
+
+    @property
+    def school_id(self):
+        return self.institution_id
+
+class SchoolClass(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='classes')
+    name = models.CharField(max_length=100)
+    section = models.CharField(max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.branch.name})"

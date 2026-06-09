@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}Branch Creation Requests{% endblock %}
+
+{% block content %}
+<!-- Page Title Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>Branch Requests</h1>
+        <p>Review and manage branch creation requests from registered institutions</p>
+    </div>
+    <div class="badge-pill-container">
+        <span class="badge badge-awaiting">
+            <i class="fa-solid fa-code-pull-request" style="margin-right: 5px;"></i> Requests Pipeline
+        </span>
+    </div>
+</div>
+
+<!-- Requests Table Section -->
+<div class="glass-panel" style="padding: 25px; margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 1.25rem;">Institutions Requests Queue</h2>
+        <span class="badge badge-awaiting" style="font-size: 0.8rem;">
+            {{ branch_requests|length }} Total Requests
+        </span>
+    </div>
+    
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Institution Name</th>
+                    <th>Code / Plan</th>
+                    <th>Request Date</th>
+                    <th>Status</th>
+                    <th>Details</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if branch_requests %}
+                    {% for req in branch_requests %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: #ffffff; font-size: 0.95rem; margin-bottom: 4px;">{{ req.institution.name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Email: {{ req.institution.email }}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.85rem; color: #ffffff;">{{ req.institution.school_code|default:"N/A" }}</div>
+                            <div style="font-size: 0.75rem; color: var(--color-primary);">Plan: {{ req.institution.plan|default:"Standard" }}</div>
+                        </td>
+                        <td style="color: var(--text-secondary); font-size: 0.85rem;">
+                            {{ req.request_date|date:"M d, Y H:i" }}
+                        </td>
+                        <td>
+                            {% if req.status == 'Pending' %}
+                                <span class="badge badge-awaiting" style="font-size: 0.7rem; padding: 3px 8px;">Pending</span>
+                            {% elif req.status == 'Approved' %}
+                                <span class="badge badge-validated" style="font-size: 0.7rem; padding: 3px 8px;">Approved</span>
+                            {% elif req.status == 'Rejected' %}
+                                <span class="badge badge-disabled" style="font-size: 0.7rem; padding: 3px 8px;">Rejected</span>
+                            {% else %}
+                                <span class="badge badge-secondary" style="font-size: 0.7rem; padding: 3px 8px;">{{ req.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-size: 0.75rem; color: var(--text-secondary);">
+                            {% if req.approved_by %}
+                                <div>By: {{ req.approved_by.username }}</div>
+                                <div>At: {{ req.approved_at|date:"M d, Y H:i" }}</div>
+                            {% else %}
+                                <span style="font-style: italic;">No approval details</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            {% if req.status == 'Pending' %}
+                                <a href="{% url 'approve_branch_request' req.id %}" class="btn btn-success" style="padding: 6px 12px; font-size: 0.8rem; margin-right: 5px;">
+                                    <i class="fa-solid fa-circle-check"></i> Approve
+                                </a>
+                                <a href="{% url 'reject_branch_request' req.id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;" onclick="return confirm('Are you sure you want to reject this branch creation request?');">
+                                    <i class="fa-solid fa-circle-xmark"></i> Reject
+                                </a>
+                            {% else %}
+                                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" disabled>
+                                    <i class="fa-solid fa-ban"></i> Processed
+                                </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            No branch requests currently registered.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

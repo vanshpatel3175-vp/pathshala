@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Logout Confirmation{% endblock %}
+
+{% block standalone_content %}
+<div class="modal-overlay">
+    <div class="modal-content glass-panel" style="border-top: 4px solid var(--color-danger);">
+        <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: var(--color-danger); margin-bottom: 20px;"></i>
+        <h2 class="modal-title">Logout</h2>
+        <p class="modal-description">Are YOU Sure want to logout?</p>
+        
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <div class="modal-actions">
+                <button type="submit" name="action" value="no" class="btn btn-secondary">
+                    No, Stay Logged In
+                </button>
+                <button type="submit" name="action" value="yes" class="btn btn-danger">
+                    Yes, Log Out
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

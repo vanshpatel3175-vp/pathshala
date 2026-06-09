@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Review Application - {{ app.name }}{% endblock %}
+
+{% block content %}
+<!-- Top Header Actions Bar -->
+<div class="glass-panel" style="padding: 20px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h2 style="font-size: 1.5rem; color: #ffffff; font-family: var(--font-heading);">{{ app.name }}</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">{{ app.board }} ({{ app.medium }})</p>
+    </div>
+    
+    <div style="display: flex; gap: 12px;">
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Back To Dashboard
+        </a>
+        {% if app.status == 'Awaiting Review' %}
+        <a href="{% url 'decline_application' app.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to decline this registration application?');">
+            <i class="fa-solid fa-circle-xmark"></i> Decline Unit
+        </a>
+        <a href="{% url 'approve_application' app.id %}" class="btn btn-success">
+            <i class="fa-solid fa-circle-check"></i> Approve Unit
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Administration and Academic Details -->
+<div class="details-grid">
+    <!-- Administration Card -->
+    <div class="details-card glass-panel">
+        <h3><i class="fa-solid fa-address-card" style="color: var(--color-primary);"></i> Administration Details</h3>
+        
+        <p>
+            <strong>Institution Name</strong>
+            <span>{{ app.name }}</span>
+        </p>
+        
+        <p>
+            <strong>Trust Name</strong>
+            <span>{{ app.trust_name }}</span>
+        </p>
+        
+        <p>
+            <strong>Principal / Head Name</strong>
+            <span>{{ app.principal_name }}</span>
+        </p>
+        
+        <p>
+            <strong>Admin Contact Email</strong>
+            <span>{{ app.email }}</span>
+        </p>
+        
+        <p>
+            <strong>Admin Contact Number</strong>
+            <span>{{ app.contact_number }}</span>
+        </p>
+    </div>
+
+    <!-- Academic Card -->
+    <div class="details-card glass-panel">
+        <h3><i class="fa-solid fa-graduation-cap" style="color: var(--color-info);"></i> Academic Structure</h3>
+        
+        <p>
+            <strong>Educational Board</strong>
+            <span>{{ app.board }}</span>
+        </p>
+        
+        <p>
+            <strong>Medium of Instruction</strong>
+            <span>{{ app.medium }}</span>
+        </p>
+        
+        <p>
+            <strong>Board Registration Code</strong>
+            <span>{{ app.registration_code }}</span>
+        </p>
+        
+        <p>
+            <strong>Application Date</strong>
+            <span>{{ app.date_applied|date:"F d, Y" }}</span>
+        </p>
+        
+        <p>
+            <strong>Current Status</strong>
+            <span>
+                <span class="badge {% if app.status == 'Awaiting Review' %}badge-awaiting{% elif app.status == 'Validated' %}badge-validated{% else %}badge-declined{% endif %}">
+                    {{ app.status }}
+                </span>
+            </span>
+        </p>
+    </div>
+</div>
+
+<!-- Media Section: Campus Tour Video -->
+<div class="glass-panel" style="padding: 30px; margin-bottom: 30px;">
+    <h3 style="font-size: 1.15rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color);">
+        <i class="fa-solid fa-video" style="color: var(--color-primary); margin-right: 8px;"></i> Campus Tour / Presentation Video
+    </h3>
+    
+    {% if app.video_url %}
+    <div class="video-container">
+        <video controls width="100%">
+            <source src="{{ app.video_url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+    {% else %}
+    <div style="border-radius: 12px; background: rgba(0,0,0,0.2); border: 1px dashed var(--border-color); text-align: center; padding: 40px; color: var(--text-secondary);">
+        <i class="fa-solid fa-video-slash" style="font-size: 2.5rem; margin-bottom: 12px;"></i>
+        <p>No campus tour video provided by applicant.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Media Section Bottom: Showcase Images & Certificates -->
+<div class="details-grid">
+    <!-- Showcase Images -->
+    <div class="details-card glass-panel">
+        <h3><i class="fa-solid fa-images" style="color: var(--color-info);"></i> School Showcase Images</h3>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">Photographs of classrooms, laboratories, and school playgrounds.</p>
+        
+        <div class="showcase-grid">
+            <div class="showcase-item">
+                <i class="fa-regular fa-image"></i>
+            </div>
+            <div class="showcase-item">
+                <i class="fa-regular fa-image"></i>
+            </div>
+            <div class="showcase-item">
+                <i class="fa-regular fa-image"></i>
+            </div>
+            <div class="showcase-item">
+                <i class="fa-regular fa-image"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accreditation Certificate -->
+    <div class="details-card glass-panel">
+        <h3><i class="fa-solid fa-file-shield" style="color: var(--color-success);"></i> Accreditation Certificate</h3>
+        <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 15px;">Official board registration approval document (PDF format).</p>
+        
+        <div class="pdf-card">
+            <i class="fa-solid fa-file-pdf pdf-icon"></i>
+            <div class="pdf-info">
+                <h4>{{ app.accreditation_certificate|default:"certificate.pdf" }}</h4>
+                <p>Application Attachment File (PDF)</p>
+            </div>
+            <a href="#" class="btn btn-secondary" style="padding: 8px 12px; font-size: 0.8rem;" onclick="alert('Mock PDF download triggered.'); return false;">
+                <i class="fa-solid fa-download"></i> View
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

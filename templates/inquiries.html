@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Inquiry Pipeline{% endblock %}
+
+{% block content %}
+<!-- Page Title Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>Inquiries & Leads</h1>
+        <p>Manage platform admission inquiries and subscription packages</p>
+    </div>
+</div>
+
+<!-- Inquiries List Grid -->
+<div class="glass-panel" style="padding: 25px;">
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>School / Inst</th>
+                    <th>Contact No</th>
+                    <th>State / City</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if inquiries %}
+                    {% for inq in inquiries %}
+                    <tr>
+                        <td style="font-weight: 600; color: #ffffff;">
+                            {{ inq.first_name }}
+                        </td>
+                        <td style="font-weight: 600; color: #ffffff;">
+                            {{ inq.last_name }}
+                        </td>
+                        <td>
+                            <span class="badge badge-pending" style="font-size: 0.7rem; padding: 2px 8px;">{{ inq.school_name }}</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inq.contact_no }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inq.state }} / {{ inq.city }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inq.email|default:"—" }}
+                        </td>
+                        <td>
+                            <span class="badge {% if inq.status == 'Approved' %}badge-validated{% elif inq.status == 'Pending' %}badge-awaiting{% else %}badge-declined{% endif %}" style="font-size: 0.75rem;">
+                                {{ inq.status }}
+                            </span>
+                        </td>
+                        <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
+                            <a href="{% url 'inquiry_details' inq.id %}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">
+                                <i class="fa-solid fa-eye"></i> View Details
+                            </a>
+                            <a href="{% url 'inquiry_review' inq.id %}" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; box-shadow: none;">
+                                <i class="fa-solid fa-calendar-check"></i> Meetings
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-solid fa-file-invoice" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            No lead inquiries found.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

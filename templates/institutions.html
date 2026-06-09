@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}All Registered Institutions{% endblock %}
+
+{% block content %}
+<!-- Page Title Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>All Institutions</h1>
+        <p>Platform Registered Campus Units</p>
+    </div>
+    <div class="badge-pill-container" style="gap: 12px;">
+        <span class="badge badge-active">
+            Total Registered: {{ total_registered }}
+        </span>
+    </div>
+</div>
+
+<!-- All Institutions Directory Table Grid -->
+<div class="glass-panel" style="padding: 25px;">
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Institute Name</th>
+                    <th>Type</th>
+                    <th>Planned Type</th>
+                    <th>Contact No</th>
+                    <th>Email</th>
+                    <th>Expired Date & Time</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if institutions %}
+                    {% for inst in institutions %}
+                    <tr>
+                        <td style="font-weight: 600; color: #ffffff;">
+                            {{ inst.name }}
+                        </td>
+                        <td>
+                            <span class="badge badge-pending" style="font-size: 0.7rem; padding: 2px 8px;">{{ inst.type }}</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inst.planned_type|default:"SCHOOL" }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inst.contact_no }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inst.email }}
+                        </td>
+                        <td style="color: var(--text-secondary); font-weight: 500;">
+                            {{ inst.expired_date|date:"M d, Y H:i" }}
+                        </td>
+                        <td>
+                            {% if inst.status == 'active' %}
+                                <span class="badge badge-validated" style="font-size: 0.7rem; padding: 2px 8px;">Active</span>
+                            {% else %}
+                                <span class="badge badge-declined" style="font-size: 0.7rem; padding: 2px 8px;">Disabled</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            {% if inst.status == 'active' %}
+                                <a href="{% url 'toggle_institution' inst.id %}" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.75rem;" onclick="return confirm('Are you sure you want to disable {{ inst.name }}?');">
+                                    <i class="fa-solid fa-ban"></i> Disable
+                                </a>
+                            {% else %}
+                                <a href="{% url 'toggle_institution' inst.id %}" class="btn btn-success" style="padding: 4px 10px; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-circle-check"></i> Access
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-solid fa-building-circle-exclamation" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            No institutions currently registered on the platform.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
