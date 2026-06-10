@@ -5,7 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.utils import timezone
 from datetime import date
-from dashboard.models import SchoolApplication, Institution
+from super_admin.models import SchoolApplication, Institution
+
 from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass
 
 def school_signup_view(request):
@@ -24,7 +25,7 @@ def school_signup_view(request):
         
         if User.objects.filter(username=email).exists() or User.objects.filter(email=email).exists():
             messages.error(request, "A user with this email already exists.")
-            return render(request, 'school/signup.html')
+            return render(request, 'school_admin/signup.html')
             
         # 1. Create User (marked active immediately for dashboard access)
         user = User.objects.create_user(
@@ -84,6 +85,19 @@ def school_signup_view(request):
             accreditation_certificate="registration_certificate.pdf"
         )
         
+        # Create PlatformUser entry
+        from super_admin.models import PlatformUser
+        PlatformUser.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': f"{first_name} {last_name}",
+                'phone': mobile_number,
+                'date_joined': timezone.now(),
+                'role': 'SCHOOL STAFF'
+            }
+        )
+        
+        
         # Log the user in and redirect to dashboard
         authenticated_user = authenticate(username=email, password=password)
         if authenticated_user is not None:
@@ -94,7 +108,7 @@ def school_signup_view(request):
         messages.success(request, "Registration successful! Please log in.")
         return redirect('login')
         
-    return render(request, 'school/signup.html')
+    return render(request, 'school_admin/signup.html')
 
 def school_login_view(request):
     return redirect('login')
@@ -118,8 +132,12 @@ def school_admin_required(view_func):
             logout(request)
             messages.error(request, "This account is not authorized to access the School Admin portal.")
             return redirect('login')
+        if profile.institution.status == 'disabled' and view_func.__name__ not in ('school_overview_view', 'branch_request_status_api'):
+            messages.warning(request, "Your institution is disabled. Access is restricted to the Overview dashboard.")
+            return redirect('school_overview')
         return view_func(request, *args, **kwargs)
     return wrapper
+
 
 @school_admin_required
 def school_overview_view(request):
@@ -140,6 +158,10 @@ def school_overview_view(request):
     # Handle dashboard POST actions (request branch or create branch)
     if request.method == 'POST':
         action = request.POST.get('action')
+        if action in ('request_branch', 'add_branch') and inst.status == 'disabled':
+            messages.error(request, "This action is locked because your institution is disabled.")
+            return redirect('school_overview')
+
         if action == 'request_branch':
             if not pending_request and not approved_request:
                 BranchRequest.objects.create(
@@ -147,6 +169,13 @@ def school_overview_view(request):
                     status='Pending'
                 )
                 messages.success(request, "Branch creation request submitted successfully to Super Admin.")
+            return redirect('school_overview')
+            
+        elif action == 'request_activation':
+            if inst.status == 'disabled' and not inst.activation_requested:
+                inst.activation_requested = True
+                inst.save()
+                messages.success(request, "Activation request submitted successfully to Super Admin.")
             return redirect('school_overview')
             
         elif action == 'add_branch':
@@ -218,7 +247,7 @@ def school_overview_view(request):
         'branch_classes_count': branch_classes_count,
         'current_tab': 'overview'
     }
-    return render(request, 'school/overview.html', context)
+    return render(request, 'school_admin/overview.html', context)
 
 @school_admin_required
 def school_branches_view(request):
@@ -256,7 +285,7 @@ def school_branches_view(request):
         'total_teachers': total_teachers,
         'current_tab': 'branches'
     }
-    return render(request, 'school/branches.html', context)
+    return render(request, 'school_admin/branches.html', context)
 
 @school_admin_required
 def school_roles_view(request):
@@ -273,6 +302,8 @@ def school_roles_view(request):
     if request.method == 'POST':
         staff_id = request.POST.get('staff_id')
         new_role = request.POST.get('role', '').strip()
+        if new_role == 'custom':
+            new_role = request.POST.get('custom_role', '').strip()
         if staff_id and new_role:
             staff = get_object_or_404(StaffMember, id=staff_id, branch__in=branches)
             staff.role = new_role
@@ -286,7 +317,7 @@ def school_roles_view(request):
         'staff_members': staff_members,
         'current_tab': 'roles'
     }
-    return render(request, 'school/roles.html', context)
+    return render(request, 'school_admin/roles.html', context)
 
 @school_admin_required
 def school_students_view(request):
@@ -300,20 +331,39 @@ def school_students_view(request):
         students = students.filter(name__icontains=q)
         
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        email = request.POST.get('email', '').strip()
-        branch_id = request.POST.get('branch_id')
-        
-        if name and email and branch_id:
-            branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-            Student.objects.create(
-                branch=branch,
-                name=name,
-                email=email,
-                status='active'
-            )
-            messages.success(request, f"Student '{name}' added successfully.")
+        action = request.POST.get('action', 'add')
+        if action == 'edit':
+            student_id = request.POST.get('student_id')
+            student = get_object_or_404(Student, id=student_id, branch__in=branches)
+            name = request.POST.get('name', '').strip()
+            email = request.POST.get('email', '').strip()
+            branch_id = request.POST.get('branch_id')
+            status = request.POST.get('status', 'active')
+            
+            if name and email and branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                student.name = name
+                student.email = email
+                student.branch = branch
+                student.status = status
+                student.save()
+                messages.success(request, f"Student '{name}' updated successfully.")
             return redirect('school_students')
+        else:
+            name = request.POST.get('name', '').strip()
+            email = request.POST.get('email', '').strip()
+            branch_id = request.POST.get('branch_id')
+            
+            if name and email and branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                Student.objects.create(
+                    branch=branch,
+                    name=name,
+                    email=email,
+                    status='active'
+                )
+                messages.success(request, f"Student '{name}' added successfully.")
+                return redirect('school_students')
             
     context = {
         'profile': profile,
@@ -323,7 +373,7 @@ def school_students_view(request):
         'query': q,
         'current_tab': 'students'
     }
-    return render(request, 'school/students.html', context)
+    return render(request, 'school_admin/students.html', context)
 
 @school_admin_required
 def school_teachers_view(request):
@@ -337,20 +387,39 @@ def school_teachers_view(request):
         teachers = teachers.filter(name__icontains=q)
         
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        email = request.POST.get('email', '').strip()
-        branch_id = request.POST.get('branch_id')
-        
-        if name and email and branch_id:
-            branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-            Teacher.objects.create(
-                branch=branch,
-                name=name,
-                email=email,
-                status='active'
-            )
-            messages.success(request, f"Teacher '{name}' added successfully.")
+        action = request.POST.get('action', 'add')
+        if action == 'edit':
+            teacher_id = request.POST.get('teacher_id')
+            teacher = get_object_or_404(Teacher, id=teacher_id, branch__in=branches)
+            name = request.POST.get('name', '').strip()
+            email = request.POST.get('email', '').strip()
+            branch_id = request.POST.get('branch_id')
+            status = request.POST.get('status', 'active')
+            
+            if name and email and branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                teacher.name = name
+                teacher.email = email
+                teacher.branch = branch
+                teacher.status = status
+                teacher.save()
+                messages.success(request, f"Teacher '{name}' updated successfully.")
             return redirect('school_teachers')
+        else:
+            name = request.POST.get('name', '').strip()
+            email = request.POST.get('email', '').strip()
+            branch_id = request.POST.get('branch_id')
+            
+            if name and email and branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                Teacher.objects.create(
+                    branch=branch,
+                    name=name,
+                    email=email,
+                    status='active'
+                )
+                messages.success(request, f"Teacher '{name}' added successfully.")
+                return redirect('school_teachers')
             
     context = {
         'profile': profile,
@@ -360,7 +429,7 @@ def school_teachers_view(request):
         'query': q,
         'current_tab': 'teachers'
     }
-    return render(request, 'school/teachers.html', context)
+    return render(request, 'school_admin/teachers.html', context)
 
 @school_admin_required
 def school_others_view(request):
@@ -374,22 +443,47 @@ def school_others_view(request):
         others = others.filter(name__icontains=q)
         
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
-        email = request.POST.get('email', '').strip()
-        role = request.POST.get('role', '').strip()
-        branch_id = request.POST.get('branch_id')
-        
-        if name and email and role and branch_id:
-            branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-            StaffMember.objects.create(
-                branch=branch,
-                name=name,
-                email=email,
-                role=role,
-                status='active'
-            )
-            messages.success(request, f"Staff member '{name}' added successfully.")
+        action = request.POST.get('action', 'add')
+        if action == 'edit':
+            staff_id = request.POST.get('staff_id')
+            staff = get_object_or_404(StaffMember, id=staff_id, branch__in=branches)
+            name = request.POST.get('name', '').strip()
+            email = request.POST.get('email', '').strip()
+            role = request.POST.get('role', '').strip()
+            if role == 'custom':
+                role = request.POST.get('custom_role', '').strip()
+            branch_id = request.POST.get('branch_id')
+            status = request.POST.get('status', 'active')
+            
+            if name and email and role and branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                staff.name = name
+                staff.email = email
+                staff.role = role
+                staff.branch = branch
+                staff.status = status
+                staff.save()
+                messages.success(request, f"Staff member '{name}' updated successfully.")
             return redirect('school_others')
+        else:
+            name = request.POST.get('name', '').strip()
+            email = request.POST.get('email', '').strip()
+            role = request.POST.get('role', '').strip()
+            if role == 'custom':
+                role = request.POST.get('custom_role', '').strip()
+            branch_id = request.POST.get('branch_id')
+            
+            if name and email and role and branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                StaffMember.objects.create(
+                    branch=branch,
+                    name=name,
+                    email=email,
+                    role=role,
+                    status='active'
+                )
+                messages.success(request, f"Staff member '{name}' added successfully.")
+                return redirect('school_others')
             
     context = {
         'profile': profile,
@@ -399,7 +493,7 @@ def school_others_view(request):
         'query': q,
         'current_tab': 'others'
     }
-    return render(request, 'school/others.html', context)
+    return render(request, 'school_admin/others.html', context)
 
 from django.http import JsonResponse
 
@@ -472,7 +566,7 @@ def school_classes_view(request):
         'total_classes': total_classes,
         'current_tab': 'classes',
     }
-    return render(request, 'school/classes.html', context)
+    return render(request, 'school_admin/classes.html', context)
 
 
 # ─── School Profile / Settings ─────────────────────────────────────────────────
@@ -503,7 +597,7 @@ def school_profile_view(request):
         'institution': inst,
         'current_tab': 'profile',
     }
-    return render(request, 'school/profile.html', context)
+    return render(request, 'school_admin/profile.html', context)
 
 
 # ─── Management Dashboard ──────────────────────────────────────────────────────
@@ -543,4 +637,4 @@ def school_manage_view(request):
         'approved_request': approved_request,
         'current_tab': 'dashboard',
     }
-    return render(request, 'school/manage.html', context)
+    return render(request, 'school_admin/manage.html', context)

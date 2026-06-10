@@ -38,9 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'dashboard',
+    'super_admin',
     'school_admin',
-    'customer',
 ]
 
 MIDDLEWARE = [
@@ -53,12 +52,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'superadmin_portal.urls'
+ROOT_URLCONF = 'main.urls'
+
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,7 +70,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'superadmin_portal.wsgi.application'
+WSGI_APPLICATION = 'main.wsgi.application'
+
 
 
 # Database
@@ -114,7 +115,7 @@ USE_I18N = True
 
 USE_TZ = True
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main.settings')                            
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 

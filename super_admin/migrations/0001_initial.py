@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
                 ('end_time', models.TimeField()),
                 ('title', models.CharField(max_length=255)),
                 ('next_meeting_date', models.DateField(blank=True, null=True)),
-                ('inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='meetings', to='dashboard.inquiry')),
+                ('inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='meetings', to='super_admin.inquiry')),
             ],
         ),
         migrations.CreateModel(
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
                 ('expired_date', models.DateTimeField()),
                 ('type_of_planned', models.CharField(blank=True, max_length=100)),
                 ('status', models.CharField(choices=[('okay', 'Okay'), ('pending', 'Pending'), ('expired', 'Expired')], default='okay', max_length=50)),
-                ('inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subscriptions', to='dashboard.inquiry')),
+                ('inquiry', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subscriptions', to='super_admin.inquiry')),
             ],
         ),
     ]

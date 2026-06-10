@@ -1,0 +1,173 @@
+{% extends 'super_admin/base.html' %}
+
+{% block title %}All Registered Institutions{% endblock %}
+
+{% block content %}
+<!-- Page Title Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>All Institutions</h1>
+        <p>Platform Registered Campus Units</p>
+    </div>
+    <div class="badge-pill-container" style="gap: 12px;">
+        <span class="badge badge-active">
+            Total Registered: {{ total_registered }}
+        </span>
+    </div>
+</div>
+
+<!-- All Institutions Directory Table Grid -->
+<div class="glass-panel" style="padding: 25px;">
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Institute Name</th>
+                    <th>Type</th>
+                    <th>Planned Type</th>
+                    <th>Contact No</th>
+                    <th>Email</th>
+                    <th>Expired Date & Time</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if institutions %}
+                    {% for inst in institutions %}
+                    <tr>
+                        <td style="font-weight: 600; color: #ffffff;">
+                            {{ inst.name }}
+                            {% if inst.branches.exists %}
+                                <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 0.7rem; margin-left: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;" onclick="toggleBranches('branches-{{ inst.id }}', this)">
+                                    <i class="fa-solid fa-chevron-down"></i> Show Branches ({{ inst.branches.count }})
+                                </button>
+                            {% endif %}
+                            <div style="font-size: 0.7rem; color: var(--text-secondary); margin-top: 6px; font-weight: normal; display: flex; gap: 8px; align-items: center;">
+                                <span><i class="fa-solid fa-user-graduate" style="color: var(--color-primary); margin-right: 3px;"></i>{{ inst.total_students }} Std</span>
+                                <span>|</span>
+                                <span><i class="fa-solid fa-chalkboard-user" style="color: var(--color-success); margin-right: 3px;"></i>{{ inst.total_teachers }} Tea</span>
+                                <span>|</span>
+                                <span><i class="fa-solid fa-users" style="color: var(--color-info); margin-right: 3px;"></i>{{ inst.total_staff }} Oth</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge badge-pending" style="font-size: 0.7rem; padding: 2px 8px;">{{ inst.type }}</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inst.planned_type|default:"SCHOOL" }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inst.contact_no }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ inst.email }}
+                        </td>
+                        <td style="color: var(--text-secondary); font-weight: 500;">
+                            {{ inst.expired_date|date:"M d, Y H:i" }}
+                        </td>
+                        <td>
+                            {% if inst.status == 'active' %}
+                                <span class="badge badge-validated" style="font-size: 0.7rem; padding: 2px 8px;">Active</span>
+                            {% else %}
+                                <span class="badge badge-declined" style="font-size: 0.7rem; padding: 2px 8px;">Disabled</span>
+                                {% if inst.activation_requested %}
+                                    <div style="margin-top: 4px;">
+                                        <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.25); font-size: 0.6rem; padding: 2px 6px; border-radius: 4px;">
+                                            <i class="fa-solid fa-bell"></i> Request Pending
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            {% if inst.status == 'active' %}
+                                <a href="{% url 'toggle_institution' inst.id %}" class="btn btn-danger" style="padding: 4px 10px; font-size: 0.75rem;" onclick="return confirm('Are you sure you want to disable {{ inst.name }}?');">
+                                    <i class="fa-solid fa-ban"></i> Disable
+                                </a>
+                            {% else %}
+                                <a href="{% url 'toggle_institution' inst.id %}" class="btn btn-success" style="padding: 4px 10px; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-circle-check"></i> Access
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if inst.branches.exists %}
+                    <tr id="branches-{{ inst.id }}" data-count="{{ inst.branches.count }}" style="display: none; background: rgba(255,255,255,0.015);">
+                        <td colspan="8" style="padding: 15px 25px; border-left: 3px solid var(--color-primary);">
+                            <div style="font-weight: 700; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.05em;">
+                                Registered Branches ({{ inst.branches.count }})
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+                                {% for branch in inst.branches.all %}
+                                    <div class="glass-panel" style="padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.15); min-width: 200px; display: flex; flex-direction: column; justify-content: space-between;">
+                                        <div>
+                                            <div style="font-weight: 600; color: #ffffff; font-size: 0.88rem;">
+                                                <i class="fa-solid fa-code-branch" style="color: var(--color-primary); font-size: 0.8rem; margin-right: 5px;"></i>
+                                                {{ branch.name }} (<code>{{ branch.branch_code }}</code>)
+                                            </div>
+                                            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 4px;">
+                                                City: {{ branch.city }} | Status: 
+                                                {% if inst.status == 'active' %}
+                                                    <span class="badge {% if branch.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}" style="font-size: 0.65rem; padding: 1px 4px;">{{ branch.status|title }}</span>
+                                                {% else %}
+                                                    <span class="badge badge-disabled" style="font-size: 0.65rem; padding: 1px 4px;">Disabled</span>
+                                                {% endif %}
+                                            </div>
+                                            <div style="display: flex; gap: 10px; margin-top: 8px; font-size: 0.7rem; color: var(--text-secondary);">
+                                                <span title="Students"><i class="fa-solid fa-user-graduate" style="color: var(--color-primary); margin-right: 3px;"></i>{{ branch.students.count }}</span>
+                                                <span title="Teachers"><i class="fa-solid fa-chalkboard-user" style="color: var(--color-success); margin-right: 3px;"></i>{{ branch.teachers.count }}</span>
+                                                <span title="Others"><i class="fa-solid fa-users" style="color: var(--color-info); margin-right: 3px;"></i>{{ branch.staff_members.count }}</span>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px;">
+                                            {% if inst.status == 'active' %}
+                                                {% if branch.status == 'active' %}
+                                                    <a href="{% url 'toggle_branch' branch.id %}" class="btn btn-danger" style="padding: 3px 8px; font-size: 0.65rem; width: 100%; text-align: center; border-radius: 6px;" onclick="return confirm('Are you sure you want to disable {{ branch.name }}?');">
+                                                        <i class="fa-solid fa-ban"></i> Disable
+                                                    </a>
+                                                {% else %}
+                                                    <a href="{% url 'toggle_branch' branch.id %}" class="btn btn-success" style="padding: 3px 8px; font-size: 0.65rem; width: 100%; text-align: center; border-radius: 6px;">
+                                                        <i class="fa-solid fa-circle-check"></i> Activate
+                                                    </a>
+                                                {% endif %}
+                                            {% else %}
+                                                <button class="btn btn-secondary" style="padding: 3px 8px; font-size: 0.65rem; width: 100%; text-align: center; border-radius: 6px; cursor: not-allowed; opacity: 0.5;" disabled title="Activate main institute first">
+                                                    <i class="fa-solid fa-lock"></i> Locked
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-solid fa-building-circle-exclamation" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            No institutions currently registered on the platform.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function toggleBranches(id, btn) {
+        const row = document.getElementById(id);
+        if (row.style.display === 'none') {
+            row.style.display = 'table-row';
+            btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Hide Branches';
+        } else {
+            row.style.display = 'none';
+            const count = row.dataset.count;
+            btn.innerHTML = `<i class="fa-solid fa-chevron-down"></i> Show Branches (${count})`;
+        }
+    }
+</script>
+{% endblock %}

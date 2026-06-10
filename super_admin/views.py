@@ -55,7 +55,7 @@ def login_view(request):
                         pass
                     logout(request)
                     messages.error(request, "This account is not linked to any school or superadmin portal.")
-                    return render(request, 'login.html')
+                    return render(request, 'super_admin/login.html')
             else:
                 try:
                     if hasattr(user, 'school_profile'):
@@ -64,7 +64,7 @@ def login_view(request):
                         messages.error(request, "This account is inactive.")
                 except Exception:
                     messages.error(request, "This account is inactive.")
-                return render(request, 'login.html')
+                return render(request, 'super_admin/login.html')
         else:
             # Check if it was because the user exists but is inactive
             inactive_user = None
@@ -88,7 +88,7 @@ def login_view(request):
             else:
                 messages.error(request, "Invalid Email or Password.")
             
-    return render(request, 'login.html')
+    return render(request, 'super_admin/login.html')
 
 def logout_view(request):
     logout(request)
@@ -118,7 +118,7 @@ def dashboard_view(request):
         'approved_success': approved_success,
         'current_tab': 'dashboard'
     }
-    return render(request, 'dashboard.html', context)
+    return render(request, 'super_admin/dashboard.html', context)
 
 @superadmin_required
 def review_application_view(request, app_id):
@@ -127,7 +127,7 @@ def review_application_view(request, app_id):
         'app': app,
         'current_tab': 'dashboard'
     }
-    return render(request, 'review_application.html', context)
+    return render(request, 'super_admin/review_application.html', context)
 
 @superadmin_required
 def approve_application_view(request, app_id):
@@ -174,6 +174,17 @@ def approve_application_view(request, app_id):
             profile.save()
     except User.DoesNotExist:
         pass
+
+    # Create PlatformUser entry
+    PlatformUser.objects.get_or_create(
+        email=app.email,
+        defaults={
+            'username': app.principal_name,
+            'phone': app.contact_number,
+            'date_joined': timezone.now(),
+            'role': 'SCHOOL STAFF'
+        }
+    )
         
     return redirect('/?approved=true')
 
@@ -194,7 +205,7 @@ def all_institutions_view(request):
         'total_registered': total_registered,
         'current_tab': 'institutions'
     }
-    return render(request, 'institutions.html', context)
+    return render(request, 'super_admin/institutions.html', context)
 
 @superadmin_required
 def toggle_institution_view(request, inst_id):
@@ -203,12 +214,13 @@ def toggle_institution_view(request, inst_id):
         inst.status = 'disabled'
     else:
         inst.status = 'active'
+        inst.activation_requested = False
     inst.save()
     return redirect('all_institutions')
 
 @superadmin_required
 def platform_users_view(request):
-    users = PlatformUser.objects.all().order_by('-date_joined')
+    users = PlatformUser.objects.exclude(role='SUPER ADMIN').order_by('-date_joined')
     total_users = users.count()
     
     context = {
@@ -216,7 +228,7 @@ def platform_users_view(request):
         'total_users': total_users,
         'current_tab': 'users'
     }
-    return render(request, 'platform_users.html', context)
+    return render(request, 'super_admin/platform_users.html', context)
 
 @superadmin_required
 def inquiries_view(request):
@@ -227,7 +239,7 @@ def inquiries_view(request):
         'inquiries': inquiries,
         'current_tab': 'payment' # Mockup shows payment icon leads here
     }
-    return render(request, 'inquiries.html', context)
+    return render(request, 'super_admin/inquiries.html', context)
 
 @superadmin_required
 def inquiry_details_view(request, inq_id):
@@ -250,7 +262,7 @@ def inquiry_details_view(request, inq_id):
         'institutions': institutions,
         'current_tab': 'payment'
     }
-    return render(request, 'inquiry_details.html', context)
+    return render(request, 'super_admin/inquiry_details.html', context)
 
 @superadmin_required
 def inquiry_review_view(request, inq_id):
@@ -262,7 +274,7 @@ def inquiry_review_view(request, inq_id):
         'meetings': meetings,
         'current_tab': 'payment'
     }
-    return render(request, 'inquiry_review.html', context)
+    return render(request, 'super_admin/inquiry_review.html', context)
 
 @superadmin_required
 def inquiry_update_status_view(request, inq_id):
@@ -304,7 +316,7 @@ def branch_requests_view(request):
         'branch_requests': requests,
         'current_tab': 'branch_requests'
     }
-    return render(request, 'branch_requests.html', context)
+    return render(request, 'super_admin/branch_requests.html', context)
 
 @superadmin_required
 def approve_branch_request_view(request, req_id):
@@ -327,3 +339,16 @@ def reject_branch_request_view(request, req_id):
     req.save()
     messages.success(request, f"Branch request for {req.institution.name} rejected.")
     return redirect('branch_requests')
+
+@superadmin_required
+def toggle_branch_view(request, branch_id):
+    from school_admin.models import Branch
+    branch = get_object_or_404(Branch, id=branch_id)
+    if branch.status == 'active':
+        branch.status = 'disabled'
+        messages.success(request, f"Branch '{branch.name}' disabled successfully.")
+    else:
+        branch.status = 'active'
+        messages.success(request, f"Branch '{branch.name}' activated successfully.")
+    branch.save()
+    return redirect('all_institutions')

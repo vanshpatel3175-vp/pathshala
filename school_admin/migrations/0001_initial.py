@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('dashboard', '0001_initial'),
+        ('super_admin', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('city', models.CharField(max_length=100)),
                 ('status', models.CharField(choices=[('active', 'Active'), ('disabled', 'Disabled')], default='active', max_length=50)),
-                ('institution', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='branches', to='dashboard.institution')),
+                ('institution', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='branches', to='super_admin.institution')),
             ],
         ),
         migrations.CreateModel(
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('phone', models.CharField(max_length=20)),
                 ('state', models.CharField(default='Gujarat', max_length=100)),
                 ('city', models.CharField(max_length=100)),
-                ('institution', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='admins', to='dashboard.institution')),
+                ('institution', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='admins', to='super_admin.institution')),
                 ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='school_profile', to=settings.AUTH_USER_MODEL)),
             ],
         ),

@@ -36,6 +36,7 @@ class Institution(models.Model):
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
     school_code = models.CharField(max_length=50, blank=True, null=True)
     plan = models.CharField(max_length=100, default='Standard')
+    activation_requested = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -47,6 +48,21 @@ class Institution(models.Model):
     @school_name.setter
     def school_name(self, value):
         self.name = value
+
+    @property
+    def total_students(self):
+        from school_admin.models import Student
+        return Student.objects.filter(branch__institution=self).count()
+
+    @property
+    def total_teachers(self):
+        from school_admin.models import Teacher
+        return Teacher.objects.filter(branch__institution=self).count()
+
+    @property
+    def total_staff(self):
+        from school_admin.models import StaffMember
+        return StaffMember.objects.filter(branch__institution=self).count()
 
 class PlatformUser(models.Model):
     ROLE_CHOICES = [

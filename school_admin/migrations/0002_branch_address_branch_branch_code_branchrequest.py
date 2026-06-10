@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dashboard', '0002_institution_plan_institution_school_code'),
+        ('super_admin', '0002_institution_plan_institution_school_code'),
         ('school_admin', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], default='Pending', max_length=50)),
                 ('approved_at', models.DateTimeField(blank=True, null=True)),
                 ('approved_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='approved_branch_requests', to=settings.AUTH_USER_MODEL)),
-                ('institution', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='branch_requests', to='dashboard.institution')),
+                ('institution', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='branch_requests', to='super_admin.institution')),
             ],
         ),
     ]

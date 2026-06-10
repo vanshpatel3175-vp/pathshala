@@ -1,0 +1,45 @@
+{% extends 'school_admin/base.html' %}
+
+{% block title %}School Admin Login{% endblock %}
+
+{% block standalone_content %}
+<div class="login-container">
+    <div class="login-card glass-panel" style="padding: 40px; width: 100%; max-width: 450px;">
+        <div class="login-header">
+            <h1 class="mock-size-32">LOG IN</h1>
+            <p>School Administration Access</p>
+        </div>
+        
+        <form method="POST" action="{% url 'school_login' %}">
+            {% csrf_token %}
+            
+            {% if messages %}
+                <div style="margin-bottom: 20px; color: var(--color-danger); text-align: center; font-size: 0.875rem;">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="email" style="font-size: 1.125rem;">Enter Your Email</label>
+                <input type="text" id="email" name="email" class="form-control" placeholder="school@admin.com" required autocomplete="email">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label for="password" style="font-size: 1.125rem;">Enter Your Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+            </div>
+            
+            <div style="display: flex; gap: 15px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px; font-size: 0.95rem;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Log In
+                </button>
+                <a href="{% url 'school_signup' %}" class="btn btn-secondary" style="flex: 1; padding: 12px; font-size: 0.95rem; text-align: center;">
+                    <i class="fa-solid fa-user-plus"></i> Register
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from dashboard.models import Institution
+from super_admin.models import Institution
+
 
 class SchoolAdminProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='school_profile')
@@ -73,7 +74,7 @@ class StaffMember(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='staff_members')
     name = models.CharField(max_length=255)
     email = models.EmailField()
-    role = models.CharField(max_length=100) # e.g. "Clark", "Trusti"
+    role = models.CharField(max_length=100) # e.g. "Student", "Principal", "Teacher"
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
 
     def __str__(self):

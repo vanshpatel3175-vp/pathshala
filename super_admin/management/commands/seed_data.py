@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
 from datetime import datetime, date, time, timezone
 from django.contrib.auth.models import User
-from dashboard.models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription
+from super_admin.models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription
+
 from school_admin.models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, SchoolClass
 
 class Command(BaseCommand):
