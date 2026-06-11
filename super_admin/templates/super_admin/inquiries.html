@@ -6,74 +6,69 @@
 <!-- Page Title Header -->
 <div class="page-header">
     <div class="page-title">
-        <h1>Inquiries & Leads</h1>
-        <p>Manage platform admission inquiries and subscription packages</p>
+        <h1>Inquiries</h1>
+        <p>Manage school registrations and active validation queue</p>
     </div>
 </div>
 
-<!-- Inquiries List Grid -->
-<div class="glass-panel" style="padding: 25px;">
-    <div class="table-container">
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>School / Inst</th>
-                    <th>Contact No</th>
-                    <th>State / City</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th style="text-align: right;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if inquiries %}
-                    {% for inq in inquiries %}
+<!-- Registration Applications Panel -->
+<div style="margin-bottom: 30px;">
+    <div class="glass-panel" style="padding: 25px;">
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
                     <tr>
-                        <td style="font-weight: 600; color: #ffffff;">
-                            {{ inq.first_name }}
-                        </td>
-                        <td style="font-weight: 600; color: #ffffff;">
-                            {{ inq.last_name }}
-                        </td>
-                        <td>
-                            <span class="badge badge-pending" style="font-size: 0.7rem; padding: 2px 8px;">{{ inq.school_name }}</span>
-                        </td>
-                        <td style="color: var(--text-secondary);">
-                            {{ inq.contact_no }}
-                        </td>
-                        <td style="color: var(--text-secondary);">
-                            {{ inq.state }} / {{ inq.city }}
-                        </td>
-                        <td style="color: var(--text-secondary);">
-                            {{ inq.email|default:"—" }}
-                        </td>
-                        <td>
-                            <span class="badge {% if inq.status == 'Approved' %}badge-validated{% elif inq.status == 'Pending' %}badge-awaiting{% else %}badge-declined{% endif %}" style="font-size: 0.75rem;">
-                                {{ inq.status }}
-                            </span>
-                        </td>
-                        <td style="text-align: right; display: flex; justify-content: flex-end; gap: 8px;">
-                            <a href="{% url 'inquiry_details' inq.id %}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">
-                                <i class="fa-solid fa-eye"></i> View Details
-                            </a>
-                            <a href="{% url 'inquiry_review' inq.id %}" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; box-shadow: none;">
-                                <i class="fa-solid fa-calendar-check"></i> Meetings
-                            </a>
-                        </td>
+                        <th>Institution Name</th>
+                        <th>Principal Name</th>
+                        <th>Trust Name</th>
+                        <th>Contact No</th>
+                        <th>Date Applied</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Actions</th>
                     </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            <i class="fa-solid fa-file-invoice" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-                            No lead inquiries found.
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% if applications %}
+                        {% for app in applications %}
+                        <tr>
+                            <td style="font-weight: 600; color: #ffffff;">
+                                {{ app.name }}
+                            </td>
+                            <td style="font-weight: 600; color: #ffffff;">
+                                {{ app.principal_name }}
+                            </td>
+                            <td style="color: var(--text-secondary);">
+                                {{ app.trust_name }}
+                            </td>
+                            <td style="color: var(--text-secondary);">
+                                {{ app.contact_number }}
+                            </td>
+                            <td style="color: var(--text-secondary);">
+                                {{ app.date_applied|date:"M d, Y" }}
+                            </td>
+                            <td>
+                                <span class="badge {% if app.status == 'Validated' %}badge-validated{% elif app.status == 'Awaiting Review' %}badge-awaiting{% else %}badge-declined{% endif %}" style="font-size: 0.75rem;">
+                                    {{ app.status }}
+                                </span>
+                            </td>
+                            <td style="text-align: right;">
+                                <a href="{% url 'review_application' app.id %}" class="btn btn-primary" style="padding: 4px 12px; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Review
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                                <i class="fa-solid fa-folder-open" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                                No registration applications found.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

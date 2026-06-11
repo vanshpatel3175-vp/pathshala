@@ -7,7 +7,15 @@
 <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
     <div class="page-title">
         <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Classes</h1>
-        <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage class sections across all branches</p>
+        {% if branch_filter_id %}
+            {% for branch in branches %}
+                {% if branch_filter_id == branch.id|stringformat:"s" %}
+                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing classes for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage class sections across all branches</p>
+        {% endif %}
     </div>
     <button onclick="document.getElementById('addClassForm').scrollIntoView({behavior:'smooth'})" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-plus"></i> Add Class
@@ -121,7 +129,7 @@
                 <select name="branch_id" required class="form-input" style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
                     <option value="">Select Branch</option>
                     {% for br in branches %}
-                    <option value="{{ br.id }}">{{ br.name }}</option>
+                    <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name }}</option>
                     {% endfor %}
                 </select>
             </div>

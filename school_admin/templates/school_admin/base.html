@@ -111,52 +111,59 @@
                             Overview
                         </a>
                     </li>
-                    {% if institution.status != 'disabled' %}
-                        {% if institution.branches.count > 1 %}
-                        <li>
-                            <a href="{% url 'school_branches' %}"
-                                class="sidebar-link {% if current_tab == 'branches' %}active{% endif %}">
-                                <i class="fa-solid fa-code-branch"></i>
-                                Branches
-                            </a>
-                        </li>
-                        {% else %}
-                        <li>
-                            <a href="{% url 'school_manage' %}"
-                                class="sidebar-link {% if current_tab == 'dashboard' %}active{% endif %}">
-                                <i class="fa-solid fa-chart-pie"></i>
-                                Dashboard
-                            </a>
-                        </li>
-                        {% endif %}
-                        <li>
-                            <a href="{% url 'school_students' %}"
-                                class="sidebar-link {% if current_tab == 'students' %}active{% endif %}">
-                                <i class="fa-solid fa-user-graduate"></i>
-                                Students
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'school_teachers' %}"
-                                class="sidebar-link {% if current_tab == 'teachers' %}active{% endif %}">
-                                <i class="fa-solid fa-chalkboard-user"></i>
-                                Teachers
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'school_others' %}"
-                                class="sidebar-link {% if current_tab == 'others' %}active{% endif %}">
-                                <i class="fa-solid fa-users"></i>
-                                Others
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'school_profile' %}"
-                                class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
-                                <i class="fa-solid fa-gear"></i>
-                                School Profile
-                            </a>
-                        </li>
+                    {% if institution.status != 'disabled' and request.is_approved %}
+                    {% if institution.branches.count > 1 %}
+                    <li>
+                        <a href="{% url 'school_branches' %}"
+                            class="sidebar-link {% if current_tab == 'branches' %}active{% endif %}">
+                            <i class="fa-solid fa-code-branch"></i>
+                            Branches
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="{% url 'school_manage' %}"
+                            class="sidebar-link {% if current_tab == 'dashboard' %}active{% endif %}">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'school_students' %}"
+                            class="sidebar-link {% if current_tab == 'students' %}active{% endif %}">
+                            <i class="fa-solid fa-user-graduate"></i>
+                            Students
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_teachers' %}"
+                            class="sidebar-link {% if current_tab == 'teachers' %}active{% endif %}">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            Teachers
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_others' %}"
+                            class="sidebar-link {% if current_tab == 'others' %}active{% endif %}">
+                            <i class="fa-solid fa-users"></i>
+                            Others
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_roles' %}"
+                            class="sidebar-link {% if current_tab == 'roles' %}active{% endif %}">
+                            <i class="fa-solid fa-user"></i>
+                            Master Roles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_profile' %}"
+                            class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
+                            <i class="fa-solid fa-gear"></i>
+                            School Profile
+                        </a>
+                    </li>
                     {% endif %}
                 </ul>
             </nav>

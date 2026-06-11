@@ -330,18 +330,32 @@
 {% block content %}
 <!-- Top Bar -->
 <div class="acc-topbar">
-    <a href="{% url 'school_overview' %}" class="acc-back-btn">
-        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+    <a href="{% url 'school_branches' %}" class="acc-back-btn">
+        <i class="fa-solid fa-arrow-left"></i> Back to Branches
     </a>
-    <div class="session-selector">
-        <span class="session-label">Viewing Session</span>
-        <select class="session-select">
-            <option>2026-27 (Active)</option>
-            <option>2025-26</option>
-        </select>
-        <button class="btn btn-primary" style="padding: 7px 16px; border-radius: 8px; font-size: 0.85rem;">
-            <i class="fa-solid fa-plus"></i> Year
-        </button>
+    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        {% if total_branches > 1 %}
+        <div class="session-selector">
+            <span class="session-label">Active Branch</span>
+            <form method="GET" action="{% url 'school_manage' %}" id="branchSwitchForm" style="margin: 0; display: inline-flex;">
+                <select name="branch_id" class="session-select" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 7px 12px; color: #fff; font-size: 0.85rem; cursor: pointer;" onchange="document.getElementById('branchSwitchForm').submit();">
+                    {% for br in branches %}
+                    <option value="{{ br.id }}" {% if selected_branch.id == br.id %}selected{% endif %}>{{ br.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        {% endif %}
+        <div class="session-selector">
+            <span class="session-label">Viewing Session</span>
+            <select class="session-select">
+                <option>2026-27 (Active)</option>
+                <option>2025-26</option>
+            </select>
+            <button class="btn btn-primary" style="padding: 7px 16px; border-radius: 8px; font-size: 0.85rem;">
+                <i class="fa-solid fa-plus"></i> Year
+            </button>
+        </div>
     </div>
 </div>
 
@@ -352,6 +366,9 @@
         {{ institution.plan|default:"Standard" }} · Active
     </div>
     <h1 class="acc-title">Academic Control Center</h1>
+    {% if selected_branch %}
+    <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px;">Viewing dashboard for branch: <strong style="color: #fff;">{{ selected_branch.name }}</strong></p>
+    {% endif %}
 </div>
 
 <!-- Tabs -->
@@ -383,7 +400,7 @@
         <p>
             Navigate through the sub-tabs above to define class structure (Standards/Divisions), add
             events/holidays for the 2026-27 year session, manually register members, or
-            <a href="{% url 'school_students' %}" style="color:var(--color-primary);">approve</a>
+            <a href="{% url 'school_students' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}" style="color:var(--color-primary);">approve</a>
             incoming registration requests.
         </p>
     </div>
@@ -400,7 +417,7 @@
                     <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Classes &amp;
                         Sections</span>
                 </div>
-                <a href="{% url 'school_classes' %}" class="btn"
+                <a href="{% url 'school_classes' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}" class="btn"
                     style="padding:5px 12px;font-size:0.78rem;background:rgba(99,102,241,0.1);color:var(--color-primary);border:1px solid rgba(99,102,241,0.2);border-radius:7px;">Add
                     +</a>
             </div>
@@ -412,11 +429,11 @@
                     <span style="color:var(--text-muted);font-size:0.78rem;">{{ c.branch.name }}</span>
                 </div>
                 {% empty %}
-                <div class="panel-empty">No classes yet. <a href="{% url 'school_classes' %}"
+                <div class="panel-empty">No classes yet. <a href="{% url 'school_classes' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                         style="color:var(--color-primary);">Add your first class →</a></div>
                 {% endfor %}
                 {% if total_classes > 5 %}
-                <a href="{% url 'school_classes' %}"
+                <a href="{% url 'school_classes' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-primary);border-top:1px solid rgba(255,255,255,0.04);">View
                     all {{ total_classes }} →</a>
                 {% endif %}
@@ -436,9 +453,10 @@
                     <i class="fa-solid fa-user-graduate" style="color:var(--color-success);"></i>
                     <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Students</span>
                     <span
-                        style="background:rgba(16,185,129,0.12);color:var(--color-success);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_students }}</span>
+                        style="background:rgba(16,185,129,0.12);color:var(--color-success);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
+                        total_students }}</span>
                 </div>
-                <a href="{% url 'school_students' %}" class="btn"
+                <a href="{% url 'school_students' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}" class="btn"
                     style="padding:5px 12px;font-size:0.78rem;background:rgba(16,185,129,0.1);color:var(--color-success);border:1px solid rgba(16,185,129,0.2);border-radius:7px;">Manage
                     →</a>
             </div>
@@ -450,7 +468,7 @@
                     <span style="color:var(--text-muted);font-size:0.78rem;">{{ s.branch.name }}</span>
                 </div>
                 {% empty %}
-                <div class="panel-empty">No students enrolled yet. <a href="{% url 'school_students' %}"
+                <div class="panel-empty">No students enrolled yet. <a href="{% url 'school_students' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                         style="color:var(--color-success);">Enroll now →</a></div>
                 {% endfor %}
             </div>
@@ -463,9 +481,10 @@
                     <i class="fa-solid fa-chalkboard-user" style="color:var(--color-info);"></i>
                     <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Teachers</span>
                     <span
-                        style="background:rgba(6,182,212,0.12);color:var(--color-info);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_teachers }}</span>
+                        style="background:rgba(6,182,212,0.12);color:var(--color-info);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
+                        total_teachers }}</span>
                 </div>
-                <a href="{% url 'school_teachers' %}" class="btn"
+                <a href="{% url 'school_teachers' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}" class="btn"
                     style="padding:5px 12px;font-size:0.78rem;background:rgba(6,182,212,0.1);color:var(--color-info);border:1px solid rgba(6,182,212,0.2);border-radius:7px;">Manage
                     →</a>
             </div>
@@ -477,7 +496,7 @@
                     <span style="color:var(--text-muted);font-size:0.78rem;">{{ t.branch.name }}</span>
                 </div>
                 {% empty %}
-                <div class="panel-empty">No teachers added yet. <a href="{% url 'school_teachers' %}"
+                <div class="panel-empty">No teachers added yet. <a href="{% url 'school_teachers' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                         style="color:var(--color-info);">Add one →</a></div>
                 {% endfor %}
             </div>
@@ -490,16 +509,29 @@
                     <i class="fa-solid fa-id-badge" style="color:var(--color-warning);"></i>
                     <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Other Staff</span>
                     <span
-                        style="background:rgba(245,158,11,0.12);color:var(--color-warning);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_staff }}</span>
+                        style="background:rgba(245,158,11,0.12);color:var(--color-warning);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
+                        total_staff }}</span>
                 </div>
-                <a href="{% url 'school_others' %}" class="btn"
+                <a href="{% url 'school_others' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}" class="btn"
                     style="padding:5px 12px;font-size:0.78rem;background:rgba(245,158,11,0.1);color:var(--color-warning);border:1px solid rgba(245,158,11,0.2);border-radius:7px;">Manage
                     →</a>
             </div>
             <div class="panel-card-body">
-                <div class="panel-empty">
-                    <a href="{% url 'school_others' %}" style="color:var(--color-warning);">View all staff members →</a>
+                {% for s in recent_staff %}
+                <div class="panel-row">
+                    <i class="fa-solid fa-circle-user" style="color:var(--color-warning);font-size:0.9rem;"></i>
+                    <span style="flex:1;">{{ s.name }} <span style="font-size:0.72rem; opacity:0.8; margin-left:6px; background:rgba(245,158,11,0.15); color:var(--color-warning); padding:2px 8px; border-radius:12px;">{{ s.role }}</span></span>
+                    <span style="color:var(--text-muted);font-size:0.78rem;">{{ s.branch.name }}</span>
                 </div>
+                {% empty %}
+                <div class="panel-empty">No staff members enrolled yet. <a href="{% url 'school_others' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
+                        style="color:var(--color-warning);">Add staff now →</a></div>
+                {% endfor %}
+                {% if total_staff > 5 %}
+                <a href="{% url 'school_others' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
+                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-warning);border-top:1px solid rgba(255,255,255,0.04);">View
+                    all {{ total_staff }} →</a>
+                {% endif %}
             </div>
         </div>
     </div>

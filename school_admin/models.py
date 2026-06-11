@@ -106,3 +106,11 @@ class SchoolClass(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.branch.name})"
+
+
+class CustomRole(models.Model):
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='custom_roles')
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name} ({self.institution.name})"

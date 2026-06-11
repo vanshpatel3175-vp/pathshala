@@ -7,7 +7,15 @@
 <div class="page-header">
     <div class="page-title">
         <h1>Other Staff Personnel</h1>
-        <p>List, search, and register staff accounts (Student, Principal, Teacher)</p>
+        {% if branch_filter_id %}
+            {% for branch in branches %}
+                {% if branch_filter_id == branch.id|stringformat:"s" %}
+                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p>List, search, and register staff accounts across all branches (Student, Principal, Teacher)</p>
+        {% endif %}
     </div>
     <div>
         <button class="btn btn-primary" onclick="toggleAddStaffForm()">
@@ -18,6 +26,9 @@
 
 <!-- Search Form -->
 <form method="GET" action="{% url 'school_others' %}">
+    {% if branch_filter_id %}
+    <input type="hidden" name="branch_id" value="{{ branch_filter_id }}">
+    {% endif %}
     <div class="search-row">
         <div class="search-input-wrapper">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -25,7 +36,7 @@
         </div>
         <button type="submit" class="btn btn-secondary" style="padding: 11px 22px;">Search</button>
         {% if query %}
-        <a href="{% url 'school_others' %}" class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
+        <a href="{% url 'school_others' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}" class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
         {% endif %}
     </div>
 </form>
@@ -56,17 +67,14 @@
 
             <div class="form-group">
                 <label for="role">Assign Role</label>
-                <select id="role" name="role" class="custom-select" style="width: 100%; height: 45px;" required onchange="handleRoleChange(this, 'other-custom-role-group')">
+                <select id="role" name="role" class="custom-select" style="width: 100%; height: 45px;" required>
                     <option value="Student">Student</option>
                     <option value="Principal">Principal</option>
                     <option value="Teacher">Teacher</option>
-                    <option value="custom">Add Custom Role...</option>
+                    {% for cr in custom_roles %}
+                    <option value="{{ cr.name }}">{{ cr.name }}</option>
+                    {% endfor %}
                 </select>
-            </div>
-
-            <div class="form-group" id="other-custom-role-group" style="display: none;">
-                <label for="custom_role">Custom Role Name</label>
-                <input type="text" id="custom_role" name="custom_role" class="form-control" placeholder="e.g. Clark, Trusti">
             </div>
 
             <div class="form-group">
@@ -74,7 +82,7 @@
                 <select id="branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px;"
                     required>
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+                    <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
                     {% empty %}
                     <option value="">-- Create a Branch First --</option>
                     {% endfor %}
@@ -145,45 +153,46 @@
     </div>
 
     <!-- Edit Staff Card -->
-    <div id="edit-staff-card" class="glass-panel" style="padding: 25px; display: none; border-top: 4px solid var(--color-primary);">
-        <h3 style="font-size: 1.1rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+    <div id="edit-staff-card" class="glass-panel"
+        style="padding: 25px; display: none; border-top: 4px solid var(--color-primary);">
+        <h3
+            style="font-size: 1.1rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
             <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Staff Member</span>
-            <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 0.7rem;" onclick="closeEditStaffCard()">Close</button>
+            <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 0.7rem;"
+                onclick="closeEditStaffCard()">Close</button>
         </h3>
-        
+
         <form method="POST" action="{% url 'school_others' %}">
             {% csrf_token %}
             <input type="hidden" name="action" value="edit">
             <input type="hidden" id="edit_staff_id" name="staff_id">
-            
+
             <div class="form-group">
                 <label for="edit_name">Staff Name</label>
                 <input type="text" id="edit_name" name="name" class="form-control" required>
             </div>
-            
+
             <div class="form-group">
                 <label for="edit_email">Staff Email</label>
                 <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email">
             </div>
-            
+
             <div class="form-group">
                 <label for="edit_role">Assign Role</label>
-                <select id="edit_role" name="role" class="custom-select" style="width: 100%; height: 45px;" required onchange="handleRoleChange(this, 'edit-custom-role-group')">
+                <select id="edit_role" name="role" class="custom-select" style="width: 100%; height: 45px;" required>
                     <option value="Student">Student</option>
                     <option value="Principal">Principal</option>
                     <option value="Teacher">Teacher</option>
-                    <option value="custom">Add Custom Role...</option>
+                    {% for cr in custom_roles %}
+                    <option value="{{ cr.name }}">{{ cr.name }}</option>
+                    {% endfor %}
                 </select>
             </div>
 
-            <div class="form-group" id="edit-custom-role-group" style="display: none; margin-bottom: 20px;">
-                <label for="edit_custom_role">Custom Role Name</label>
-                <input type="text" id="edit_custom_role" name="custom_role" class="form-control" placeholder="e.g. Clark, Trusti">
-            </div>
-            
             <div class="form-group">
                 <label for="edit_branch_id">Assign Branch</label>
-                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px;" required>
+                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px;"
+                    required>
                     {% for branch in branches %}
                     <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
                     {% endfor %}
@@ -192,12 +201,13 @@
 
             <div class="form-group" style="margin-bottom: 20px;">
                 <label for="edit_status">Status</label>
-                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px;" required>
+                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px;"
+                    required>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
             </div>
-            
+
             <button type="submit" class="btn btn-primary" style="width: 100%;">
                 <i class="fa-solid fa-save"></i> Save Changes
             </button>
@@ -206,18 +216,6 @@
 </div>
 
 <script>
-    function handleRoleChange(selectElement, customGroupId) {
-        const customGroup = document.getElementById(customGroupId);
-        const customInput = customGroup.querySelector('input');
-        if (selectElement.value === 'custom') {
-            customGroup.style.display = 'block';
-            customInput.setAttribute('required', 'required');
-            customInput.focus();
-        } else {
-            customGroup.style.display = 'none';
-            customInput.removeAttribute('required');
-        }
-    }
 
     function toggleAddStaffForm() {
         const formCard = document.getElementById('add-staff-form-card');
@@ -235,24 +233,9 @@
         document.getElementById('edit_email').value = email;
         document.getElementById('edit_branch_id').value = branchId;
         document.getElementById('edit_status').value = status;
-        
-        const selectRole = document.getElementById('edit_role');
-        const customGroup = document.getElementById('edit-custom-role-group');
-        const customInput = document.getElementById('edit_custom_role');
-        
-        const defaultRoles = ['Student', 'Principal', 'Teacher'];
-        if (defaultRoles.includes(role)) {
-            selectRole.value = role;
-            customGroup.style.display = 'none';
-            customInput.removeAttribute('required');
-            customInput.value = '';
-        } else {
-            selectRole.value = 'custom';
-            customGroup.style.display = 'block';
-            customInput.setAttribute('required', 'required');
-            customInput.value = role;
-        }
-        
+
+        document.getElementById('edit_role').value = role;
+
         document.getElementById('edit-staff-card').style.display = 'block';
         document.getElementById('edit-staff-card').scrollIntoView({ behavior: 'smooth' });
     }

@@ -186,7 +186,7 @@ def approve_application_view(request, app_id):
         }
     )
         
-    return redirect('/?approved=true')
+    return redirect('/login/dashboard/?approved=true')
 
 @superadmin_required
 def decline_application_view(request, app_id):
@@ -232,11 +232,12 @@ def platform_users_view(request):
 
 @superadmin_required
 def inquiries_view(request):
-    # This corresponds to "Inquire copy" (leads table) and "Inquire" Mockups
     inquiries = Inquiry.objects.all().order_by('-last_active')
+    applications = SchoolApplication.objects.all().order_by('-date_applied')
     
     context = {
         'inquiries': inquiries,
+        'applications': applications,
         'current_tab': 'payment' # Mockup shows payment icon leads here
     }
     return render(request, 'super_admin/inquiries.html', context)
@@ -352,3 +353,10 @@ def toggle_branch_view(request, branch_id):
         messages.success(request, f"Branch '{branch.name}' activated successfully.")
     branch.save()
     return redirect('all_institutions')
+
+def pending_applications_context_processor(request):
+    if request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff):
+        count = SchoolApplication.objects.filter(status='Awaiting Review').count()
+        return {'pending_applications_count': count}
+    return {'pending_applications_count': 0}
+
