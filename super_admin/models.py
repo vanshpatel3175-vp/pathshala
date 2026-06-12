@@ -1,4 +1,20 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+
+class User(AbstractUser):
+    ROLE_CHOICES = [
+        ('SUPER ADMIN', 'Super Admin'),
+        ('SCHOOL STAFF', 'School Staff'),
+    ]
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='SCHOOL STAFF')
+
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'SUPER ADMIN'
+        super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = 'auth_user'
 
 class SchoolApplication(models.Model):
     STATUS_CHOICES = [

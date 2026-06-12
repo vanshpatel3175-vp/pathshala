@@ -22,6 +22,9 @@
             <i class="fa-solid fa-circle-check"></i> Approve Unit
         </a>
         {% endif %}
+        <a href="{% url 'delete_application' app.id %}" class="btn btn-danger" style="background: #dc2626; border-color: #dc2626;" onclick="return confirm('Are you sure you want to permanently delete this registration application?');">
+            <i class="fa-solid fa-trash"></i> Delete Application
+        </a>
     </div>
 </div>
 

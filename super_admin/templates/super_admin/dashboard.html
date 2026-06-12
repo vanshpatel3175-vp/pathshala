@@ -89,9 +89,14 @@
                             {{ app.date_applied|date:"M d, Y" }}
                         </td>
                         <td style="text-align: right;">
-                            <a href="{% url 'review_application' app.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
-                                <i class="fa-solid fa-magnifying-glass"></i> Review
-                            </a>
+                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                <a href="{% url 'review_application' app.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Review
+                                </a>
+                                <a href="{% url 'delete_application' app.id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem; background: #dc2626; border-color: #dc2626;" onclick="return confirm('Are you sure you want to permanently delete application for {{ app.name }}?');">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}

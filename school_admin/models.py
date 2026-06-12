@@ -1,10 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from super_admin.models import Institution
 
 
 class SchoolAdminProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='school_profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='school_profile')
     institution = models.ForeignKey(Institution, on_delete=models.SET_NULL, null=True, blank=True, related_name='admins')
     phone = models.CharField(max_length=20)
     state = models.CharField(max_length=100, default='Gujarat')
@@ -89,7 +89,7 @@ class BranchRequest(models.Model):
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='branch_requests')
     request_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
-    approved_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_branch_requests')
+    approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='approved_branch_requests')
     approved_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):

@@ -73,6 +73,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'main.wsgi.application'
 
+AUTH_USER_MODEL = 'super_admin.User'
+
 
 
 # Database
@@ -80,8 +82,12 @@ WSGI_APPLICATION = 'main.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'school',
+        'USER': 'postgres',
+        'PASSWORD': 'Vansh@3175',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

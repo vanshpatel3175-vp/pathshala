@@ -2,7 +2,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from django.utils import timezone
 from datetime import datetime, date, timedelta
 from .models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription
@@ -153,17 +154,17 @@ def approve_application_view(request, app_id):
     # Create a default first branch for the newly registered school
     from school_admin.models import Branch
     if created or not inst.branches.exists():
+        city_location = app.name.split(' ')[-1] if len(app.name.split(' ')) > 1 else "Gujarat"
         Branch.objects.create(
             institution=inst,
-            name="Main Branch",
-            city=app.name.split(' ')[-1] if len(app.name.split(' ')) > 1 else "Gujarat",
+            name=app.name,
+            city=city_location,
             branch_code=f"BR-{inst.id:04d}-01",
-            address="Main Campus Address",
+            address=city_location,
             status="active"
         )
     
     # If a School Admin User registered prior, activate and link profile
-    from django.contrib.auth.models import User
     try:
         user = User.objects.get(email=app.email)
         user.is_active = True
@@ -220,7 +221,7 @@ def toggle_institution_view(request, inst_id):
 
 @superadmin_required
 def platform_users_view(request):
-    users = PlatformUser.objects.exclude(role='SUPER ADMIN').order_by('-date_joined')
+    users = User.objects.all().select_related('school_profile', 'school_profile__institution').order_by('-date_joined')
     total_users = users.count()
     
     context = {
@@ -354,9 +355,47 @@ def toggle_branch_view(request, branch_id):
     branch.save()
     return redirect('all_institutions')
 
+@superadmin_required
+def delete_institution_view(request, inst_id):
+    inst = get_object_or_404(Institution, id=inst_id)
+    inst_name = inst.name
+    
+    # Delete associated users/profiles
+    for profile in inst.admins.all():
+        if profile.user:
+            profile.user.delete()
+            
+    inst.delete()
+    messages.success(request, f"Institution '{inst_name}' and all associated accounts/data have been permanently deleted.")
+    return redirect('all_institutions')
+
+@superadmin_required
+def delete_application_view(request, app_id):
+    app = get_object_or_404(SchoolApplication, id=app_id)
+    app_name = app.name
+    app.delete()
+    messages.success(request, f"Application '{app_name}' has been permanently deleted.")
+    
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect('inquiries')
+
+
 def pending_applications_context_processor(request):
     if request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff):
+        from school_admin.models import BranchRequest
         count = SchoolApplication.objects.filter(status='Awaiting Review').count()
-        return {'pending_applications_count': count}
-    return {'pending_applications_count': 0}
+        try:
+            branch_count = BranchRequest.objects.filter(status='Pending').count()
+        except Exception:
+            branch_count = 0
+        return {
+            'pending_applications_count': count,
+            'pending_branch_requests_count': branch_count,
+        }
+    return {
+        'pending_applications_count': 0,
+        'pending_branch_requests_count': 0,
+    }
 

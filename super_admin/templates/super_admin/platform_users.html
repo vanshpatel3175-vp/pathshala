@@ -30,33 +30,37 @@
             </thead>
             <tbody>
                 {% if users %}
-                    {% for user in users %}
-                    <tr>
-                        <td>
-                            <div style="font-weight: 600; color: #ffffff; font-size: 0.95rem; margin-bottom: 2px;">{{ user.username }}</div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);">ID: #{{ user.id }}</div>
-                        </td>
-                        <td>
-                            <div style="font-size: 0.9rem; color: var(--text-primary);">{{ user.email }}</div>
-                            <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ user.phone }}</div>
-                        </td>
-                        <td style="color: var(--text-secondary);">
-                            {{ user.date_joined|date:"M d, Y H:i" }}
-                        </td>
-                        <td>
-                            <span class="badge {% if user.role == 'SUPER ADMIN' %}badge-validated{% else %}badge-pending{% endif %}" style="font-size: 0.75rem;">
-                                {{ user.role }}
-                            </span>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                {% for user in users %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 600; color: #ffffff; font-size: 0.95rem; margin-bottom: 2px;">
+                            {{user.username }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">ID: #{{ user.id }}</div>
+                    </td>
+                    <td>
+                        <div style="font-size: 0.9rem; color: var(--text-primary);">{{ user.email }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ user.phone }}</div>
+                    </td>
+                    <td style="color: var(--text-secondary);">
+                        {{ user.date_joined|date:"M d, Y H:i" }}
+                    </td>
+                    <td>
+                        <span
+                            class="badge {% if user.role == 'SUPER ADMIN' %}badge-validated{% else %}badge-pending{% endif %}"
+                            style="font-size: 0.75rem;">
+                            {{ user.role }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
                 {% else %}
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            <i class="fa-solid fa-users-slash" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-                            No platform staff users found.
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        <i class="fa-solid fa-users-slash"
+                            style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                        No platform staff users found.
+                    </td>
+                </tr>
                 {% endif %}
             </tbody>
         </table>

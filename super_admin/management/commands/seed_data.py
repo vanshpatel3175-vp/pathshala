@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 from datetime import datetime, date, time, timezone
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from super_admin.models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription
 
 from school_admin.models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, SchoolClass
@@ -26,7 +27,7 @@ class Command(BaseCommand):
         # Ensure a default admin user exists
         if not User.objects.filter(username="admin").exists():
             self.stdout.write("Creating superuser admin/admin...")
-            User.objects.create_superuser("admin", "admin@superadmin.com", "admin")
+            User.objects.create_superuser("admin", "admin@superadmin.com", "admin", role="SUPER ADMIN")
         
         self.stdout.write("Creating mock data...")
 
@@ -212,7 +213,8 @@ class Command(BaseCommand):
                 password="admin",
                 first_name="Rohan",
                 last_name="Patel",
-                is_active=True
+                is_active=True,
+                role="SCHOOL STAFF"
             )
             # Link profile to inst_rn (RN)
             SchoolAdminProfile.objects.create(

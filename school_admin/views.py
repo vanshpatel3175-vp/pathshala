@@ -3,7 +3,8 @@ from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+User = get_user_model()
 from django.utils import timezone
 from datetime import date
 from super_admin.models import SchoolApplication, Institution
@@ -63,10 +64,10 @@ def school_signup_view(request):
         # 4. Create default first branch for the school
         Branch.objects.create(
             institution=inst,
-            name="Main Branch",
+            name=school_name,
             city=city if city else "Gujarat",
             branch_code=f"BR-{inst.id:04d}-01",
-            address="Main Campus Address",
+            address=city,
             status="active"
         )
 
@@ -761,6 +762,8 @@ def school_manage_view(request):
         recent_teachers = Teacher.objects.filter(branch=selected_branch).order_by('-id')[:5]
         recent_classes  = SchoolClass.objects.filter(branch=selected_branch).order_by('-id')[:5]
         recent_staff    = StaffMember.objects.filter(branch=selected_branch).order_by('-id')[:5]
+        all_students    = Student.objects.filter(branch=selected_branch).order_by('name')
+        all_classes     = SchoolClass.objects.filter(branch=selected_branch).order_by('name')
     else:
         total_students = 0
         total_teachers = 0
@@ -770,6 +773,8 @@ def school_manage_view(request):
         recent_teachers = []
         recent_classes = []
         recent_staff = []
+        all_students = []
+        all_classes = []
 
     pending_request  = BranchRequest.objects.filter(institution=inst, status='Pending').first()
     approved_request = BranchRequest.objects.filter(institution=inst, status='Approved').first()
@@ -788,8 +793,12 @@ def school_manage_view(request):
         'recent_teachers': recent_teachers,
         'recent_classes': recent_classes,
         'recent_staff': recent_staff,
+        'all_students': all_students,
+        'all_classes': all_classes,
         'pending_request': pending_request,
         'approved_request': approved_request,
         'current_tab': 'dashboard',
     }
     return render(request, 'school_admin/manage.html', context)
+
+
