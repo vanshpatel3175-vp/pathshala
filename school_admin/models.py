@@ -114,3 +114,10 @@ class CustomRole(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.institution.name})"
+
+class Medium(models.Model):
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='mediums')
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name} ({self.institution.name})"

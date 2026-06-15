@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -16,4 +16,5 @@ urlpatterns = [
     path('profile/', views.school_profile_view, name='school_profile'),
     path('manage/', views.school_manage_view, name='school_manage'),
     path('api/branch-request-status/', views.branch_request_status_api, name='branch_request_status_api'),
+    path('api/', include('school_admin.api_url')),
 ]

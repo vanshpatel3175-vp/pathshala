@@ -112,7 +112,22 @@ def school_signup_view(request):
     return render(request, 'school_admin/signup.html')
 
 def school_login_view(request):
-    return redirect('login')
+    if request.user.is_authenticated:
+        return redirect('school_overview')
+        
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        password = request.POST.get('password', '').strip()
+        
+        authenticated_user = authenticate(request, username=email, password=password)
+        if authenticated_user is not None:
+            login(request, authenticated_user)
+            messages.success(request, "Welcome back!")
+            return redirect('school_overview')
+        else:
+            messages.error(request, "Invalid email or password.")
+            
+    return render(request, 'school_admin/login.html')
 
 def school_logout_view(request):
     logout(request)
