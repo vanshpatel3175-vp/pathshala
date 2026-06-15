@@ -4,22 +4,32 @@
 
 {% block content %}
 <!-- Page Header -->
-<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+<div class="page-header"
+    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+    <a href="{% url 'school_manage' %}"
+        style="margin-bottom: 20px; display: inline-block; color: var(--text-secondary);">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+    </a>
     <div class="page-title">
-        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Classes</h1>
+        <h1
+            style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Classes</h1>
         {% if branch_filter_id %}
-            {% for branch in branches %}
-                {% if branch_filter_id == branch.id|stringformat:"s" %}
-                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing classes for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
-                {% endif %}
-            {% endfor %}
+        {% for branch in branches %}
+        {% if branch_filter_id == branch.id|stringformat:"s" %}
+        <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing classes for branch: <strong
+                style="color: #fff;">{{ branch.name }}</strong></p>
+        {% endif %}
+        {% endfor %}
         {% else %}
-            <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage class sections across all branches</p>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Manage class sections across all branches</p>
         {% endif %}
     </div>
-    <button onclick="document.getElementById('addClassForm').scrollIntoView({behavior:'smooth'})" class="btn btn-primary" style="padding: 10px 20px; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-plus"></i> Add Class
-    </button>
+    <div>
+        <button class="btn btn-primary" onclick="openDrawer('add-class-card', 'name')">
+            <i class="fa-solid fa-plus"></i> Add Class
+        </button>
+    </div>
 </div>
 
 <!-- Stats Row -->
@@ -32,22 +42,28 @@
 
 <!-- Search & Filter Bar -->
 <div class="glass-panel" style="padding: 20px; margin-bottom: 25px; border-radius: 12px;">
-    <form method="GET" action="{% url 'school_classes' %}" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+    <form method="GET" action="{% url 'school_classes' %}"
+        style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
         <div style="position: relative; flex: 1; min-width: 200px;">
-            <i class="fa-solid fa-search" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-            <input type="text" name="q" value="{{ query }}" placeholder="Search classes..." class="form-input" style="padding-left: 40px; width: 100%; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; padding-top: 10px; padding-bottom: 10px;">
+            <i class="fa-solid fa-search"
+                style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="text" name="q" value="{{ query }}" placeholder="Search classes..." class="form-input"
+                style="padding-left: 40px; width: 100%; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; padding-top: 10px; padding-bottom: 10px;">
         </div>
-        <select name="branch_id" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 180px;">
+        <select name="branch_id" class="form-input"
+            style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 180px;">
             <option value="">All Branches</option>
             {% for br in branches %}
-            <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name }}</option>
+            <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name
+                }}</option>
             {% endfor %}
         </select>
         <button type="submit" class="btn btn-secondary" style="padding: 10px 20px; border-radius: 8px;">
             <i class="fa-solid fa-filter"></i> Filter
         </button>
         {% if query or branch_filter_id %}
-        <a href="{% url 'school_classes' %}" class="btn" style="padding: 10px 16px; border-radius: 8px; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);">
+        <a href="{% url 'school_classes' %}" class="btn"
+            style="padding: 10px 16px; border-radius: 8px; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);">
             <i class="fa-solid fa-xmark"></i> Clear
         </a>
         {% endif %}
@@ -56,39 +72,57 @@
 
 <!-- Classes Table -->
 <div class="glass-panel" style="padding: 25px; margin-bottom: 30px; border-radius: 16px;">
-    <h3 style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+    <h3
+        style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-chalkboard" style="color: var(--color-primary);"></i> Class Registry
     </h3>
-    <div style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.15);">
+    <div
+        style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.15);">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
                 <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color);">
-                    <th style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">#</th>
-                    <th style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">Class Name</th>
-                    <th style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">Section</th>
-                    <th style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">Branch</th>
-                    <th style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em; text-align: right;">Actions</th>
+                    <th
+                        style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
+                        #</th>
+                    <th
+                        style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
+                        Class Name</th>
+                    <th
+                        style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
+                        Section</th>
+                    <th
+                        style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
+                        Branch</th>
+                    <th
+                        style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em; text-align: right;">
+                        Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for cls in classes %}
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;">
-                    <td style="padding: 14px 18px; color: var(--text-muted); font-size: 0.85rem;">{{ forloop.counter }}</td>
+                    <td style="padding: 14px 18px; color: var(--text-muted); font-size: 0.85rem;">{{ forloop.counter }}
+                    </td>
                     <td style="padding: 14px 18px;"><strong style="color: #fff;">{{ cls.name }}</strong></td>
                     <td style="padding: 14px 18px;">
                         {% if cls.section %}
-                        <span style="background: rgba(99,102,241,0.12); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{{ cls.section }}</span>
+                        <span
+                            style="background: rgba(99,102,241,0.12); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{{
+                            cls.section }}</span>
                         {% else %}
                         <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">—</span>
                         {% endif %}
                     </td>
-                    <td style="padding: 14px 18px; color: var(--text-secondary); font-size: 0.9rem;">{{ cls.branch.name }}</td>
+                    <td style="padding: 14px 18px; color: var(--text-secondary); font-size: 0.9rem;">{{ cls.branch.name
+                        }}</td>
                     <td style="padding: 14px 18px; text-align: right;">
-                        <form method="POST" action="{% url 'school_classes' %}" style="display: inline;" onsubmit="return confirm('Delete this class?')">
+                        <form method="POST" action="{% url 'school_classes' %}" style="display: inline;"
+                            onsubmit="return confirm('Delete this class?')">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="class_id" value="{{ cls.id }}">
-                            <button type="submit" class="btn" style="padding: 5px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.08); color: var(--color-danger); border: 1px solid rgba(239,68,68,0.15); border-radius: 6px;">
+                            <button type="submit" class="btn"
+                                style="padding: 5px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.08); color: var(--color-danger); border: 1px solid rgba(239,68,68,0.15); border-radius: 6px;">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
@@ -97,7 +131,8 @@
                 {% empty %}
                 <tr>
                     <td colspan="5" style="padding: 50px; text-align: center; color: var(--text-muted);">
-                        <i class="fa-solid fa-chalkboard" style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+                        <i class="fa-solid fa-chalkboard"
+                            style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
                         No classes found. Add one below.
                     </td>
                 </tr>
@@ -107,38 +142,43 @@
     </div>
 </div>
 
-<!-- Add Class Form -->
-<div id="addClassForm" class="glass-panel" style="padding: 30px; border-left: 4px solid var(--color-success); border-radius: 16px;">
-    <h3 style="font-family: var(--font-heading); font-size: 1.15rem; margin-bottom: 22px; display: flex; align-items: center; gap: 10px;">
-        <i class="fa-solid fa-square-plus" style="color: var(--color-success);"></i> Add New Class
+<!-- Add Class Card -->
+<div id="add-class-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-success);">
+    <h3
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-plus" style="color: var(--color-success);"></i> Add Class</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
     </h3>
+
     <form method="POST" action="{% url 'school_classes' %}">
         {% csrf_token %}
         <input type="hidden" name="action" value="add">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 22px;">
-            <div>
-                <label style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Class Name *</label>
-                <input type="text" name="name" required placeholder="e.g. Grade 5, Standard 10" class="form-input" style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Section</label>
-                <input type="text" name="section" placeholder="e.g. A, B, C" class="form-input" style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
-            </div>
-            <div>
-                <label style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Branch *</label>
-                <select name="branch_id" required class="form-input" style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
-                    <option value="">Select Branch</option>
-                    {% for br in branches %}
-                    <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="name" style="margin-bottom: 8px; display: block;">Standard / Class Name *</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. 10th Standard, Class 1" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
         </div>
-        <div style="display: flex; justify-content: flex-end;">
-            <button type="submit" class="btn btn-primary" style="padding: 10px 24px; border-radius: 8px; background: var(--color-primary); border: none; font-weight: 600;">
-                <i class="fa-solid fa-circle-check"></i> Save Class
-            </button>
+        
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="section" style="margin-bottom: 8px; display: block;">Section / Division</label>
+            <input type="text" id="section" name="section" class="form-control" placeholder="e.g. A, B, C (Optional)" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
         </div>
+        
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="branch_id" style="margin-bottom: 8px; display: block;">Select Branch *</label>
+            <select id="branch_id" name="branch_id" class="custom-select" required style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <option value="">-- Choose Branch --</option>
+                {% for b in branches %}
+                <option value="{{ b.id }}" {% if branch_filter_id == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;">
+            <i class="fa-solid fa-circle-check"></i> Save Class
+        </button>
     </form>
 </div>
 {% endblock %}

@@ -111,12 +111,9 @@ def school_signup_view(request):
         
     return render(request, 'school_admin/signup.html')
 
-def school_login_view(request):
-    return redirect('login')
-
 def school_logout_view(request):
     logout(request)
-    return redirect('school_login')
+    return redirect('login')
 
 def get_school_profile(user):
     try:
@@ -653,6 +650,40 @@ def branch_request_status_api(request):
         'branch_count': inst.branches.count()
     })
 
+# ─── Mediums Management ────────────────────────────────────────────────────────
+
+@school_admin_required
+def school_mediums_view(request):
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'add')
+        if action == 'delete':
+            medium_id = request.POST.get('medium_id')
+            from .models import Medium
+            medium = get_object_or_404(Medium, id=medium_id, institution=inst)
+            medium.delete()
+            messages.success(request, "Medium deleted successfully.")
+        else:
+            name = request.POST.get('name', '').strip()
+            if name:
+                from .models import Medium
+                Medium.objects.create(institution=inst, name=name)
+                messages.success(request, f"Medium '{name}' added successfully.")
+        return redirect('school_mediums')
+
+    from .models import Medium
+    mediums = Medium.objects.filter(institution=inst)
+    
+    context = {
+        'profile': profile,
+        'institution': inst,
+        'mediums': mediums,
+        'current_tab': 'mediums',
+    }
+    return render(request, 'school_admin/mediums.html', context)
+
 # ─── Classes Management ────────────────────────────────────────────────────────
 
 @school_admin_required
@@ -779,6 +810,43 @@ def school_manage_view(request):
     pending_request  = BranchRequest.objects.filter(institution=inst, status='Pending').first()
     approved_request = BranchRequest.objects.filter(institution=inst, status='Approved').first()
 
+    # --- Handle File Upload ---
+    if request.method == 'POST' and request.FILES.get('material_file'):
+        title = request.POST.get('title')
+        standard_id = request.POST.get('standard')
+        material_file = request.FILES.get('material_file')
+        
+        branch_id = request.POST.get('branch_id')
+        branch_to_save = get_object_or_404(Branch, id=branch_id, institution=inst) if branch_id else selected_branch
+
+        if branch_to_save and title and material_file:
+            school_class = None
+            if standard_id and standard_id != 'other':
+                school_class = SchoolClass.objects.filter(id=standard_id, branch=branch_to_save).first()
+            
+            from .models import StudyMaterial
+            StudyMaterial.objects.create(
+                branch=branch_to_save,
+                school_class=school_class,
+                title=title,
+                file=material_file
+            )
+            from django.contrib import messages
+            messages.success(request, "Study material uploaded successfully!")
+            
+            # Redirect to same page with study tab active
+            redirect_url = f"{request.path}?tab=study"
+            if selected_branch_id:
+                redirect_url += f"&branch_id={selected_branch_id}"
+            return redirect(redirect_url)
+
+    # --- Fetch Study Materials ---
+    from .models import StudyMaterial
+    if selected_branch:
+        study_materials = StudyMaterial.objects.filter(branch=selected_branch).order_by('-uploaded_at')
+    else:
+        study_materials = []
+
     context = {
         'profile': profile,
         'institution': inst,
@@ -797,7 +865,8 @@ def school_manage_view(request):
         'all_classes': all_classes,
         'pending_request': pending_request,
         'approved_request': approved_request,
-        'current_tab': 'dashboard',
+        'study_materials': study_materials,
+        'current_tab': request.GET.get('tab', 'dashboard'),
     }
     return render(request, 'school_admin/manage.html', context)
 

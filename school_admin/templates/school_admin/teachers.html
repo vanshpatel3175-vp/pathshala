@@ -18,7 +18,7 @@
         {% endif %}
     </div>
     <div>
-        <button class="btn btn-primary" onclick="toggleAddTeacherForm()">
+        <button class="btn btn-primary" onclick="openDrawer('add-teacher-form-card', 'name')">
             <i class="fa-solid fa-plus"></i> Register Teacher
         </button>
     </div>
@@ -42,32 +42,32 @@
     </div>
 </form>
 
-<!-- Add Teacher Form Section (Initially Hidden) -->
-<div id="add-teacher-form-card" class="glass-panel"
-    style="padding: 25px; margin-bottom: 30px; display: none; border-left: 4px solid var(--color-success);">
+<!-- Add Teacher Form Section (Side Drawer) -->
+<div id="add-teacher-form-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-success);">
     <h3
-        style="font-size: 1.15rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
         <span><i class="fa-solid fa-user-plus" style="color: var(--color-success);"></i> Register New Teacher</span>
-        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;"
-            onclick="toggleAddTeacherForm()">Close</button>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
     </h3>
     <form method="POST" action="{% url 'school_teachers' %}">
         {% csrf_token %}
-        <div class="meeting-form-grid">
+        <div class="meeting-form-grid" style="display: flex; flex-direction: column; gap: 20px;">
             <div class="form-group">
-                <label for="name">Teacher Name</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="Bunty Patel" required>
+                <label for="name" style="margin-bottom: 8px; display: block;">Teacher Name</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="Bunty Patel" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
             </div>
 
             <div class="form-group">
-                <label for="email">Teacher Email</label>
+                <label for="email" style="margin-bottom: 8px; display: block;">Teacher Email</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="bunty@gmail.com" required
-                    autocomplete="email">
+                    autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
             </div>
 
             <div class="form-group">
-                <label for="branch_id">Assign Branch</label>
-                <select id="branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px;"
+                <label for="branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
+                <select id="branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
                     required>
                     {% for branch in branches %}
                     <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
@@ -77,8 +77,8 @@
                 </select>
             </div>
         </div>
-        <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
-            <button type="submit" class="btn btn-success" {% if not branches %}disabled{% endif %}>
+        <div style="margin-top: 25px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" {% if not branches %}disabled{% endif %}>
                 <i class="fa-solid fa-circle-check"></i> Save Teacher
             </button>
         </div>
@@ -95,7 +95,7 @@
                         <th>ID</th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Branch</th>
+                        <th>School</th>
                         <th>Status</th>
                         <th style="text-align: right;">Action</th>
                     </tr>
@@ -108,8 +108,7 @@
                         <td style="font-weight: 600; color: #ffffff;">{{ teacher.name }}</td>
                         <td style="color: var(--text-secondary);">{{ teacher.email }}</td>
                         <td>
-                            <span class="badge badge-pending" style="font-size: 0.7rem;">{{ teacher.branch.name
-                                }}</span>
+                            <span class="badge badge-pending" style="font-size: 0.7rem;">{{ teacher.branch.name}}</span>
                         </td>
                         <td>
                             <span class="badge badge-validated" style="font-size: 0.7rem;">{{ teacher.status }}</span>
@@ -136,14 +135,19 @@
         </div>
     </div>
 
+    <!-- Empty column to keep grid layout intact -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+    </div>
+</div>
+
     <!-- Edit Teacher Card -->
-    <div id="edit-teacher-card" class="glass-panel"
-        style="padding: 25px; display: none; border-top: 4px solid var(--color-primary);">
+    <div id="edit-teacher-card" class="glass-panel side-drawer"
+        style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
         <h3
-            style="font-size: 1.1rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+            style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
             <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Teacher</span>
-            <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 0.7rem;"
-                onclick="closeEditTeacherCard()">Close</button>
+            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+                onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
         </h3>
 
         <form method="POST" action="{% url 'school_teachers' %}">
@@ -151,19 +155,19 @@
             <input type="hidden" name="action" value="edit">
             <input type="hidden" id="edit_teacher_id" name="teacher_id">
 
-            <div class="form-group">
-                <label for="edit_name">Teacher Name</label>
-                <input type="text" id="edit_name" name="name" class="form-control" required>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_name" style="margin-bottom: 8px; display: block;">Teacher Name</label>
+                <input type="text" id="edit_name" name="name" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
             </div>
 
-            <div class="form-group">
-                <label for="edit_email">Teacher Email</label>
-                <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email">
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_email" style="margin-bottom: 8px; display: block;">Teacher Email</label>
+                <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
             </div>
 
-            <div class="form-group">
-                <label for="edit_branch_id">Assign Branch</label>
-                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px;"
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
+                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
                     required>
                     {% for branch in branches %}
                     <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
@@ -171,46 +175,29 @@
                 </select>
             </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_status">Status</label>
-                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px;"
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
+                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
                     required>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
                 <i class="fa-solid fa-save"></i> Save Changes
             </button>
         </form>
     </div>
-</div>
 
 <script>
-    function toggleAddTeacherForm() {
-        const formCard = document.getElementById('add-teacher-form-card');
-        if (formCard.style.display === 'none') {
-            formCard.style.display = 'block';
-            formCard.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            formCard.style.display = 'none';
-        }
-    }
-
     function openEditTeacherCard(id, name, email, branchId, status) {
         document.getElementById('edit_teacher_id').value = id;
         document.getElementById('edit_name').value = name;
         document.getElementById('edit_email').value = email;
         document.getElementById('edit_branch_id').value = branchId;
         document.getElementById('edit_status').value = status;
-
-        document.getElementById('edit-teacher-card').style.display = 'block';
-        document.getElementById('edit-teacher-card').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function closeEditTeacherCard() {
-        document.getElementById('edit-teacher-card').style.display = 'none';
+        openDrawer('edit-teacher-card', 'edit_name');
     }
 </script>
 {% endblock %}

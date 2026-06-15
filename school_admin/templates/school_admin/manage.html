@@ -347,7 +347,7 @@
             </form>
         </div>
         {% endif %}
-        <div class="session-selector">
+        <!-- <div class="session-selector">
             <span class="session-label">Viewing Session</span>
             <select class="session-select">
                 <option>2026-27 (Active)</option>
@@ -356,7 +356,7 @@
             <button class="btn btn-primary" style="padding: 7px 16px; border-radius: 8px; font-size: 0.85rem;">
                 <i class="fa-solid fa-plus"></i> Year
             </button>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -375,25 +375,19 @@
 
 <!-- Tabs -->
 <div class="acc-tabs">
-    <!-- <button class="acc-tab active" onclick="switchTab('overview', this)">
-        <i class="fa-solid fa-chart-pie"></i> Overview
-    </button> -->
-    <button class="acc-tab active" onclick="switchTab('academics', this)">
+    <button class="acc-tab {% if current_tab == 'dashboard' or not current_tab %}active{% endif %}" onclick="switchTab('academics', this)">
         <i class="fa-solid fa-sitemap"></i> Academics &amp; Structure
     </button>
-    <button class="acc-tab" onclick="switchTab('members', this)">
+    <button class="acc-tab {% if current_tab == 'members' %}active{% endif %}" onclick="switchTab('members', this)">
         <i class="fa-solid fa-users"></i> Membership Center
     </button>
-    <!-- <button class="acc-tab" onclick="switchTab('requests', this)">
-        <i class="fa-solid fa-inbox"></i> Join Requests
-    </button> -->
-    <button class="acc-tab" onclick="switchTab('study', this)">
+    <button class="acc-tab {% if current_tab == 'study' %}active{% endif %}" onclick="switchTab('study', this)">
         <i class="fa-solid fa-book-open"></i> Study Materials
     </button>
-    <button class="acc-tab" onclick="switchTab('attendance', this)">
+    <button class="acc-tab {% if current_tab == 'attendance' %}active{% endif %}" onclick="switchTab('attendance', this)">
         <i class="fa-solid fa-user-check"></i> Attendance
     </button>
-    <button class="acc-tab" onclick="switchTab('holidays', this)">
+    <button class="acc-tab {% if current_tab == 'holidays' %}active{% endif %}" onclick="switchTab('holidays', this)">
         <i class="fa-solid fa-calendar-days"></i> Holidays &amp; Events
     </button>
 </div>
@@ -416,7 +410,7 @@
 </div>
 
 <!-- ═══ ACADEMICS TAB ═══ -->
-<div id="tab-academics" class="tab-panel">
+<div id="tab-academics" class="tab-panel" {% if current_tab != 'dashboard' and current_tab %}style="display:none;"{% endif %}>
     <div class="panel-grid">
         <!-- Classes -->
         <div class="panel-card">
@@ -455,7 +449,7 @@
 </div>
 
 <!-- ═══ MEMBERS TAB ═══ -->
-<div id="tab-members" class="tab-panel" style="display:none;">
+<div id="tab-members" class="tab-panel" {% if current_tab != 'members' %}style="display:none;"{% endif %}>
     <div class="panel-grid">
         <!-- Students -->
         <div class="panel-card">
@@ -576,54 +570,54 @@
 </div>
 
 <!-- ═══ STUDY MATERIALS TAB ═══ -->
-<div id="tab-study" class="tab-panel" style="display:none;">
+<div id="tab-study" class="tab-panel" {% if current_tab != 'study' %}style="display:none;"{% endif %}>
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
         <h3
             style="font-family: var(--font-heading); font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 10px;">
             <i class="fa-solid fa-book-open" style="color: var(--color-primary);"></i> Study Materials
         </h3>
-        <button class="btn btn-primary" onclick="toggleUploadMaterialForm()" style="padding: 8px 16px;">
+        <button class="btn btn-primary" onclick="openDrawer('upload-material-form-card', 'title')" style="padding: 8px 16px;">
             <i class="fa-solid fa-plus"></i> Upload New
         </button>
     </div>
 
-    <div id="upload-material-form-card" class="glass-panel"
-        style="padding: 30px; border-radius: 16px; border-top: 3px solid var(--color-primary); display: none; margin-bottom: 30px;">
+    <div id="upload-material-form-card" class="glass-panel side-drawer"
+        style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
             <h3
                 style="font-family: var(--font-heading); font-size: 1.25rem; display: flex; align-items: center; gap: 10px; margin: 0;">
                 <i class="fa-solid fa-cloud-arrow-up" style="color: var(--color-primary);"></i> Upload Form
             </h3>
-            <button type="button" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;"
-                onclick="toggleUploadMaterialForm()">Close</button>
+            <button type="button" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+                onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
-        <form action="#" method="POST" enctype="multipart/form-data">
+        <form action="{% url 'school_manage' %}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 20px;">
             {% csrf_token %}
-            <div
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label
-                        style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Select
-                        Standard / Class</label>
-                    <select name="standard" class="custom-select" style="width: 100%; height: 42px;" required>
-                        <option value="">-- Choose Standard --</option>
-                        {% for c in recent_classes %}
-                        <option value="{{ c.id }}">{{ c.name }}{% if c.section %} - {{ c.section }}{% endif %}</option>
-                        {% endfor %}
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label
-                        style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Material
-                        Title</label>
-                    <input type="text" name="title" class="form-control" style="height: 42px;"
-                        placeholder="e.g. Chapter 1 Notes" required>
-                </div>
+            {% if selected_branch %}
+            <input type="hidden" name="branch_id" value="{{ selected_branch.id }}">
+            {% endif %}
+            <div class="form-group" style="margin-bottom: 0;">
+                <label
+                    style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Select
+                    Standard / Class</label>
+                <select name="standard" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" required>
+                    <option value="">-- Choose Standard --</option>
+                    {% for c in all_classes %}
+                    <option value="{{ c.id }}">{{ c.name }}{% if c.section %} - {{ c.section }}{% endif %}</option>
+                    {% endfor %}
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="title"
+                    style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Material
+                    Title</label>
+                <input type="text" id="title" name="title" class="form-input" style="width: 100%; height: 45px; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                    placeholder="e.g. Chapter 1 Notes" required>
             </div>
 
-            <div class="form-group" style="margin-bottom: 25px;">
+            <div class="form-group" style="margin-bottom: 10px;">
                 <label
                     style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Upload
                     Document</label>
@@ -642,8 +636,8 @@
                 </div>
             </div>
 
-            <div style="display: flex; justify-content: flex-end;">
-                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">
+            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
                     <i class="fa-solid fa-upload"></i> Upload Material
                 </button>
             </div>
@@ -672,6 +666,31 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for material in study_materials %}
+                    <tr>
+                        <td><strong>{{ material.title }}</strong></td>
+                        <td>
+                            {% if material.school_class %}
+                            <span style="background: rgba(99,102,241,0.12); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                                {{ material.school_class.name }} {% if material.school_class.section %}- {{ material.school_class.section }}{% endif %}
+                            </span>
+                            {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.85rem;">Other</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase;">
+                                FILE
+                            </span>
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">{{ material.uploaded_at|date:"M d, Y" }}</td>
+                        <td style="text-align: right;">
+                            <a href="{{ material.file.url }}" target="_blank" class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.8rem;">
+                                <i class="fa-solid fa-download"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
                     <tr>
                         <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
                             <i class="fa-solid fa-folder-open"
@@ -679,6 +698,7 @@
                             No materials uploaded yet.
                         </td>
                     </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -686,7 +706,7 @@
 </div>
 
 <!-- ═══ ATTENDANCE TAB ═══ -->
-<div id="tab-attendance" class="tab-panel" style="display:none;">
+<div id="tab-attendance" class="tab-panel" {% if current_tab != 'attendance' %}style="display:none;"{% endif %}>
     <div class="mgmt-console">
         <i class="fa-solid fa-user-check"></i>
         <h3>Attendance</h3>
@@ -715,14 +735,6 @@
         clickedBtn.classList.add('active');
     }
 
-    function toggleUploadMaterialForm() {
-        const formCard = document.getElementById('upload-material-form-card');
-        if (formCard.style.display === 'none' || formCard.style.display === '') {
-            formCard.style.display = 'block';
-            formCard.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            formCard.style.display = 'none';
-        }
-    }
+
 </script>
 {% endblock %}

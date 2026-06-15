@@ -4,7 +4,6 @@ from . import views
 urlpatterns = [
     path('', views.school_overview_view, name='school_overview'),
     path('signup/', views.school_signup_view, name='school_signup'),
-    path('login/', views.school_login_view, name='school_login'),
     path('logout/', views.school_logout_view, name='school_logout'),
     path('overview/', views.school_overview_view, name='school_overview'),
     path('branches/', views.school_branches_view, name='school_branches'),
@@ -12,6 +11,7 @@ urlpatterns = [
     path('students/', views.school_students_view, name='school_students'),
     path('teachers/', views.school_teachers_view, name='school_teachers'),
     path('others/', views.school_others_view, name='school_others'),
+    path('mediums/', views.school_mediums_view, name='school_mediums'),
     path('classes/', views.school_classes_view, name='school_classes'),
     path('profile/', views.school_profile_view, name='school_profile'),
     path('manage/', views.school_manage_view, name='school_manage'),
