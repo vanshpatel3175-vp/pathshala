@@ -64,7 +64,7 @@ class TeacherAppTests(TestCase):
         self.client = Client()
 
     def test_teacher_login_success(self):
-        response = self.client.post(reverse('teacher_login'), {
+        response = self.client.post(reverse('login'), {
             'email': 'john.doe@testschool.com',
             'password': 'teacherpassword'
         })
@@ -72,7 +72,7 @@ class TeacherAppTests(TestCase):
         self.assertRedirects(response, reverse('teacher_dashboard'))
 
     def test_teacher_login_failure(self):
-        response = self.client.post(reverse('teacher_login'), {
+        response = self.client.post(reverse('login'), {
             'email': 'john.doe@testschool.com',
             'password': 'wrongpassword'
         })
@@ -81,13 +81,13 @@ class TeacherAppTests(TestCase):
     def test_teacher_dashboard_requires_login(self):
         response = self.client.get(reverse('teacher_dashboard'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('teacher_login'))
+        self.assertRedirects(response, reverse('login'))
 
     def test_teacher_dashboard_denied_for_non_teachers(self):
         self.client.login(username='staff@testschool.com', password='staffpassword')
         response = self.client.get(reverse('teacher_dashboard'))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('teacher_login'))
+        self.assertRedirects(response, reverse('login'), target_status_code=302)
 
     def test_teacher_dashboard_accessible_for_teachers(self):
         self.client.login(username='john.doe@testschool.com', password='teacherpassword')
@@ -101,3 +101,8 @@ class TeacherAppTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "john.doe@testschool.com")
         self.assertContains(response, "Main Branch")
+
+    def test_teacher_login_url_redirects_to_login(self):
+        response = self.client.get(reverse('teacher_login'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Profile | PathaShala</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #070f0e 0%, #0c1a18 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: var(--font-body);
+        }
+
+        .select-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .select-header {
+            margin-bottom: 40px;
+        }
+
+        .select-header h1 {
+            font-size: 2.25rem;
+            font-family: var(--font-heading);
+            color: #ffffff;
+            margin: 0 0 10px 0;
+            background: linear-gradient(to right, #ffffff, #a7f3d0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .select-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin: 0;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+            padding: 40px 30px;
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            transition: opacity 0.35s ease;
+            opacity: 0.4;
+        }
+
+        /* Teacher card specifics */
+        .card-teacher::before {
+            background: linear-gradient(90deg, #6366f1, #818cf8);
+        }
+
+        .card-teacher:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+            background: rgba(99, 102, 241, 0.03);
+            transform: translateY(-5px);
+        }
+
+        .card-teacher:hover .icon-wrapper {
+            background: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Student card specifics */
+        .card-student::before {
+            background: linear-gradient(90deg, #0d9488, #14b8a6);
+        }
+
+        .card-student:hover {
+            border-color: rgba(13, 148, 136, 0.4);
+            box-shadow: 0 12px 40px rgba(13, 148, 136, 0.15);
+            background: rgba(13, 148, 136, 0.03);
+            transform: translateY(-5px);
+        }
+
+        .card-student:hover .icon-wrapper {
+            background: rgba(13, 148, 136, 0.2);
+            box-shadow: 0 0 20px rgba(13, 148, 136, 0.3);
+        }
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+            transition: all 0.35s ease;
+        }
+
+        .teacher-icon-wrapper {
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+        }
+
+        .student-icon-wrapper {
+            background: rgba(13, 148, 136, 0.1);
+            color: #14b8a6;
+        }
+
+        .profile-card h3 {
+            font-size: 1.35rem;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+            font-family: var(--font-heading);
+        }
+
+        .profile-card p.role-subtitle {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin: 0 0 20px 0;
+            font-weight: 700;
+        }
+
+        .teacher-role-subtitle {
+            color: #818cf8;
+        }
+
+        .student-role-subtitle {
+            color: #14b8a6;
+        }
+
+        .info-box {
+            width: 100%;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+            margin-top: auto;
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-item i {
+            width: 16px;
+            text-align: center;
+            opacity: 0.7;
+        }
+
+        .action-btn {
+            margin-top: 25px;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 80%;
+        }
+
+        .btn-teacher {
+            background: linear-gradient(135deg, #6366f1, #818cf8);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-student {
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="select-container">
+        <div class="select-header">
+            <h1>Select Your Profile</h1>
+            <p>Your email account is associated with multiple roles. Select the portal you wish to access.</p>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Teacher Profile -->
+            <div class="profile-card card-teacher" onclick="document.getElementById('form-teacher').submit()">
+                <div class="icon-wrapper teacher-icon-wrapper">
+                    <i class="fa-solid fa-chalkboard-user" style="font-size: 2.2rem;"></i>
+                </div>
+                <h3>Teacher Portal</h3>
+                <p class="role-subtitle teacher-role-subtitle">Registered Teacher</p>
+                
+                <div class="info-box">
+                    <div class="info-item">
+                        <i class="fa-solid fa-school"></i>
+                        <span>{{ teacher_school.name|default:"School" }}</span>
+                    </div>
+                    {% if teacher_branch %}
+                    <div class="info-item">
+                        <i class="fa-solid fa-code-branch"></i>
+                        <span>{{ teacher_branch.name }} ({{ teacher_branch.city }})</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <form id="form-teacher" method="POST" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="role" value="TEACHER">
+                </form>
+                <button class="action-btn btn-teacher">Enter Portal</button>
+            </div>
+
+            <!-- Card 2: Student Profile -->
+            <div class="profile-card card-student" onclick="document.getElementById('form-student').submit()">
+                <div class="icon-wrapper student-icon-wrapper">
+                    <i class="fa-solid fa-graduation-cap" style="font-size: 2.2rem;"></i>
+                </div>
+                <h3>Student Portal</h3>
+                <p class="role-subtitle student-role-subtitle">Registered Student</p>
+
+                <div class="info-box">
+                    <div class="info-item">
+                        <i class="fa-solid fa-school"></i>
+                        <span>{{ student_school.name|default:"School" }}</span>
+                    </div>
+                    {% if student_branch %}
+                    <div class="info-item">
+                        <i class="fa-solid fa-code-branch"></i>
+                        <span>{{ student_branch.name }} ({{ student_branch.city }})</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <form id="form-student" method="POST" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="role" value="STUDENT">
+                </form>
+                <button class="action-btn btn-student">Enter Portal</button>
+            </div>
+        </div>
+
+        <a href="{% url 'logout' %}" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-right-from-bracket"></i> Log out of account
+        </a>
+    </div>
+</body>
+
+</html>

@@ -20,6 +20,21 @@ def login_view(request):
     if request.user.is_authenticated:
         if request.user.is_superuser or request.user.is_staff:
             return redirect('dashboard')
+        # Check dual-role
+        if hasattr(request.user, 'teacher_profile') and hasattr(request.user, 'student_profile'):
+            active_role = request.session.get('active_role')
+            if active_role == 'TEACHER':
+                return redirect('teacher_dashboard')
+            elif active_role == 'STUDENT':
+                return redirect('student_dashboard')
+            return redirect('select_profile')
+            
+        if hasattr(request.user, 'teacher_profile'):
+            request.session['active_role'] = 'TEACHER'
+            return redirect('teacher_dashboard')
+        elif hasattr(request.user, 'student_profile'):
+            request.session['active_role'] = 'STUDENT'
+            return redirect('student_dashboard')
         # Check if the user is a school admin and redirect them
         try:
             if hasattr(request.user, 'school_profile'):
@@ -49,8 +64,19 @@ def login_view(request):
                 login(request, user)
                 if user.is_superuser or user.is_staff:
                     return redirect('dashboard')
-                elif hasattr(user, 'role') and user.role == 'TEACHER':
+                
+                # Check dual-role
+                if hasattr(user, 'teacher_profile') and hasattr(user, 'student_profile'):
+                    if 'active_role' in request.session:
+                        del request.session['active_role']
+                    return redirect('select_profile')
+                    
+                if hasattr(user, 'teacher_profile'):
+                    request.session['active_role'] = 'TEACHER'
                     return redirect('teacher_dashboard')
+                elif hasattr(user, 'student_profile'):
+                    request.session['active_role'] = 'STUDENT'
+                    return redirect('student_dashboard')
                 else:
                     try:
                         if hasattr(user, 'school_profile'):
@@ -436,4 +462,37 @@ def permission_view(request):
         'features': selected_inst.features if selected_inst else {}
     }
     return render(request, 'super_admin/permission.html', context)
+
+
+@login_required
+def select_profile_view(request):
+    user = request.user
+    
+    # Verify that the user has both profiles
+    has_teacher = hasattr(user, 'teacher_profile') and user.teacher_profile
+    has_student = hasattr(user, 'student_profile') and user.student_profile
+    
+    if not (has_teacher and has_student):
+        return redirect('login')
+        
+    if request.method == 'POST':
+        selected_role = request.POST.get('role', '').strip()
+        if selected_role in ('TEACHER', 'STUDENT'):
+            request.session['active_role'] = selected_role
+            if selected_role == 'TEACHER':
+                return redirect('teacher_dashboard')
+            else:
+                return redirect('student_dashboard')
+        else:
+            messages.error(request, "Invalid role selected.")
+            
+    context = {
+        'teacher_profile': user.teacher_profile,
+        'student_profile': user.student_profile,
+        'teacher_school': user.teacher_profile.teacher.branch.institution if user.teacher_profile.teacher else None,
+        'teacher_branch': user.teacher_profile.teacher.branch if user.teacher_profile.teacher else None,
+        'student_school': user.student_profile.student.branch.institution if user.student_profile.student else None,
+        'student_branch': user.student_profile.student.branch if user.student_profile.student else None,
+    }
+    return render(request, 'super_admin/select_profile.html', context)
 

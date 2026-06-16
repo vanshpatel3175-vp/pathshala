@@ -46,8 +46,10 @@ class Student(models.Model):
         ('inactive', 'Inactive'),
     ]
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='students')
+    school_user = models.OneToOneField('SchoolUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='student_role')
     name = models.CharField(max_length=255)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
 
     def __str__(self):

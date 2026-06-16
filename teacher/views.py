@@ -19,41 +19,31 @@ def teacher_required(view_func):
     """Decorator: only TEACHER role users with a TeacherProfile can access."""
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect('teacher_login')
-        if request.user.role != 'TEACHER':
+            return redirect('login')
+        # Check active session for dual-role users
+        if hasattr(request.user, 'teacher_profile') and hasattr(request.user, 'student_profile'):
+            if request.session.get('active_role') != 'TEACHER':
+                return redirect('select_profile')
+        elif request.user.role != 'TEACHER':
             messages.error(request, "Access denied. Teacher accounts only.")
-            return redirect('teacher_login')
+            return redirect('login')
         profile = get_teacher_profile(request.user)
         if not profile:
             messages.error(request, "Teacher profile not found.")
-            return redirect('teacher_login')
+            return redirect('login')
         return view_func(request, *args, **kwargs)
     wrapper.__name__ = view_func.__name__
     return wrapper
 
 
 def teacher_login_view(request):
-    if request.user.is_authenticated and request.user.role == 'TEACHER':
-        return redirect('teacher_dashboard')
-
-    if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '').strip()
-
-        user = authenticate(request, username=email, password=password)
-        if user is not None and user.role == 'TEACHER':
-            login(request, user)
-            messages.success(request, f"Welcome back, {user.first_name}!")
-            return redirect('teacher_dashboard')
-        else:
-            messages.error(request, "Invalid email or password.")
-
-    return render(request, 'teacher/login.html')
+    """Fallback redirect to main login page."""
+    return redirect('login')
 
 
 def teacher_logout_view(request):
     logout(request)
-    return redirect('teacher_login')
+    return redirect('login')
 
 
 @teacher_required

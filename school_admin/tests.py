@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from super_admin.models import Institution
-from school_admin.models import SchoolAdminProfile, Branch, Teacher, SchoolUser
+from school_admin.models import SchoolAdminProfile, Branch, Teacher, SchoolUser, Student
 
 User = get_user_model()
 
@@ -123,4 +123,120 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertIsNotNone(user)
         self.assertEqual(user.first_name, 'Teacher John Updated')
         self.assertEqual(user.last_name, 'Smith')
+
+    def test_register_student_creates_user_and_profile(self):
+        # Pre-register the user first in the Users Directory
+        school_user = SchoolUser.objects.create(
+            institution=self.institution,
+            first_name='Student',
+            last_name='Jane',
+            email='jane@testschool.com',
+            dob='2005-05-05',
+            city='Navsari'
+        )
+
+        # Register that user as a student
+        response = self.client.post(reverse('school_students'), {
+            'school_user_id': school_user.id,
+            'password': 'studentpassword',
+            'branch_id': self.branch.id
+        })
+        
+        # Verify redirect
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify Student model record exists
+        student = Student.objects.filter(email='jane@testschool.com').first()
+        self.assertIsNotNone(student)
+        self.assertEqual(student.name, 'Student Jane')
+        self.assertEqual(student.branch, self.branch)
+        
+        # Verify User model record exists
+        user = User.objects.filter(email='jane@testschool.com').first()
+        self.assertIsNotNone(user)
+        self.assertEqual(user.role, 'STUDENT')
+        
+        # Verify the student can log in
+        login_client = Client()
+        login_success = login_client.login(username='jane@testschool.com', password='studentpassword')
+        self.assertTrue(login_success)
+
+    def test_edit_school_user_syncs_with_student_and_user(self):
+        # Pre-register the user
+        school_user = SchoolUser.objects.create(
+            institution=self.institution,
+            first_name='Student',
+            last_name='Jane',
+            email='jane@testschool.com'
+        )
+
+        # Register that user as a student
+        self.client.post(reverse('school_students'), {
+            'school_user_id': school_user.id,
+            'password': 'studentpassword',
+            'branch_id': self.branch.id
+        })
+        
+        student = Student.objects.get(email='jane@testschool.com')
+        
+        # Edit user details via Users Directory
+        self.client.post(reverse('school_users'), {
+            'action': 'edit',
+            'user_id': school_user.id,
+            'first_name': 'Student Jane Updated',
+            'last_name': 'Doe',
+            'city': 'Navsari',
+            'state': 'Gujarat'
+        })
+        
+        # Verify Student is updated
+        student.refresh_from_db()
+        self.assertEqual(student.name, 'Student Jane Updated Doe')
+        
+        # Verify Django auth User is synchronized
+        user = User.objects.filter(email='jane@testschool.com').first()
+        self.assertIsNotNone(user)
+        self.assertEqual(user.first_name, 'Student Jane Updated')
+        self.assertEqual(user.last_name, 'Doe')
+
+    def test_register_dual_role_user(self):
+        # Pre-register user in directory
+        school_user = SchoolUser.objects.create(
+            institution=self.institution,
+            first_name='Dual',
+            last_name='User',
+            email='dual@testschool.com'
+        )
+
+        # 1. Register as teacher
+        resp1 = self.client.post(reverse('school_teachers'), {
+            'school_user_id': school_user.id,
+            'password': 'dualpassword',
+            'branch_id': self.branch.id,
+            'medium_id': ''
+        })
+        self.assertEqual(resp1.status_code, 302)
+
+        # 2. Register as student (cross-promotion)
+        resp2 = self.client.post(reverse('school_students'), {
+            'school_user_id': school_user.id,
+            'password': 'newdualpassword',
+            'branch_id': self.branch.id
+        })
+        self.assertEqual(resp2.status_code, 302)
+
+        # Verify both Teacher and Student records exist linked to same user
+        teacher = Teacher.objects.filter(email='dual@testschool.com').first()
+        student = Student.objects.filter(email='dual@testschool.com').first()
+        self.assertIsNotNone(teacher)
+        self.assertIsNotNone(student)
+
+        # Verify a single User record exists
+        user_count = User.objects.filter(email='dual@testschool.com').count()
+        self.assertEqual(user_count, 1)
+
+        # Verify both profiles are linked to the same auth User
+        user = User.objects.get(email='dual@testschool.com')
+        self.assertEqual(user.teacher_profile.teacher, teacher)
+        self.assertEqual(user.student_profile.student, student)
 

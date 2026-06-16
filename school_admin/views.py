@@ -474,35 +474,80 @@ def school_students_view(request):
         if action == 'edit':
             student_id = request.POST.get('student_id')
             student = get_object_or_404(Student, id=student_id, branch__in=branches)
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
             
-            if name and email and branch_id:
+            if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                student.name = name
-                student.email = email
                 student.branch = branch
                 student.status = status
                 student.save()
-                messages.success(request, f"Student '{name}' updated successfully.")
+                messages.success(request, f"Student '{student.name}' updated successfully.")
             return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
-        else:
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
-            branch_id = request.POST.get('branch_id')
+        else:  # add action
+            school_user_id = request.POST.get('school_user_id', '').strip()
+            password = request.POST.get('password', '').strip()
+            branch_id = request.POST.get('branch_id', '').strip()
             
-            if name and email and branch_id:
-                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                Student.objects.create(
-                    branch=branch,
-                    name=name,
-                    email=email,
-                    status='active'
-                )
-                messages.success(request, f"Student '{name}' added successfully.")
+            if not school_user_id:
+                messages.error(request, "Please search and select a user by email first.")
                 return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+            
+            if not password:
+                messages.error(request, "Password is required.")
+                return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+            
+            if not branch_id:
+                messages.error(request, "Please assign a school (branch).")
+                return redirect(reverse('school_students'))
+            
+            school_user = get_object_or_404(SchoolUser, id=school_user_id, institution=inst)
+            branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+            
+            # Enforce unique student email
+            if Student.objects.filter(email=school_user.email).exists():
+                messages.error(request, f"'{school_user.email}' is already registered as a student.")
+                return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+            
+            # Enforce unique Django user email (allow if they are already registered as a teacher)
+            existing_user = User.objects.filter(email=school_user.email).first() or User.objects.filter(username=school_user.email).first()
+            if existing_user:
+                if hasattr(existing_user, 'teacher_profile') and existing_user.teacher_profile:
+                    user = existing_user
+                    if password:
+                        user.set_password(password)
+                        user.save()
+                else:
+                    messages.error(request, f"A login account with email '{school_user.email}' already exists.")
+                    return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+            else:
+                # Create Django User with STUDENT role
+                user = User.objects.create_user(
+                    username=school_user.email,
+                    email=school_user.email,
+                    password=password,
+                    first_name=school_user.first_name,
+                    last_name=school_user.last_name,
+                    role='STUDENT'
+                )
+            
+            # Create Student record
+            from django.contrib.auth.hashers import make_password as hash_pw
+            student_obj = Student.objects.create(
+                branch=branch,
+                school_user=school_user,
+                name=school_user.full_name,
+                email=school_user.email,
+                password=hash_pw(password),
+                status='active'
+            )
+            
+            # Create StudentProfile (links User ↔ Student)
+            from student.models import StudentProfile
+            StudentProfile.objects.create(user=user, student=student_obj)
+            
+            messages.success(request, f"Student '{school_user.full_name}' registered successfully!")
+            return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
     selected_branch_ids = []
     if branch_filter_id:
@@ -586,20 +631,27 @@ def school_teachers_view(request):
                 messages.error(request, f"'{school_user.email}' is already registered as a teacher.")
                 return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
-            # Enforce unique Django user email
-            if User.objects.filter(username=school_user.email).exists() or User.objects.filter(email=school_user.email).exists():
-                messages.error(request, f"A login account with email '{school_user.email}' already exists.")
-                return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
-            
-            # Create Django User with TEACHER role
-            user = User.objects.create_user(
-                username=school_user.email,
-                email=school_user.email,
-                password=password,
-                first_name=school_user.first_name,
-                last_name=school_user.last_name,
-                role='TEACHER'
-            )
+            # Enforce unique Django user email (allow if they are already registered as a student)
+            existing_user = User.objects.filter(email=school_user.email).first() or User.objects.filter(username=school_user.email).first()
+            if existing_user:
+                if hasattr(existing_user, 'student_profile') and existing_user.student_profile:
+                    user = existing_user
+                    if password:
+                        user.set_password(password)
+                        user.save()
+                else:
+                    messages.error(request, f"A login account with email '{school_user.email}' already exists.")
+                    return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
+            else:
+                # Create Django User with TEACHER role
+                user = User.objects.create_user(
+                    username=school_user.email,
+                    email=school_user.email,
+                    password=password,
+                    first_name=school_user.first_name,
+                    last_name=school_user.last_name,
+                    role='TEACHER'
+                )
             
             # Create Teacher record
             from django.contrib.auth.hashers import make_password as hash_pw
@@ -1046,12 +1098,20 @@ def school_users_view(request):
                 su.pincode = pincode
                 su.save()
 
-                # Sync name changes to Teacher and User if the user is a registered teacher
+                # Sync name changes to Teacher, Student, and User if the user is registered
+                user_needs_sync = False
                 if hasattr(su, 'teacher_role') and su.teacher_role:
                     teacher = su.teacher_role
                     teacher.name = su.full_name
                     teacher.save()
+                    user_needs_sync = True
+                if hasattr(su, 'student_role') and su.student_role:
+                    student = su.student_role
+                    student.name = su.full_name
+                    student.save()
+                    user_needs_sync = True
                     
+                if user_needs_sync:
                     user = User.objects.filter(email=su.email).first()
                     if user:
                         user.first_name = first_name
@@ -1105,7 +1165,7 @@ def school_users_view(request):
 
 @school_admin_required
 def school_user_lookup_api(request):
-    """AJAX endpoint: search SchoolUser by email for teacher registration."""
+    """AJAX endpoint: search SchoolUser by email for teacher/student registration."""
     profile = get_school_profile(request.user)
     inst = profile.institution
     q = request.GET.get('q', '').strip()
@@ -1115,6 +1175,9 @@ def school_user_lookup_api(request):
 
     existing_teacher_emails = set(
         Teacher.objects.filter(branch__institution=inst).values_list('email', flat=True)
+    )
+    existing_student_emails = set(
+        Student.objects.filter(branch__institution=inst).values_list('email', flat=True)
     )
 
     qs = SchoolUser.objects.filter(institution=inst).filter(
@@ -1132,6 +1195,7 @@ def school_user_lookup_api(request):
             'full_name': su.full_name,
             'email': su.email,
             'is_teacher': su.email in existing_teacher_emails,
+            'is_student': su.email in existing_student_emails,
         })
 
     return JsonResponse({'results': results})

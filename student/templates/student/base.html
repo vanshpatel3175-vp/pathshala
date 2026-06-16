@@ -4,44 +4,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Teacher Portal{% endblock %} | PathaShala</title>
+    <title>{% block title %}Student Portal{% endblock %} | PathaShala</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_head %}{% endblock %}
     <style>
-        /* Teacher portal accent: blue/indigo variant */
+        /* Student portal accent: teal/cyan variant */
         :root {
-            --teacher-accent: #6366f1;
-            --teacher-accent-hover: #818cf8;
-            --teacher-accent-glow: rgba(99, 102, 241, 0.25);
+            --student-accent: #0d9488;
+            --student-accent-hover: #14b8a6;
+            --student-accent-glow: rgba(13, 148, 136, 0.25);
         }
 
         .sidebar-link.active {
-            background: rgba(99, 102, 241, 0.12) !important;
-            border-color: rgba(99, 102, 241, 0.3) !important;
+            background: rgba(13, 148, 136, 0.12) !important;
+            border-color: rgba(13, 148, 136, 0.3) !important;
             color: #ffffff !important;
         }
 
-        .btn-teacher {
-            background: linear-gradient(135deg, var(--teacher-accent), var(--teacher-accent-hover));
+        .btn-student {
+            background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover));
             color: #ffffff;
-            box-shadow: 0 4px 14px 0 var(--teacher-accent-glow);
+            box-shadow: 0 4px 14px 0 var(--student-accent-glow);
         }
 
-        .btn-teacher:hover {
+        .btn-student:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px 0 var(--teacher-accent-glow);
+            box-shadow: 0 6px 20px 0 var(--student-accent-glow);
         }
 
-        .teacher-badge {
+        .student-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             padding: 4px 12px;
-            background: rgba(99, 102, 241, 0.15);
-            color: #818cf8;
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: rgba(13, 148, 136, 0.15);
+            color: #14b8a6;
+            border: 1px solid rgba(13, 148, 136, 0.3);
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 700;
@@ -54,16 +54,16 @@
 <body>
     {% if request.user.is_authenticated %}
     <div class="app-shell">
-        <!-- Teacher Sidebar -->
+        <!-- Student Sidebar -->
         <aside class="app-sidebar">
             <div class="sidebar-logo">
-                <i class="fa-solid fa-chalkboard-user" style="color: var(--teacher-accent); font-size: 1.5rem;"></i>
+                <i class="fa-solid fa-graduation-cap" style="color: var(--student-accent); font-size: 1.5rem;"></i>
                 <div>
                     <h2 style="font-size: 1.1rem; line-height: 1.2;">
-                        {{ institution.name|default:"Teacher Portal" }}
+                        {{ institution.name|default:"Student Portal" }}
                     </h2>
                     <span style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
-                        Teacher Portal
+                        Student Portal
                     </span>
                 </div>
             </div>
@@ -71,20 +71,20 @@
             <nav style="flex: 1;">
                 <ul class="sidebar-menu">
                     <li>
-                        <a href="{% url 'teacher_dashboard' %}"
+                        <a href="{% url 'student_dashboard' %}"
                             class="sidebar-link {% if current_tab == 'dashboard' %}active{% endif %}">
                             <i class="fa-solid fa-house"></i>
                             Dashboard
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'teacher_profile' %}"
+                        <a href="{% url 'student_profile' %}"
                             class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
                             <i class="fa-solid fa-user-circle"></i>
                             My Profile
                         </a>
                     </li>
-                    {% if request.user.student_profile %}
+                    {% if request.user.teacher_profile %}
                     <li>
                         <a href="{% url 'select_profile' %}" class="sidebar-link" style="border: 1px dashed rgba(255,255,255,0.15);">
                             <i class="fa-solid fa-user-gear"></i>
@@ -95,21 +95,21 @@
                 </ul>
             </nav>
 
-            <!-- Teacher Info Footer -->
-            <div style="padding: 16px; background: rgba(99,102,241,0.06); border-radius: 12px; border: 1px solid rgba(99,102,241,0.15); margin-bottom: 16px;">
+            <!-- Student Info Footer -->
+            <div style="padding: 16px; background: rgba(13,148,136,0.06); border-radius: 12px; border: 1px solid rgba(13,148,136,0.15); margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--teacher-accent), var(--teacher-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #fff;">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #fff;">
                         {{ request.user.first_name|first|upper }}
                     </div>
                     <div>
                         <p style="font-weight: 600; font-size: 0.875rem; color: #fff; margin: 0;">{{ request.user.first_name }}</p>
-                        <span class="teacher-badge"><i class="fa-solid fa-chalkboard-user"></i> Teacher</span>
+                        <span class="student-badge"><i class="fa-solid fa-graduation-cap"></i> Student</span>
                     </div>
                 </div>
             </div>
 
             <div class="sidebar-footer">
-                <a href="{% url 'teacher_logout' %}" class="sidebar-link"
+                <a href="{% url 'student_logout' %}" class="sidebar-link"
                     style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15);">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     Log Out
