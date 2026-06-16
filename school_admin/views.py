@@ -511,11 +511,15 @@ def school_students_view(request):
     elif branches.count() == 1:
         selected_branch_ids.append(branches.first().id)
 
+    from .models import Medium
+    mediums = Medium.objects.filter(institution=inst)
+
     context = {
         'profile': profile,
         'institution': inst,
         'students': students,
         'branches': branches,
+        'mediums': mediums,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'selected_branch_ids': selected_branch_ids,
@@ -581,11 +585,15 @@ def school_teachers_view(request):
     elif branches.count() == 1:
         selected_branch_ids.append(branches.first().id)
 
+    from .models import Medium
+    mediums = Medium.objects.filter(institution=inst)
+
     context = {
         'profile': profile,
         'institution': inst,
         'teachers': teachers,
         'branches': branches,
+        'mediums': mediums,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'selected_branch_ids': selected_branch_ids,
@@ -659,11 +667,15 @@ def school_others_view(request):
     elif branches.count() == 1:
         selected_branch_ids.append(branches.first().id)
 
+    from .models import Medium
+    mediums = Medium.objects.filter(institution=inst)
+
     context = {
         'profile': profile,
         'institution': inst,
         'others': others,
         'branches': branches,
+        'mediums': mediums,
         'custom_roles': CustomRole.objects.filter(institution=inst),
         'query': q,
         'branch_filter_id': branch_filter_id,

@@ -88,6 +88,21 @@
                     {% endfor %}
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="medium" style="margin-bottom: 8px; display: block;">Assign Medium</label>
+                <select id="medium" name="medium" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" required>
+                    {% for medium in mediums %}
+                    {% if medium.id in selected_medium_ids %}
+                    <option value="{{ medium.id }}" selected>{{ medium.name }}</option>
+                    {% else %}
+                    <option value="{{ medium.id }}">{{ medium.name }}</option>
+                    {% endif %}
+                    {% empty %}
+                    <option value="">-- Create a Medium First --</option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
         <div style="margin-top: 25px; display: flex; justify-content: flex-end;">
             <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" {% if not branches %}disabled{% endif %}>
