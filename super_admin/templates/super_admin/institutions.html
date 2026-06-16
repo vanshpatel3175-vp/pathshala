@@ -37,7 +37,7 @@
                 <tr>
                     <td style="font-weight: 600; color: #ffffff;">
                         {{ inst.name }}
-                        {% if inst.branches.exists %}
+                        {% if inst.branches.count > 1 %}
                         <button class="btn btn-secondary"
                             style="padding: 2px 6px; font-size: 0.7rem; margin-left: 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;"
                             onclick="toggleBranches('branches-{{ inst.id }}', this)">
@@ -106,7 +106,7 @@
                         </div>
                     </td>
                 </tr>
-                {% if inst.branches.exists %}
+                {% if inst.branches.count > 1 %}
                 <tr id="branches-{{ inst.id }}" data-count="{{ inst.branches.count }}"
                     style="display: none; background: rgba(255,255,255,0.015);">
                     <td colspan="8" style="padding: 15px 25px; border-left: 3px solid var(--color-primary);">

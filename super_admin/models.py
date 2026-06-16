@@ -42,6 +42,7 @@ class Institution(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('disabled', 'Disabled'),
+        ('pending', 'Pending'),
     ]
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=100, default='SCHOOL')
