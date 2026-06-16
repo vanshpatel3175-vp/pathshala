@@ -375,18 +375,26 @@
 
 <!-- Tabs -->
 <div class="acc-tabs">
+    {% if institution.features.manage_classes or institution.features.manage_mediums %}
     <button class="acc-tab {% if current_tab == 'dashboard' or not current_tab %}active{% endif %}" onclick="switchTab('academics', this)">
         <i class="fa-solid fa-sitemap"></i> Academics &amp; Structure
     </button>
+    {% endif %}
+    {% if institution.features.manage_students or institution.features.manage_teachers or institution.features.manage_others %}
     <button class="acc-tab {% if current_tab == 'members' %}active{% endif %}" onclick="switchTab('members', this)">
         <i class="fa-solid fa-users"></i> Membership Center
     </button>
+    {% endif %}
+    {% if institution.features.study_materials %}
     <button class="acc-tab {% if current_tab == 'study' %}active{% endif %}" onclick="switchTab('study', this)">
         <i class="fa-solid fa-book-open"></i> Study Materials
     </button>
+    {% endif %}
+    {% if institution.features.attendance %}
     <button class="acc-tab {% if current_tab == 'attendance' %}active{% endif %}" onclick="switchTab('attendance', this)">
         <i class="fa-solid fa-user-check"></i> Attendance
     </button>
+    {% endif %}
     <button class="acc-tab {% if current_tab == 'holidays' %}active{% endif %}" onclick="switchTab('holidays', this)">
         <i class="fa-solid fa-calendar-days"></i> Holidays &amp; Events
     </button>
@@ -412,6 +420,7 @@
 <!-- ═══ ACADEMICS TAB ═══ -->
 <div id="tab-academics" class="tab-panel" {% if current_tab != 'dashboard' and current_tab %}style="display:none;"{% endif %}>
     <div class="panel-grid">
+        {% if institution.features.manage_classes %}
         <!-- Classes -->
         <div class="panel-card">
             <div class="panel-card-header">
@@ -444,6 +453,7 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
 
     </div>
 </div>
@@ -451,6 +461,7 @@
 <!-- ═══ MEMBERS TAB ═══ -->
 <div id="tab-members" class="tab-panel" {% if current_tab != 'members' %}style="display:none;"{% endif %}>
     <div class="panel-grid">
+        {% if institution.features.manage_students %}
         <!-- Students -->
         <div class="panel-card">
             <div class="panel-card-header">
@@ -480,7 +491,9 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
+        {% if institution.features.manage_teachers %}
         <!-- Teachers -->
         <div class="panel-card">
             <div class="panel-card-header">
@@ -510,7 +523,9 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
+        {% if institution.features.manage_others %}
         <!-- Staff -->
         <div class="panel-card">
             <div class="panel-card-header">
@@ -547,6 +562,7 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 

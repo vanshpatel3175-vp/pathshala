@@ -22,4 +22,5 @@ urlpatterns = [
     path('branch-requests/approve/<int:req_id>/', views.approve_branch_request_view, name='approve_branch_request'),
     path('branch-requests/reject/<int:req_id>/', views.reject_branch_request_view, name='reject_branch_request'),
     path('branches/toggle/<int:branch_id>/', views.toggle_branch_view, name='toggle_branch'),
+    path('permission/', views.permission_view, name='permission'),
 ]

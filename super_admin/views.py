@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -401,4 +402,36 @@ def pending_applications_context_processor(request):
         'pending_applications_count': 0,
         'pending_branch_requests_count': 0,
     }
+
+@superadmin_required
+def permission_view(request):
+    institutions = Institution.objects.exclude(status='pending').order_by('name')
+    selected_inst_id = request.GET.get('school_id') or request.POST.get('school_id')
+    selected_inst = None
+
+    if selected_inst_id:
+        selected_inst = get_object_or_404(Institution, id=selected_inst_id)
+
+    if request.method == 'POST' and selected_inst:
+        # We expect checkbox values (e.g. 'manage_branches', 'manage_students', etc.)
+        # If a checkbox is missing from POST, it means it's False.
+        # But wait, what if the user submits an empty form? We should iterate over default_features() keys.
+        from super_admin.models import default_features
+        new_features = {}
+        for key in default_features().keys():
+            # request.POST.get(key) returns 'on' if checked, else None
+            new_features[key] = request.POST.get(key) == 'on'
+        
+        selected_inst.features = new_features
+        selected_inst.save()
+        messages.success(request, f"Permissions updated successfully for {selected_inst.name}.")
+        return redirect(f"{reverse('permission')}?school_id={selected_inst.id}")
+
+    context = {
+        'current_tab': 'permission',
+        'institutions': institutions,
+        'selected_inst': selected_inst,
+        'features': selected_inst.features if selected_inst else {}
+    }
+    return render(request, 'super_admin/permission.html', context)
 

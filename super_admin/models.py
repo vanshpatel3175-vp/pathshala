@@ -38,6 +38,20 @@ class SchoolApplication(models.Model):
     def __str__(self):
         return self.name
 
+def default_features():
+    return {
+        "manage_branches": True,
+        "manage_students": True,
+        "manage_teachers": True,
+        "manage_others": True,
+        "manage_roles": True,
+        "manage_mediums": True,
+        "manage_classes": True,
+        "attendance": False,
+        "study_materials": True,
+        "fees": False
+    }
+
 class Institution(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
@@ -54,6 +68,7 @@ class Institution(models.Model):
     school_code = models.CharField(max_length=50, blank=True, null=True)
     plan = models.CharField(max_length=100, default='Standard')
     activation_requested = models.BooleanField(default=False)
+    features = models.JSONField(default=default_features, blank=True)
 
     def __str__(self):
         return self.name

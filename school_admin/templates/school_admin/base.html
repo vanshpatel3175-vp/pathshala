@@ -112,6 +112,7 @@
                         </a>
                     </li>
                     {% if institution.status != 'disabled' and request.is_approved %}
+                    {% if institution.features.manage_branches %}
                     {% if institution.branches.count > 1 %}
                     <li>
                         <a href="{% url 'school_branches' %}"
@@ -129,6 +130,8 @@
                         </a>
                     </li>
                     {% endif %}
+                    {% endif %}
+                    {% if institution.features.manage_students %}
                     <li>
                         <a href="{% url 'school_students' %}"
                             class="sidebar-link {% if current_tab == 'students' %}active{% endif %}">
@@ -136,6 +139,8 @@
                             Students
                         </a>
                     </li>
+                    {% endif %}
+                    {% if institution.features.manage_teachers %}
                     <li>
                         <a href="{% url 'school_teachers' %}"
                             class="sidebar-link {% if current_tab == 'teachers' %}active{% endif %}">
@@ -143,6 +148,8 @@
                             Teachers
                         </a>
                     </li>
+                    {% endif %}
+                    {% if institution.features.manage_others %}
                     <li>
                         <a href="{% url 'school_others' %}"
                             class="sidebar-link {% if current_tab == 'others' %}active{% endif %}">
@@ -150,6 +157,8 @@
                             Others
                         </a>
                     </li>
+                    {% endif %}
+                    {% if institution.features.manage_roles %}
                     <li>
                         <a href="{% url 'school_roles' %}"
                             class="sidebar-link {% if current_tab == 'roles' %}active{% endif %}">
@@ -157,6 +166,8 @@
                             Master Roles
                         </a>
                     </li>
+                    {% endif %}
+                    {% if institution.features.manage_mediums %}
                     <li>
                         <a href="{% url 'school_mediums' %}"
                             class="sidebar-link {% if current_tab == 'mediums' %}active{% endif %}">
@@ -164,6 +175,8 @@
                             Master Medium
                         </a>
                     </li>
+                    {% endif %}
+                    {% if institution.features.manage_classes %}
                     <li>
                         <a href="{% url 'school_classes' %}"
                             class="sidebar-link {% if current_tab == 'classes' %}active{% endif %}">
@@ -171,6 +184,7 @@
                             Master Classes
                         </a>
                     </li>
+                    {% endif %}
                     <!-- <li>
                         <a href="{% url 'school_profile' %}"
                             class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
