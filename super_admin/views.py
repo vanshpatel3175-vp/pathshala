@@ -150,6 +150,9 @@ def approve_application_view(request, app_id):
             'plan': 'Premium'
         }
     )
+    if not created and inst.status == 'pending':
+        inst.status = 'active'
+        inst.save()
     
     # Create a default first branch for the newly registered school
     from school_admin.models import Branch
@@ -198,7 +201,7 @@ def decline_application_view(request, app_id):
 
 @superadmin_required
 def all_institutions_view(request):
-    institutions = Institution.objects.all().order_by('name')
+    institutions = Institution.objects.exclude(status='pending').order_by('name')
     total_registered = institutions.count()
     
     context = {

@@ -47,7 +47,7 @@ def school_signup_view(request):
             contact_no=mobile_number,
             email=email,
             expired_date=timezone.now() + timezone.timedelta(days=365),
-            status='active',
+            status='pending',
             school_code=f"SCH-{user.id:04d}",
             plan='Premium'
         )
