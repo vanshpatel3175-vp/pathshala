@@ -136,27 +136,27 @@ def approve_application_view(request, app_id):
     app.status = 'Validated'
     app.save()
     
-    # Create an Institution from the approved application
-    inst, created = Institution.objects.get_or_create(
-        name=app.name.split(' ')[0], # Simple code like "AB" or "RN"
-        type="SCHOOL",
-        planned_type="SCHOOL",
-        contact_no=app.contact_number,
-        email=app.email,
-        defaults={
-            'expired_date': timezone.now() + timedelta(days=365),
-            'status': 'active',
-            'school_code': f"SCH-{app.id:04d}",
-            'plan': 'Premium'
-        }
-    )
-    if not created and inst.status == 'pending':
+    # Activate the Institution created during signup
+    inst = Institution.objects.filter(email=app.email).first()
+    if not inst:
+        inst = Institution.objects.create(
+            name=app.name,
+            type="SCHOOL",
+            planned_type="SCHOOL",
+            contact_no=app.contact_number,
+            email=app.email,
+            expired_date=timezone.now() + timedelta(days=365),
+            status='active',
+            school_code=f"SCH-{app.id:04d}",
+            plan='Premium'
+        )
+    elif inst.status == 'pending':
         inst.status = 'active'
         inst.save()
     
-    # Create a default first branch for the newly registered school
+    # Create a default first branch if missing
     from school_admin.models import Branch
-    if created or not inst.branches.exists():
+    if not inst.branches.exists():
         city_location = app.name.split(' ')[-1] if len(app.name.split(' ')) > 1 else "Gujarat"
         Branch.objects.create(
             institution=inst,
