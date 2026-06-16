@@ -3,6 +3,14 @@
 {% block title %}Permissions Management{% endblock %}
 
 {% block content %}
+<style>
+    details > summary { list-style: none; user-select: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    details[open] > summary .fa-chevron-down { transform: rotate(180deg); }
+    /* Native details hide non-summary elements, but flex layout is needed for label */
+    details > label { display: none !important; }
+    details[open] > label { display: flex !important; }
+</style>
 <div class="page-header">
     <div class="page-title">
         <h1>Permissions Management</h1>
@@ -50,133 +58,95 @@
         <div
             style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
 
-            <!--  manage Branches -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-code-branch"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Manage Branches</span>
-                </div>
-                <input type="checkbox" name="manage_branches" {% if features.manage_branches %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-            <!-- add new branch-->
-            <label
-                style="display:flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-code-branch"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Add New Branch</span>
-                </div>
-                <input type="checkbox" name="add_new_branch" {% if features.add_new_branch %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-            <!-- Students -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-user-graduate"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Manage Students</span>
-                </div>
-                <input type="checkbox" name="manage_students" {% if features.manage_students %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-
-            <!-- Teachers -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-chalkboard-user"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Manage Teachers</span>
-                </div>
-                <input type="checkbox" name="manage_teachers" {% if features.manage_teachers %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-
-            <!-- Others/Staff -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
+            <!-- Branches Group -->
+            <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
+                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <i class="fa-solid fa-code-branch" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
+                    <span style="font-weight: 500; color: #fff; flex: 1;">Branches Module</span>
+                    <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
+                </summary>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Branches</span>
+                    <input type="checkbox" name="manage_branches" {% if features.manage_branches %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Add New Branch</span>
+                    <input type="checkbox" name="add_new_branch" {% if features.add_new_branch %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+            </details>
+            <!-- Users Group -->
+            <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
+                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-users" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Manage Staff (Others)</span>
-                </div>
-                <input type="checkbox" name="manage_others" {% if features.manage_others %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
+                    <span style="font-weight: 500; color: #fff; flex: 1;">Users Module</span>
+                    <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
+                </summary>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Students</span>
+                    <input type="checkbox" name="manage_students" {% if features.manage_students %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Teachers</span>
+                    <input type="checkbox" name="manage_teachers" {% if features.manage_teachers %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Staff (Others)</span>
+                    <input type="checkbox" name="manage_others" {% if features.manage_others %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+            </details>
 
-            <!-- Master Roles -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-user" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Master Roles</span>
-                </div>
-                <input type="checkbox" name="manage_roles" {% if features.manage_roles %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
+            <!-- Masters Group -->
+            <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
+                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <i class="fa-solid fa-database" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
+                    <span style="font-weight: 500; color: #fff; flex: 1;">Masters Module</span>
+                    <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
+                </summary>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Master Roles</span>
+                    <input type="checkbox" name="manage_roles" {% if features.manage_roles %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Master Mediums</span>
+                    <input type="checkbox" name="manage_mediums" {% if features.manage_mediums %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Master Classes</span>
+                    <input type="checkbox" name="manage_classes" {% if features.manage_classes %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+            </details>
 
-            <!-- Master Mediums -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-language"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Master Mediums</span>
-                </div>
-                <input type="checkbox" name="manage_mediums" {% if features.manage_mediums %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-
-            <!-- Master Classes -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-chalkboard"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Master Classes</span>
-                </div>
-                <input type="checkbox" name="manage_classes" {% if features.manage_classes %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-
-            <!-- Attendance -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-clipboard-user"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Attendance System</span>
-                </div>
-                <input type="checkbox" name="attendance" {% if features.attendance %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-
-            <!-- Study Materials -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-book-open"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Study Materials</span>
-                </div>
-                <input type="checkbox" name="study_materials" {% if features.study_materials %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
-
-            <!-- Fees -->
-            <label
-                style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s ease;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-file-invoice-dollar"
-                        style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff;">Fees Management</span>
-                </div>
-                <input type="checkbox" name="fees" {% if features.fees %}checked{% endif %}
-                    style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--color-primary);">
-            </label>
+            <!-- Operations Group -->
+            <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
+                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <i class="fa-solid fa-briefcase" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
+                    <span style="font-weight: 500; color: #fff; flex: 1;">Operations Module</span>
+                    <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
+                </summary>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Attendance System</span>
+                    <input type="checkbox" name="attendance" {% if features.attendance %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Study Materials</span>
+                    <input type="checkbox" name="study_materials" {% if features.study_materials %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+                
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Fees Management</span>
+                    <input type="checkbox" name="fees" {% if features.fees %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
+                </label>
+            </details>
 
         </div>
 
