@@ -48,6 +48,8 @@ def login_view(request):
                 login(request, user)
                 if user.is_superuser or user.is_staff:
                     return redirect('dashboard')
+                elif hasattr(user, 'role') and user.role == 'TEACHER':
+                    return redirect('teacher_dashboard')
                 else:
                     try:
                         if hasattr(user, 'school_profile'):

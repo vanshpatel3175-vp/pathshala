@@ -137,6 +137,13 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'school_users' %}"
+                            class="sidebar-link {% if current_tab == 'users' %}active{% endif %}">
+                            <i class="fa-solid fa-users"></i>
+                            Users
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'school_teachers' %}"
                             class="sidebar-link {% if current_tab == 'teachers' %}active{% endif %}">
                             <i class="fa-solid fa-chalkboard-user"></i>

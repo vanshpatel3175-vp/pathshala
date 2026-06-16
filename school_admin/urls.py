@@ -15,5 +15,7 @@ urlpatterns = [
     path('classes/', views.school_classes_view, name='school_classes'),
     path('profile/', views.school_profile_view, name='school_profile'),
     path('manage/', views.school_manage_view, name='school_manage'),
+    path('users/', views.school_users_view, name='school_users'),
     path('api/branch-request-status/', views.branch_request_status_api, name='branch_request_status_api'),
+    path('api/user-lookup/', views.school_user_lookup_api, name='school_user_lookup_api'),
 ]

@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
+from django.db import models as db_models
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.http import JsonResponse
 User = get_user_model()
 from django.utils import timezone
 from datetime import date
 from super_admin.models import SchoolApplication, Institution
 
-from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole
+from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, SchoolUser, Medium
 
 def school_signup_view(request):
     if request.user.is_authenticated:
@@ -535,7 +537,7 @@ def school_teachers_view(request):
     
     q = request.GET.get('q', '').strip()
     branch_filter_id = request.GET.get('branch_id', '').strip()
-    teachers = Teacher.objects.filter(branch__in=branches)
+    teachers = Teacher.objects.filter(branch__in=branches).select_related('school_user', 'branch')
     if q:
         teachers = teachers.filter(name__icontains=q)
     if branch_filter_id:
@@ -546,35 +548,76 @@ def school_teachers_view(request):
         if action == 'edit':
             teacher_id = request.POST.get('teacher_id')
             teacher = get_object_or_404(Teacher, id=teacher_id, branch__in=branches)
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
             
-            if name and email and branch_id:
+            if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                teacher.name = name
-                teacher.email = email
                 teacher.branch = branch
                 teacher.status = status
                 teacher.save()
-                messages.success(request, f"Teacher '{name}' updated successfully.")
+                    
+                messages.success(request, f"Teacher '{teacher.name}' updated successfully.")
             return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
-        else:
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
-            branch_id = request.POST.get('branch_id')
+
+        else:  # add action
+            school_user_id = request.POST.get('school_user_id', '').strip()
+            password = request.POST.get('password', '').strip()
+            branch_id = request.POST.get('branch_id', '').strip()
+            medium_id = request.POST.get('medium_id', '').strip()
             
-            if name and email and branch_id:
-                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                Teacher.objects.create(
-                    branch=branch,
-                    name=name,
-                    email=email,
-                    status='active'
-                )
-                messages.success(request, f"Teacher '{name}' added successfully.")
+            if not school_user_id:
+                messages.error(request, "Please search and select a user by email first.")
                 return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
+            
+            if not password:
+                messages.error(request, "Password is required.")
+                return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
+            
+            if not branch_id:
+                messages.error(request, "Please assign a school (branch).")
+                return redirect(reverse('school_teachers'))
+            
+            school_user = get_object_or_404(SchoolUser, id=school_user_id, institution=inst)
+            branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+            
+            # Enforce unique teacher email
+            if Teacher.objects.filter(email=school_user.email).exists():
+                messages.error(request, f"'{school_user.email}' is already registered as a teacher.")
+                return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
+            
+            # Enforce unique Django user email
+            if User.objects.filter(username=school_user.email).exists() or User.objects.filter(email=school_user.email).exists():
+                messages.error(request, f"A login account with email '{school_user.email}' already exists.")
+                return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
+            
+            # Create Django User with TEACHER role
+            user = User.objects.create_user(
+                username=school_user.email,
+                email=school_user.email,
+                password=password,
+                first_name=school_user.first_name,
+                last_name=school_user.last_name,
+                role='TEACHER'
+            )
+            
+            # Create Teacher record
+            from django.contrib.auth.hashers import make_password as hash_pw
+            teacher_obj = Teacher.objects.create(
+                branch=branch,
+                school_user=school_user,
+                name=school_user.full_name,
+                email=school_user.email,
+                password=hash_pw(password),
+                status='active'
+            )
+            
+            # Create TeacherProfile (links User ↔ Teacher)
+            from teacher.models import TeacherProfile
+            TeacherProfile.objects.create(user=user, teacher=teacher_obj)
+            
+            messages.success(request, f"Teacher '{school_user.full_name}' registered successfully!")
+            return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
     selected_branch_ids = []
     if branch_filter_id:
@@ -585,7 +628,6 @@ def school_teachers_view(request):
     elif branches.count() == 1:
         selected_branch_ids.append(branches.first().id)
 
-    from .models import Medium
     mediums = Medium.objects.filter(institution=inst)
 
     context = {
@@ -600,6 +642,7 @@ def school_teachers_view(request):
         'current_tab': 'teachers'
     }
     return render(request, 'school_admin/teachers.html', context)
+
 
 @school_admin_required
 def school_others_view(request):
@@ -965,4 +1008,131 @@ def school_manage_view(request):
     }
     return render(request, 'school_admin/manage.html', context)
 
+
+# ─── School Users Management ──────────────────────────────────────────────────
+
+@school_admin_required
+def school_users_view(request):
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+
+    q = request.GET.get('q', '').strip()
+    users = SchoolUser.objects.filter(institution=inst).order_by('-created_at')
+    if q:
+        users = users.filter(email__icontains=q) | users.filter(first_name__icontains=q) | users.filter(last_name__icontains=q)
+        users = users.filter(institution=inst).order_by('-created_at')
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'add')
+
+        if action == 'edit':
+            user_id = request.POST.get('user_id')
+            su = get_object_or_404(SchoolUser, id=user_id, institution=inst)
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            dob = request.POST.get('dob', '').strip() or None
+            city = request.POST.get('city', '').strip()
+            state = request.POST.get('state', '').strip()
+            address = request.POST.get('address', '').strip()
+            pincode = request.POST.get('pincode', '').strip()
+
+            if first_name and last_name:
+                su.first_name = first_name
+                su.last_name = last_name
+                su.dob = dob
+                su.city = city
+                su.state = state
+                su.address = address
+                su.pincode = pincode
+                su.save()
+
+                # Sync name changes to Teacher and User if the user is a registered teacher
+                if hasattr(su, 'teacher_role') and su.teacher_role:
+                    teacher = su.teacher_role
+                    teacher.name = su.full_name
+                    teacher.save()
+                    
+                    user = User.objects.filter(email=su.email).first()
+                    if user:
+                        user.first_name = first_name
+                        user.last_name = last_name
+                        user.save()
+
+                messages.success(request, f"User '{su.full_name}' updated successfully.")
+            return redirect('school_users')
+
+        else:  # add
+            first_name = request.POST.get('first_name', '').strip()
+            last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
+            dob = request.POST.get('dob', '').strip() or None
+            city = request.POST.get('city', '').strip()
+            state = request.POST.get('state', '').strip()
+            address = request.POST.get('address', '').strip()
+            pincode = request.POST.get('pincode', '').strip()
+
+            if not (first_name and last_name and email):
+                messages.error(request, "First name, last name, and email are required.")
+                return redirect('school_users')
+
+            if SchoolUser.objects.filter(email=email).exists():
+                messages.error(request, f"A user with email '{email}' already exists.")
+                return redirect('school_users')
+
+            SchoolUser.objects.create(
+                institution=inst,
+                first_name=first_name,
+                last_name=last_name,
+                email=email,
+                dob=dob,
+                city=city,
+                state=state,
+                address=address,
+                pincode=pincode,
+            )
+            messages.success(request, f"User '{first_name} {last_name}' added successfully.")
+            return redirect('school_users')
+
+    context = {
+        'profile': profile,
+        'institution': inst,
+        'school_users': users,
+        'query': q,
+        'current_tab': 'users',
+    }
+    return render(request, 'school_admin/users.html', context)
+
+
+@school_admin_required
+def school_user_lookup_api(request):
+    """AJAX endpoint: search SchoolUser by email for teacher registration."""
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+    q = request.GET.get('q', '').strip()
+
+    if not q or len(q) < 1:
+        return JsonResponse({'results': []})
+
+    existing_teacher_emails = set(
+        Teacher.objects.filter(branch__institution=inst).values_list('email', flat=True)
+    )
+
+    qs = SchoolUser.objects.filter(institution=inst).filter(
+        db_models.Q(first_name__icontains=q) |
+        db_models.Q(last_name__icontains=q) |
+        db_models.Q(email__icontains=q)
+    )[:10]
+
+    results = []
+    for su in qs:
+        results.append({
+            'id': su.id,
+            'first_name': su.first_name,
+            'last_name': su.last_name,
+            'full_name': su.full_name,
+            'email': su.email,
+            'is_teacher': su.email in existing_teacher_emails,
+        })
+
+    return JsonResponse({'results': results})
 

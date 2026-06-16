@@ -53,14 +53,38 @@ class Student(models.Model):
     def __str__(self):
         return f"{self.name} ({self.branch.name})"
 
+
+class SchoolUser(models.Model):
+    """Pre-registered users that can later be assigned roles like Teacher."""
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='school_users')
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    dob = models.DateField(null=True, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, default='Gujarat')
+    address = models.TextField(blank=True)
+    pincode = models.CharField(max_length=10, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name} ({self.email})"
+
+    @property
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
+
 class Teacher(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('inactive', 'Inactive'),
     ]
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='teachers')
+    school_user = models.OneToOneField(SchoolUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='teacher_role')
     name = models.CharField(max_length=255)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
 
     def __str__(self):
