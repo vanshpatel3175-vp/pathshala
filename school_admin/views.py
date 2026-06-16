@@ -502,6 +502,15 @@ def school_students_view(request):
                 messages.success(request, f"Student '{name}' added successfully.")
                 return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
+    selected_branch_ids = []
+    if branch_filter_id:
+        try:
+            selected_branch_ids.append(int(branch_filter_id))
+        except ValueError:
+            pass
+    elif branches.count() == 1:
+        selected_branch_ids.append(branches.first().id)
+
     context = {
         'profile': profile,
         'institution': inst,
@@ -509,6 +518,7 @@ def school_students_view(request):
         'branches': branches,
         'query': q,
         'branch_filter_id': branch_filter_id,
+        'selected_branch_ids': selected_branch_ids,
         'current_tab': 'students'
     }
     return render(request, 'school_admin/students.html', context)
@@ -562,6 +572,15 @@ def school_teachers_view(request):
                 messages.success(request, f"Teacher '{name}' added successfully.")
                 return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
+    selected_branch_ids = []
+    if branch_filter_id:
+        try:
+            selected_branch_ids.append(int(branch_filter_id))
+        except ValueError:
+            pass
+    elif branches.count() == 1:
+        selected_branch_ids.append(branches.first().id)
+
     context = {
         'profile': profile,
         'institution': inst,
@@ -569,6 +588,7 @@ def school_teachers_view(request):
         'branches': branches,
         'query': q,
         'branch_filter_id': branch_filter_id,
+        'selected_branch_ids': selected_branch_ids,
         'current_tab': 'teachers'
     }
     return render(request, 'school_admin/teachers.html', context)
@@ -630,6 +650,15 @@ def school_others_view(request):
                 messages.success(request, f"Staff member '{name}' added successfully.")
                 return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
+    selected_branch_ids = []
+    if branch_filter_id:
+        try:
+            selected_branch_ids.append(int(branch_filter_id))
+        except ValueError:
+            pass
+    elif branches.count() == 1:
+        selected_branch_ids.append(branches.first().id)
+
     context = {
         'profile': profile,
         'institution': inst,
@@ -638,6 +667,7 @@ def school_others_view(request):
         'custom_roles': CustomRole.objects.filter(institution=inst),
         'query': q,
         'branch_filter_id': branch_filter_id,
+        'selected_branch_ids': selected_branch_ids,
         'current_tab': 'others'
     }
     return render(request, 'school_admin/others.html', context)
@@ -739,14 +769,38 @@ def school_classes_view(request):
             branch_id = request.POST.get('branch_id', '')
             if name and branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                SchoolClass.objects.create(branch=branch, name=name, section=section or None)
-                messages.success(request, f"Class '{name}' added successfully.")
+                section_val = section or None
+                if SchoolClass.objects.filter(branch=branch, name=name, section=section_val).exists():
+                    messages.error(request, f"Class '{name}' already exists in {branch.name}.")
+                else:
+                    SchoolClass.objects.create(branch=branch, name=name, section=section_val)
+                    messages.success(request, f"Class '{name}' added successfully.")
             return redirect(f"{reverse('school_classes')}?branch_id={branch_id}")
 
     from .models import Medium
     mediums = Medium.objects.filter(institution=inst)
 
     total_classes = classes.count()
+    
+    selected_branch_ids = []
+    if branch_filter_id:
+        try:
+            selected_branch_ids.append(int(branch_filter_id))
+        except ValueError:
+            pass
+    elif branches.count() == 1:
+        selected_branch_ids.append(branches.first().id)
+        
+    medium_filter_id = request.GET.get('medium_id', '')
+    selected_medium_ids = []
+    if medium_filter_id:
+        try:
+            selected_medium_ids.append(int(medium_filter_id))
+        except ValueError:
+            pass
+    elif mediums.count() == 1:
+        selected_medium_ids.append(mediums.first().id)
+
     context = {
         'profile': profile,
         'institution': inst,
@@ -755,6 +809,8 @@ def school_classes_view(request):
         'mediums': mediums,
         'query': q,
         'branch_filter_id': branch_filter_id,
+        'selected_branch_ids': selected_branch_ids,
+        'selected_medium_ids': selected_medium_ids,
         'total_classes': total_classes,
         'current_tab': 'classes',
     }

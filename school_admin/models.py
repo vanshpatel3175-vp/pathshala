@@ -115,6 +115,13 @@ class CustomRole(models.Model):
     def __str__(self):
         return f"{self.name} ({self.institution.name})"
 
+class Medium(models.Model):
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='mediums')
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f"{self.name} ({self.institution.name})"
+
 class StudyMaterial(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='study_materials')
     school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='study_materials', null=True, blank=True)
@@ -123,17 +130,4 @@ class StudyMaterial(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.title} - {self.branch.name}"
-
-class Medium(models.Model):
-    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='mediums')
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.name} ({self.institution.name})"
-
-class School(models.Model):
-    medium = models.ForeignKey(
-        Medium,
-        on_delete=models.CASCADE
-    )
+        return f"{self.title} ({self.branch.name})"
