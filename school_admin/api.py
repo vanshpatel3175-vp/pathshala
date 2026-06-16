@@ -47,8 +47,8 @@ def school_login_api(request):
                 "success_key": 1,
                 "message": "Login successful.",
                 "user": UserResponseSerializer(user).data,
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
+                "refresh token": str(refresh),
+                "access token": str(refresh.access_token),
             }
         }, status=200)
     else:
@@ -118,3 +118,29 @@ class SchoolLoginAPIView(APIView):
                 "message": "Invalid email or password."
             }
         }, status=status.HTTP_401_UNAUTHORIZED)
+
+class SchoolLogoutAPIView(APIView):
+    def post(self, request):
+        try:
+            email = request.data.get('email')
+            if not email:
+                return Response({
+                    "data": {
+                        "success_key": 0,
+                        "message": "Email is required."
+                    }
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            return Response({
+                "data": {
+                    "success_key": 1,
+                    "message": "Logout successful."
+                }
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "data": {
+                    "success_key": 0,
+                    "message": str(e)
+                }
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

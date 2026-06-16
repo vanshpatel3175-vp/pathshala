@@ -66,3 +66,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name', 'city', 'state', 'phone_number', 'school_name', 'role']
+
+class schoollogoutSerializer(serializers.Serializer):
+    email = serializers.EmailField(write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        if not email:
+            raise serializers.ValidationError("Email is required.")
+        return attrs    
