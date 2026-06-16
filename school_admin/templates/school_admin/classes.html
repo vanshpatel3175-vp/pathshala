@@ -6,10 +6,10 @@
 <!-- Page Header -->
 <div class="page-header"
     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
-    <a href="{% url 'school_manage' %}"
+    <!-- <a href="{% url 'school_manage' %}"
         style="margin-bottom: 20px; display: inline-block; color: var(--text-secondary);">
         <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
-    </a>
+    </a> -->
     <div class="page-title">
         <h1
             style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
@@ -17,7 +17,7 @@
         {% if branch_filter_id %}
         {% for branch in branches %}
         {% if branch_filter_id == branch.id|stringformat:"s" %}
-        <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing classes for branch: <strong
+        <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing classes for school: <strong
                 style="color: #fff;">{{ branch.name }}</strong></p>
         {% endif %}
         {% endfor %}
@@ -54,8 +54,11 @@
             style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 180px;">
             <option value="">All Branches</option>
             {% for br in branches %}
-            <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name
-                }}</option>
+            {% if branch_filter_id == br.id|stringformat:'s' %}
+            <option value="{{ br.id }}" selected>{{ br.name }}</option>
+            {% else %}
+            <option value="{{ br.id }}">{{ br.name }}</option>
+            {% endif %}
             {% endfor %}
         </select>
         <button type="submit" class="btn btn-secondary" style="padding: 10px 20px; border-radius: 8px;">
@@ -155,27 +158,48 @@
     <form method="POST" action="{% url 'school_classes' %}">
         {% csrf_token %}
         <input type="hidden" name="action" value="add">
-        
+
         <div class="form-group" style="margin-bottom: 20px;">
             <label for="name" style="margin-bottom: 8px; display: block;">Standard / Class Name *</label>
-            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. 10th Standard, Class 1" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. 10th Standard, Class 1"
+                required
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
         </div>
-        
+
         <div class="form-group" style="margin-bottom: 20px;">
             <label for="section" style="margin-bottom: 8px; display: block;">Section / Division</label>
-            <input type="text" id="section" name="section" class="form-control" placeholder="e.g. A, B, C (Optional)" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            <input type="text" id="section" name="section" class="form-control" placeholder="e.g. A, B, C (Optional)"
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
         </div>
-        
+
         <div class="form-group" style="margin-bottom: 25px;">
             <label for="branch_id" style="margin-bottom: 8px; display: block;">Select Branch *</label>
-            <select id="branch_id" name="branch_id" class="custom-select" required style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            <select id="branch_id" name="branch_id" class="custom-select" required
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
                 <option value="">-- Choose Branch --</option>
                 {% for b in branches %}
-                <option value="{{ b.id }}" {% if branch_filter_id == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>
+                {% if branch_filter_id == b.id|stringformat:'s' %}
+                <option value="{{ b.id }}" selected>{{ b.name }}</option>
+                {% else %}
+                <option value="{{ b.id }}">{{ b.name }}</option>
+                {% endif %}
                 {% endfor %}
             </select>
         </div>
-
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="medium" style="margin-bottom: 8px; display: block;">Select Medium *</label>
+            <select id="medium" name="medium" class="custom-select" required
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <option value="">-- Choose Medium --</option>
+                {% for medium in mediums %}
+                {% if medium_filter_id == medium.id|stringformat:'s' %}
+                <option value="{{ medium.id }}" selected>{{ medium.name }}</option>
+                {% else %}
+                <option value="{{ medium.id }}">{{ medium.name }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
         <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;">
             <i class="fa-solid fa-circle-check"></i> Save Class
         </button>

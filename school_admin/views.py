@@ -743,12 +743,16 @@ def school_classes_view(request):
                 messages.success(request, f"Class '{name}' added successfully.")
             return redirect(f"{reverse('school_classes')}?branch_id={branch_id}")
 
+    from .models import Medium
+    mediums = Medium.objects.filter(institution=inst)
+
     total_classes = classes.count()
     context = {
         'profile': profile,
         'institution': inst,
         'branches': branches,
         'classes': classes,
+        'mediums': mediums,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'total_classes': total_classes,
