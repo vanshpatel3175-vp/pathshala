@@ -108,14 +108,14 @@
                     <td style="padding: 14px 18px;">
                         {% if cls.section %}
                         <span
-                            style="background: rgba(99,102,241,0.12); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{{
-                            cls.section }}</span>
+                            style="background: rgba(99,102,241,0.12); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                            {{cls.section }}</span>
                         {% else %}
                         <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">—</span>
                         {% endif %}
                     </td>
-                    <td style="padding: 14px 18px; color: var(--text-secondary); font-size: 0.9rem;">{{ cls.branch.name
-                        }}</td>
+                    <td style="padding: 14px 18px; color: var(--text-secondary); font-size: 0.9rem;">
+                        {{ cls.branch.name}}</td>
                     <td style="padding: 14px 18px; text-align: right;">
                         <form method="POST" action="{% url 'school_classes' %}" style="display: inline;"
                             onsubmit="return confirm('Delete this class?')">
