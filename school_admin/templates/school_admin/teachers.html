@@ -8,13 +8,14 @@
     <div class="page-title">
         <h1>Teachers Directory</h1>
         {% if branch_filter_id %}
-            {% for branch in branches %}
-                {% if branch_filter_id == branch.id|stringformat:"s" %}
-                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
-                {% endif %}
-            {% endfor %}
+        {% for branch in branches %}
+        {% if branch.id in selected_branch_ids %}
+        <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch:
+            <strong style="color: #fff;">{{ branch.name }}</strong></p>
+        {% endif %}
+        {% endfor %}
         {% else %}
-            <p>List, search, and register teacher accounts across all branches</p>
+        <p>List, search, and register teacher accounts across all branches</p>
         {% endif %}
     </div>
     <div>
@@ -37,7 +38,8 @@
         </div>
         <button type="submit" class="btn btn-secondary" style="padding: 11px 22px;">Search</button>
         {% if query %}
-        <a href="{% url 'school_teachers' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}" class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
+        <a href="{% url 'school_teachers' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}"
+            class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
         {% endif %}
     </div>
 </form>
@@ -56,21 +58,28 @@
         <div class="meeting-form-grid" style="display: flex; flex-direction: column; gap: 20px;">
             <div class="form-group">
                 <label for="name" style="margin-bottom: 8px; display: block;">Teacher Name</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="Bunty Patel" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <input type="text" id="name" name="name" class="form-control" placeholder="Bunty Patel" required
+                    style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
             </div>
 
             <div class="form-group">
                 <label for="email" style="margin-bottom: 8px; display: block;">Teacher Email</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="bunty@gmail.com" required
-                    autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    autocomplete="email"
+                    style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
             </div>
 
             <div class="form-group">
-                <label for="branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
-                <select id="branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                <label for="branch_id" style="margin-bottom: 8px; display: block;">Assign School</label>
+                <select id="branch_id" name="branch_id" class="custom-select"
+                    style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
                     required>
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
+                    {% if branch.id in selected_branch_ids %}
+                    <option value="{{ branch.id }}" selected>{{ branch.name }} ({{ branch.city }})</option>
+                    {% else %}
+                    <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+                    {% endif %}
                     {% empty %}
                     <option value="">-- Create a Branch First --</option>
                     {% endfor %}
@@ -78,9 +87,15 @@
             </div>
         </div>
         <div style="margin-top: 25px; display: flex; justify-content: flex-end;">
-            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" {% if not branches %}disabled{% endif %}>
+            {% if not branches %}
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" disabled>
                 <i class="fa-solid fa-circle-check"></i> Save Teacher
             </button>
+            {% else %}
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;">
+                <i class="fa-solid fa-circle-check"></i> Save Teacher
+            </button>
+            {% endif %}
         </div>
     </form>
 </div>
@@ -140,55 +155,59 @@
     </div>
 </div>
 
-    <!-- Edit Teacher Card -->
-    <div id="edit-teacher-card" class="glass-panel side-drawer"
-        style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
-        <h3
-            style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
-            <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Teacher</span>
-            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
-                onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
-        </h3>
+<!-- Edit Teacher Card -->
+<div id="edit-teacher-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
+    <h3
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Teacher</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+    </h3>
 
-        <form method="POST" action="{% url 'school_teachers' %}">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="edit">
-            <input type="hidden" id="edit_teacher_id" name="teacher_id">
+    <form method="POST" action="{% url 'school_teachers' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" id="edit_teacher_id" name="teacher_id">
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_name" style="margin-bottom: 8px; display: block;">Teacher Name</label>
-                <input type="text" id="edit_name" name="name" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_name" style="margin-bottom: 8px; display: block;">Teacher Name</label>
+            <input type="text" id="edit_name" name="name" class="form-control" required
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+        </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_email" style="margin-bottom: 8px; display: block;">Teacher Email</label>
-                <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_email" style="margin-bottom: 8px; display: block;">Teacher Email</label>
+            <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email"
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+        </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
-                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
-                    required>
-                    {% for branch in branches %}
-                    <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
+            <select id="edit_branch_id" name="branch_id" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                required>
+                {% for branch in branches %}
+                <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="form-group" style="margin-bottom: 25px;">
-                <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
-                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
-                    required>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
+            <select id="edit_status" name="status" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                required>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
-                <i class="fa-solid fa-save"></i> Save Changes
-            </button>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+            <i class="fa-solid fa-save"></i> Save Changes
+        </button>
+    </form>
+</div>
 
 <script>
     function openEditTeacherCard(id, name, email, branchId, status) {
