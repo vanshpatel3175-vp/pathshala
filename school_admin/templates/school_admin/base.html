@@ -223,73 +223,83 @@
             });
         }, 4000);
     </script>
-<!-- Global Drawer Overlay -->
-<div id="drawer-overlay" class="drawer-overlay" onclick="closeAllDrawers()"></div>
+    <!-- Global Drawer Overlay -->
+    <div id="drawer-overlay" class="drawer-overlay" onclick="closeAllDrawers()"></div>
 
-<style>
-    .drawer-overlay {
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        z-index: 1040;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease-in-out;
-    }
-    .drawer-overlay.show {
-        opacity: 1;
-        visibility: visible;
-    }
-    .side-drawer {
-        position: fixed;
-        top: 0; right: -450px; /* Hidden off-screen */
-        width: 400px; max-width: 100vw;
-        height: 100vh;
-        z-index: 1050;
-        box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-        transition: right 0.3s ease-in-out;
-        border-radius: 0;
-        border-left: 1px solid rgba(255,255,255,0.1);
-        margin: 0;
-        overflow-y: auto;
-        display: block !important; /* Override inline styles if any */
-        background: var(--bg-secondary);
-    }
-    .side-drawer.show {
-        right: 0;
-    }
-</style>
+    <style>
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
 
-<script>
-    function closeAllDrawers() {
-        document.querySelectorAll('.side-drawer.show').forEach(drawer => {
-            drawer.classList.remove('show');
-        });
-        const overlay = document.getElementById('drawer-overlay');
-        if (overlay) overlay.classList.remove('show');
-    }
+        .drawer-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
 
-    function openDrawer(drawerId, focusElementId) {
-        // Close any currently open drawers first
-        closeAllDrawers();
-        
-        const drawer = document.getElementById(drawerId);
-        const overlay = document.getElementById('drawer-overlay');
-        
-        if (drawer && overlay) {
-            drawer.classList.add('show');
-            overlay.classList.add('show');
-            
-            if (focusElementId) {
-                setTimeout(() => {
-                    const el = document.getElementById(focusElementId);
-                    if(el) el.focus();
-                }, 300);
+        .side-drawer {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            /* Hidden off-screen */
+            width: 400px;
+            max-width: 100vw;
+            height: 100vh;
+            z-index: 1050;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.5);
+            transition: right 0.3s ease-in-out;
+            border-radius: 0;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            margin: 0;
+            overflow-y: auto;
+            display: block !important;
+            /* Override inline styles if any */
+            background: var(--bg-secondary);
+        }
+
+        .side-drawer.show {
+            right: 0;
+        }
+    </style>
+
+    <script>
+        function closeAllDrawers() {
+            document.querySelectorAll('.side-drawer.show').forEach(drawer => {
+                drawer.classList.remove('show');
+            });
+            const overlay = document.getElementById('drawer-overlay');
+            if (overlay) overlay.classList.remove('show');
+        }
+
+        function openDrawer(drawerId, focusElementId) {
+            // Close any currently open drawers first
+            closeAllDrawers();
+
+            const drawer = document.getElementById(drawerId);
+            const overlay = document.getElementById('drawer-overlay');
+
+            if (drawer && overlay) {
+                drawer.classList.add('show');
+                overlay.classList.add('show');
+
+                if (focusElementId) {
+                    setTimeout(() => {
+                        const el = document.getElementById(focusElementId);
+                        if (el) el.focus();
+                    }, 300);
+                }
             }
         }
-    }
-</script>
+    </script>
 
 </body>
 

@@ -683,7 +683,13 @@ def school_mediums_view(request):
             medium.delete()
             messages.success(request, "Medium deleted successfully.")
         else:
-            name = request.POST.get('name', '').strip()
+            name = request.POST.get('medium', '').strip()
+            if name == 'Custom':
+                name = request.POST.get('custom_medium', '').strip()
+                
+            if not name:
+                name = request.POST.get('name', '').strip()
+                
             if name:
                 from .models import Medium
                 Medium.objects.create(institution=inst, name=name)
