@@ -113,7 +113,6 @@
                     </li>
                     {% if institution.status != 'disabled' and request.is_approved %}
                     {% if institution.features.manage_branches %}
-                    {% if institution.branches.count > 1 %}
                     <li>
                         <a href="{% url 'school_branches' %}"
                             class="sidebar-link {% if current_tab == 'branches' %}active{% endif %}">
@@ -129,7 +128,6 @@
                             Dashboard
                         </a>
                     </li>
-                    {% endif %}
                     {% endif %}
                     {% if institution.features.manage_students %}
                     <li>

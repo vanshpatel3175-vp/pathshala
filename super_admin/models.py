@@ -41,6 +41,7 @@ class SchoolApplication(models.Model):
 def default_features():
     return {
         "manage_branches": True,
+        "add_new_branch": True,
         "manage_students": True,
         "manage_teachers": True,
         "manage_others": True,
