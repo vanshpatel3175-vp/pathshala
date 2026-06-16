@@ -22,7 +22,8 @@
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
             <div>
-                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{ institution.name }}</h2>
+                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{ institution.name
+                    }}</h2>
                 <p style="color: var(--text-secondary); font-size: 0.85rem;">School Code:
                     <code>{{ institution.school_code|default:"N/A" }}</code></p>
             </div>
@@ -32,7 +33,8 @@
             <div
                 style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Plan</span>
-                <span style="color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">{{ institution.plan|default:"Standard" }}</span>
+                <span style="color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">{{
+                    institution.plan|default:"Standard" }}</span>
             </div>
             <div
                 style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
@@ -61,7 +63,8 @@
                 <i class="fa-solid fa-user-tie"></i>
             </div>
             <div>
-                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{ profile.user.first_name }} {{ profile.user.last_name }}</h2>
+                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{
+                    profile.user.first_name }} {{ profile.user.last_name }}</h2>
                 <p style="color: var(--text-secondary); font-size: 0.85rem;">{{ profile.user.email }}</p>
             </div>
         </div>
