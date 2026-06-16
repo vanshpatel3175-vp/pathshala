@@ -304,7 +304,7 @@ def school_branches_view(request):
     branches = inst.branches.all()
     total_branches = branches.count()
     
-    if total_branches <= 1:
+    if total_branches <= 1 and not (inst.features.get('manage_branches', False) or inst.features.get('add_new_branch', False)):
         messages.warning(request, "Branch Management page is not available for single branch schools.")
         return redirect('school_overview')
         

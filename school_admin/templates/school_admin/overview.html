@@ -268,55 +268,49 @@
     <span class="tooltiptext">Branch actions are locked while the institution is disabled.</span>
 </div> -->
     {% else %}
-    {% if pending_request %}
-    <span class="badge"
-        style="background: rgba(245, 158, 11, 0.1); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-        <i class="fa-solid fa-spinner fa-spin"></i> Request Pending
-    </span>
-    {% elif approved_request %}
-    <span class="badge"
-        style="background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-        <i class="fa-solid fa-circle-check"></i> Request Approved
-    </span>
-    {% elif rejected_request %}
-    <span class="badge"
-        style="background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-        <i class="fa-solid fa-circle-xmark"></i> Request Rejected
-    </span>
-    <form method="POST" action="{% url 'school_overview' %}" style="display: inline;">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="request_branch">
-        <button type="submit" class="btn btn-secondary"
-            style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
-            <i class="fa-solid fa-rotate-left"></i> Re-Submit Request
-        </button>
-    </form>
-    {% else %}
-    <form method="POST" action="{% url 'school_overview' %}" style="display: inline;">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="request_branch">
-        <button type="submit" class="btn btn-primary"
-            style="padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border: none; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-paper-plane"></i> Request Branch Approval
-        </button>
-    </form>
-    {% endif %}
-
-    <!-- Add Branch Button with Tooltip wrapper 
-    {% if approved_request %}
+    {% if institution.features.add_new_branch %}
     <button onclick="openAddBranchModal()" class="btn btn-primary"
         style="padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
         <i class="fa-solid fa-plus"></i> Add Branch
     </button>
     {% else %}
-    <div class="tooltip">
-        <button class="btn btn-primary btn-disabled"
-            style="padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;"
-            disabled>
+        {% if pending_request %}
+        <span class="badge"
+            style="background: rgba(245, 158, 11, 0.1); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Request Pending
+        </span>
+        {% elif approved_request %}
+        <span class="badge"
+            style="background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+            <i class="fa-solid fa-circle-check"></i> Request Approved
+        </span>
+        <button onclick="openAddBranchModal()" class="btn btn-primary"
+            style="margin-left: 10px; padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-plus"></i> Add Branch
         </button>
-        <span class="tooltiptext">Branch creation requires approval from Super Admin.</span>
-    </div>
+        {% elif rejected_request %}
+        <span class="badge"
+            style="background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+            <i class="fa-solid fa-circle-xmark"></i> Request Rejected
+        </span>
+        <form method="POST" action="{% url 'school_overview' %}" style="display: inline; margin-left: 10px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="request_branch">
+            <button type="submit" class="btn btn-secondary"
+                style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
+                <i class="fa-solid fa-rotate-left"></i> Re-Submit Request
+            </button>
+        </form>
+        {% else %}
+        <form method="POST" action="{% url 'school_overview' %}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="request_branch">
+            <button type="submit" class="btn btn-primary"
+                style="padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border: none; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-paper-plane"></i> Request Branch Approval
+            </button>
+        </form>
+        {% endif %}
     {% endif %}
     {% endif %}
     {% else %}

@@ -11,7 +11,7 @@
     </div>
     <div>
         <!-- Add Branch Toggle Form Button -->
-        <button class="btn btn-primary" onclick="openDrawer('add-branch-form-card', 'name')" disabled>
+        <button class="btn btn-primary" onclick="openDrawer('add-branch-form-card', 'name')" {% if not institution.features.add_new_branch %}disabled{% endif %}>
             <i class="fa-solid fa-plus"></i> Add Your Branch
         </button>
     </div>
