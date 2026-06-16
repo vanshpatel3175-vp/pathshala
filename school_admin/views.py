@@ -683,7 +683,13 @@ def school_mediums_view(request):
             medium.delete()
             messages.success(request, "Medium deleted successfully.")
         else:
-            name = request.POST.get('name', '').strip()
+            name = request.POST.get('medium', '').strip()
+            if name == 'Custom':
+                name = request.POST.get('custom_medium', '').strip()
+                
+            if not name:
+                name = request.POST.get('name', '').strip()
+                
             if name:
                 from .models import Medium
                 Medium.objects.create(institution=inst, name=name)
@@ -737,12 +743,16 @@ def school_classes_view(request):
                 messages.success(request, f"Class '{name}' added successfully.")
             return redirect(f"{reverse('school_classes')}?branch_id={branch_id}")
 
+    from .models import Medium
+    mediums = Medium.objects.filter(institution=inst)
+
     total_classes = classes.count()
     context = {
         'profile': profile,
         'institution': inst,
         'branches': branches,
         'classes': classes,
+        'mediums': mediums,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'total_classes': total_classes,
