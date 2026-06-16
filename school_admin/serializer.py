@@ -65,4 +65,4 @@ class UserResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'city', 'state', 'phone_number', 'school_name']
+        fields = ['email', 'first_name', 'last_name', 'city', 'state', 'phone_number', 'school_name', 'role']

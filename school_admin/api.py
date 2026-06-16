@@ -47,7 +47,6 @@ def school_login_api(request):
                 "success_key": 1,
                 "message": "Login successful.",
                 "user": UserResponseSerializer(user).data,
-                "role": user.role,
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
             }
