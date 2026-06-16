@@ -1,0 +1,47 @@
+{% extends 'super_admin/base.html' %}
+
+{% block title %}Admin Portal Login{% endblock %}
+
+{% block standalone_content %}
+<div class="login-container">
+    <div class="login-card glass-panel">
+        <div class="login-header">
+            <h1 class="mock-size-32">LOGIN</h1>
+            <p>Administration Portal Access</p>
+        </div>
+
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+
+            {% if messages %}
+            <div style="margin-bottom: 20px; color: var(--color-danger); text-align: center; font-size: 0.875rem;">
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="email" style="font-size: 1.125rem;">Email</label>
+                <input type="text" id="email" name="email" class="form-control" placeholder="admin@ab.com" required
+                    autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label for="password" style="font-size: 1.125rem;">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
+                    required autocomplete="current-password">
+            </div>
+
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; margin-top: 15px; padding: 12px; font-size: 1rem;">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+            <a href="{% url 'school_signup' %}" class="btn btn-secondary"
+                style="display: block; width: 100%; margin-top: 15px; padding: 12px; font-size: 1rem; text-decoration: none; text-align: center; box-sizing: border-box;">
+                <i class="fa-solid fa-user-plus"></i> Signup
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

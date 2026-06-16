@@ -1,0 +1,203 @@
+{% extends 'school_admin/base.html' %}
+
+{% block title %}Manage Students Directory{% endblock %}
+
+{% block content %}
+<!-- Page Title Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>Students Directory</h1>
+        {% if branch_filter_id %}
+            {% for branch in branches %}
+                {% if branch_filter_id == branch.id|stringformat:"s" %}
+                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
+                {% endif %}
+            {% endfor %}
+        {% else %}
+            <p>List, search, and register student accounts across all branches</p>
+        {% endif %}
+    </div>
+    <div>
+        <button class="btn btn-primary" onclick="openDrawer('add-student-form-card', 'name')">
+            <i class="fa-solid fa-plus"></i> Register Student
+        </button>
+    </div>
+</div>
+
+<!-- Search Form (Balsamiq Mockup search box) -->
+<form method="GET" action="{% url 'school_students' %}">
+    {% if branch_filter_id %}
+    <input type="hidden" name="branch_id" value="{{ branch_filter_id }}">
+    {% endif %}
+    <div class="search-row">
+        <div class="search-input-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="q" class="form-control" placeholder="Search by student name..."
+                value="{{ query }}">
+        </div>
+        <button type="submit" class="btn btn-secondary" style="padding: 11px 22px;">Search</button>
+        {% if query %}
+        <a href="{% url 'school_students' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}" class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
+        {% endif %}
+    </div>
+</form>
+
+<!-- Add Student Form Section (Side Drawer) -->
+<div id="add-student-form-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-success);">
+    <h3
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-user-plus" style="color: var(--color-success);"></i> Register New Student</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+    </h3>
+    <form method="POST" action="{% url 'school_students' %}">
+        {% csrf_token %}
+        <div class="meeting-form-grid" style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="form-group">
+                <label for="name" style="margin-bottom: 8px; display: block;">Student Name</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="Vansh Patel" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            </div>
+
+            <div class="form-group">
+                <label for="email" style="margin-bottom: 8px; display: block;">Student Email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="vansh@gmail.com" required
+                    autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            </div>
+
+            <div class="form-group">
+                <label for="branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
+                <select id="branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                    required>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
+                    {% empty %}
+                    <option value="">-- Create a Branch First --</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div style="margin-top: 25px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" {% if not branches %}disabled{% endif %}>
+                <i class="fa-solid fa-circle-check"></i> Save Student
+            </button>
+        </div>
+    </form>
+</div>
+
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start;">
+    <!-- Students Listing Table -->
+    <div class="glass-panel" style="padding: 25px;">
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>School</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if students %}
+                    {% for student in students %}
+                    <tr>
+                        <td style="font-weight: 700; color: #ffffff;">{{ student.id }}</td>
+                        <td style="font-weight: 600; color: #ffffff;">{{ student.name }}</td>
+                        <td style="color: var(--text-secondary);">{{ student.email }}</td>
+                        <td>
+                            <span class="badge badge-pending" style="font-size: 0.7rem;">{{ student.branch.name }}</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-validated" style="font-size: 0.7rem;">{{ student.status }}</span>
+                        </td>
+                        <td style="text-align: right;">
+                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
+                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.name|escapejs }}', '{{ student.email|escapejs }}', '{{ student.branch.id }}', '{{ student.status }}')">
+                                <i class="fa-solid fa-user-pen"></i> edit
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-solid fa-users-viewfinder"
+                                style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            No students found matching your query.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Empty column to keep grid layout intact -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+    </div>
+</div>
+
+    <!-- Edit Student Card -->
+    <div id="edit-student-card" class="glass-panel side-drawer"
+        style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
+        <h3
+            style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+            <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Student</span>
+            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+                onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+        </h3>
+
+        <form method="POST" action="{% url 'school_students' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" id="edit_student_id" name="student_id">
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_name" style="margin-bottom: 8px; display: block;">Student Name</label>
+                <input type="text" id="edit_name" name="name" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_email" style="margin-bottom: 8px; display: block;">Student Email</label>
+                <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
+                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                    required>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
+                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                    required>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+                <i class="fa-solid fa-save"></i> Save Changes
+            </button>
+        </form>
+    </div>
+
+<script>
+    function openEditStudentCard(id, name, email, branchId, status) {
+        document.getElementById('edit_student_id').value = id;
+        document.getElementById('edit_name').value = name;
+        document.getElementById('edit_email').value = email;
+        document.getElementById('edit_branch_id').value = branchId;
+        document.getElementById('edit_status').value = status;
+        openDrawer('edit-student-card', 'edit_name');
+    }
+</script>
+{% endblock %}

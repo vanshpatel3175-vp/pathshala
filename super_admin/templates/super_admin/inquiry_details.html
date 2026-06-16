@@ -1,0 +1,95 @@
+{% extends 'super_admin/base.html' %}
+
+{% block title %}Inquiry Details - {{ inquiry.full_name }}{% endblock %}
+
+{% block content %}
+<!-- Top Header Actions Bar -->
+<div class="glass-panel" style="padding: 20px 30px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+    <div>
+        <h2 style="font-size: 1.5rem; color: #ffffff; font-family: var(--font-heading);">{{ inquiry.full_name }}</h2>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">
+            <i class="fa-solid fa-envelope"></i> {{ inquiry.email }} &nbsp;|&nbsp; 
+            <i class="fa-solid fa-phone"></i> {{ inquiry.contact_no }}
+        </p>
+    </div>
+    
+    <div>
+        <a href="{% url 'inquiries' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Back To Inquire
+        </a>
+    </div>
+</div>
+
+<!-- Details & Institute Link Selector -->
+<div class="glass-panel" style="padding: 25px; margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <h3 class="mock-size-18" style="font-family: var(--font-heading); display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-circle-info" style="color: var(--color-primary);"></i> Details
+        </h3>
+        
+        <!-- Interactive Dropdown mirroring view1 and view2 -->
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label for="institute-select" style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">Linked Institute:</label>
+            <select id="institute-select" class="custom-select" onchange="if(this.value) { window.location.href = '?institute=' + this.value; }">
+                <option value="">-- Select Institute --</option>
+                {% for inst in institutions %}
+                    <option value="{{ inst.name }}" {% if inquiry.school_name == inst.name %}selected{% endif %}>
+                        {{ inst.name }} ({{ inst.status|upper }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Subscription History Table -->
+<div class="glass-panel" style="padding: 25px;">
+    <h3 style="font-size: 1.1rem; margin-bottom: 20px; font-family: var(--font-heading); color: var(--text-secondary);">Subscription History</h3>
+    
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>SR NO</th>
+                    <th>Subscription Date</th>
+                    <th>Expired Date</th>
+                    <th>Type of Planned</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if subscriptions %}
+                    {% for sub in subscriptions %}
+                    <tr>
+                        <td style="font-weight: 700; color: #ffffff;">
+                            {{ sub.sr_no }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ sub.subscription_date|date:"M d, Y H:i" }}
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ sub.expired_date|date:"M d, Y H:i" }}
+                        </td>
+                        <td style="font-weight: 500; color: #ffffff;">
+                            {{ sub.type_of_planned|default:"Standard Plan" }}
+                        </td>
+                        <td>
+                            <span class="badge {% if sub.status == 'okay' %}badge-validated{% elif sub.status == 'pending' %}badge-awaiting{% else %}badge-declined{% endif %}" style="font-size: 0.7rem;">
+                                {{ sub.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            No subscription history logs found for this user.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

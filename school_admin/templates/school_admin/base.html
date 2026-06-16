@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}School Admin Portal{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+    <!-- Custom styling to support Round Stats Cards representing mockup CircleButtons -->
+    <style>
+        .circle-stat-container {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 35px;
+            flex-wrap: wrap;
+        }
+
+        .circle-stat-card {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            background: var(--bg-card);
+            backdrop-filter: blur(var(--glass-blur));
+            box-shadow: var(--card-shadow);
+            transition: var(--transition-smooth);
+            cursor: default;
+        }
+
+        .circle-stat-card:hover {
+            transform: scale(1.05);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 20px rgba(38, 166, 154, 0.2);
+        }
+
+        .circle-stat-card .stat-value {
+            font-family: var(--font-heading);
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .circle-stat-card .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            line-height: 1.2;
+        }
+
+        .search-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-input-wrapper input {
+            padding-left: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    {% if request.user.is_authenticated and not no_sidebar %}
+    <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-graduation-cap" style="color: var(--color-primary); font-size: 1.5rem;"></i>
+                <div>
+                    <h2 style="font-size: 1.15rem; line-height: 1.2;">{{ institution.name|default:"School Admin" }}</h2>
+                    <span
+                        style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Admin
+                        Portal</span>
+                </div>
+            </div>
+
+            <nav style="flex: 1;">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{% url 'school_overview' %}"
+                            class="sidebar-link {% if current_tab == 'overview' %}active{% endif %}">
+                            <i class="fa-solid fa-house"></i>
+                            Overview
+                        </a>
+                    </li>
+                    {% if institution.status != 'disabled' and request.is_approved %}
+                    {% if institution.branches.count > 1 %}
+                    <li>
+                        <a href="{% url 'school_branches' %}"
+                            class="sidebar-link {% if current_tab == 'branches' %}active{% endif %}">
+                            <i class="fa-solid fa-code-branch"></i>
+                            Branches
+                        </a>
+                    </li>
+                    {% else %}
+                    <li>
+                        <a href="{% url 'school_manage' %}"
+                            class="sidebar-link {% if current_tab == 'dashboard' %}active{% endif %}">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'school_students' %}"
+                            class="sidebar-link {% if current_tab == 'students' %}active{% endif %}">
+                            <i class="fa-solid fa-user-graduate"></i>
+                            Students
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_teachers' %}"
+                            class="sidebar-link {% if current_tab == 'teachers' %}active{% endif %}">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            Teachers
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_others' %}"
+                            class="sidebar-link {% if current_tab == 'others' %}active{% endif %}">
+                            <i class="fa-solid fa-users"></i>
+                            Others
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_roles' %}"
+                            class="sidebar-link {% if current_tab == 'roles' %}active{% endif %}">
+                            <i class="fa-solid fa-user"></i>
+                            Master Roles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_mediums' %}"
+                            class="sidebar-link {% if current_tab == 'mediums' %}active{% endif %}">
+                            <i class="fa-solid fa-language"></i>
+                            Master Medium
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_classes' %}"
+                            class="sidebar-link {% if current_tab == 'classes' %}active{% endif %}">
+                            <i class="fa-solid fa-chalkboard"></i>
+                            Master Classes
+                        </a>
+                    </li>
+                    <!-- <li>
+                        <a href="{% url 'school_profile' %}"
+                            class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
+                            <i class="fa-solid fa-gear"></i>
+                            School Profile
+                        </a>
+                    </li> -->
+                    {% endif %}
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'school_logout' %}" class="sidebar-link"
+                    style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15)">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    LogOut
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Body Area -->
+        <main class="app-main">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    {% block standalone_content %}{% endblock %}
+    {% endif %}
+
+    <!-- Global Flash Notification Overlay -->
+    {% if messages %}
+    {% for message in messages %}
+    <div
+        class="alert-overlay glass-panel {% if message.tags == 'error' %}badge-disabled{% else %}badge-active{% endif %}">
+        <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"
+            style="font-size: 1.25rem;"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <script>
+        // Dismiss flash alerts after 4 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-overlay');
+            alerts.forEach(el => {
+                el.style.transition = 'opacity 0.5s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 4000);
+    </script>
+<!-- Global Drawer Overlay -->
+<div id="drawer-overlay" class="drawer-overlay" onclick="closeAllDrawers()"></div>
+
+<style>
+    .drawer-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 1040;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease-in-out;
+    }
+    .drawer-overlay.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    .side-drawer {
+        position: fixed;
+        top: 0; right: -450px; /* Hidden off-screen */
+        width: 400px; max-width: 100vw;
+        height: 100vh;
+        z-index: 1050;
+        box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+        transition: right 0.3s ease-in-out;
+        border-radius: 0;
+        border-left: 1px solid rgba(255,255,255,0.1);
+        margin: 0;
+        overflow-y: auto;
+        display: block !important; /* Override inline styles if any */
+        background: var(--bg-secondary);
+    }
+    .side-drawer.show {
+        right: 0;
+    }
+</style>
+
+<script>
+    function closeAllDrawers() {
+        document.querySelectorAll('.side-drawer.show').forEach(drawer => {
+            drawer.classList.remove('show');
+        });
+        const overlay = document.getElementById('drawer-overlay');
+        if (overlay) overlay.classList.remove('show');
+    }
+
+    function openDrawer(drawerId, focusElementId) {
+        // Close any currently open drawers first
+        closeAllDrawers();
+        
+        const drawer = document.getElementById(drawerId);
+        const overlay = document.getElementById('drawer-overlay');
+        
+        if (drawer && overlay) {
+            drawer.classList.add('show');
+            overlay.classList.add('show');
+            
+            if (focusElementId) {
+                setTimeout(() => {
+                    const el = document.getElementById(focusElementId);
+                    if(el) el.focus();
+                }, 300);
+            }
+        }
+    }
+</script>
+
+</body>
+
+</html>

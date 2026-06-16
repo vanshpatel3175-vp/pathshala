@@ -1,0 +1,84 @@
+{% extends 'school_admin/base.html' %}
+
+{% block title %}School Registration - Sign Up{% endblock %}
+
+{% block standalone_content %}
+<div class="login-container" style="background: radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 45%), radial-gradient(circle at 90% 80%, rgba(38, 166, 154, 0.15) 0%, transparent 45%);">
+    <div class="login-card glass-panel" style="max-width: 550px; padding: 35px;">
+        <div class="login-header" style="margin-bottom: 25px;">
+            <h1 class="mock-size-32">SIGN UP</h1>
+            <p>Register your educational institution</p>
+        </div>
+        
+        <form method="POST" action="{% url 'school_signup' %}">
+            {% csrf_token %}
+            
+            {% if messages %}
+                <div style="margin-bottom: 20px; color: var(--color-danger); text-align: center; font-size: 0.875rem;">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Grid for First & Last Name -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Rohan" required autocomplete="given-name">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" placeholder="Patel" required autocomplete="family-name">
+                </div>
+            </div>
+            
+            <!-- School Name -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="school_name">School Name</label>
+                <input type="text" id="school_name" name="school_name" class="form-control" placeholder="AB Eng School" required>
+            </div>
+            
+            <!-- Mobile Number -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="mobile_number">Mobile Number</label>
+                <input type="text" id="mobile_number" name="mobile_number" class="form-control" placeholder="1010121212" required autocomplete="tel">
+            </div>
+            
+            <!-- Grid for State & City -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="state">State</label>
+                    <input type="text" id="state" name="state" class="form-control" placeholder="Gujarat" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="city">City</label>
+                    <input type="text" id="city" name="city" class="form-control" placeholder="Amalsad" required>
+                </div>
+            </div>
+            
+            <!-- Email -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="ab@gmail.com" required autocomplete="email">
+            </div>
+            
+            <!-- Password -->
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+            </div>
+            
+            <!-- Buttons Section -->
+            <div style="display: flex; gap: 15px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1; padding: 12px; font-size: 0.95rem;">
+                    <i class="fa-solid fa-user-plus"></i> SIGN UP
+                </button>
+                <a href="{% url 'login' %}" class="btn btn-secondary" style="flex: 1; padding: 12px; font-size: 0.95rem;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Log In
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+main/settings.py
+media/*
+staticfiles/*
+/migrations/*
+.env
+**/migrations/

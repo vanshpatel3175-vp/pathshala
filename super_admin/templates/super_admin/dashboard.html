@@ -1,0 +1,115 @@
+{% extends 'super_admin/base.html' %}
+
+{% block title %}Superadmin Dashboard{% endblock %}
+
+{% block content %}
+<!-- School Approved Success Toast (Mockup page "Approved" overlay) -->
+{% if approved_success %}
+<div class="alert-overlay glass-panel badge-active" style="border-left: 5px solid var(--color-success);">
+    <i class="fa-solid fa-circle-check" style="font-size: 1.5rem; color: var(--color-success);"></i>
+    <div>
+        <h4 style="margin: 0; color: var(--color-success);">School Approved Successfully</h4>
+        <p style="margin: 3px 0 0 0; font-size: 0.8rem; color: var(--text-secondary);">The institution has been added to the registry database.</p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Page Title Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1>Dashboard</h1>
+        <p>Overview of system registry and application pipelines</p>
+    </div>
+    <div class="badge-pill-container">
+        <span class="badge badge-pending">
+            <i class="fa-solid fa-signal" style="margin-right: 5px;"></i> Live
+        </span>
+    </div>
+</div>
+
+<!-- Stats Card Dashboard Grid -->
+<div class="stats-grid">
+    <div class="stats-card glass-panel">
+        <div class="label" style="color: var(--color-warning);">Awaiting Review</div>
+        <div class="value">{{ awaiting_review }}</div>
+    </div>
+    
+    <div class="stats-card glass-panel">
+        <div class="label" style="color: var(--color-success);">Validated</div>
+        <div class="value">{{ validated }}</div>
+    </div>
+    
+    <div class="stats-card glass-panel">
+        <div class="label" style="color: var(--color-danger);">Declined</div>
+        <div class="value">{{ declined }}</div>
+    </div>
+    
+    <div class="stats-card glass-panel">
+        <div class="label" style="color: var(--text-secondary);">Unsubmitted</div>
+        <div class="value">{{ unsubmitted }}</div>
+    </div>
+    
+    <div class="stats-card glass-panel" style="border-left: 2px solid var(--color-primary);">
+        <div class="label" style="color: var(--color-primary);">Total Registered</div>
+        <div class="value">{{ total_registered }}</div>
+    </div>
+</div>
+
+<!-- Registry Queue Section -->
+<div class="glass-panel" style="padding: 25px; margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="font-size: 1.25rem;">Application Registry Queue</h2>
+        <span class="badge badge-awaiting" style="font-size: 0.8rem;">
+            {{ applications|length }} Active Requests
+        </span>
+    </div>
+    
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>Institution / Trust</th>
+                    <th>Type</th>
+                    <th>Date Applied</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if applications %}
+                    {% for app in applications %}
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: #ffffff; font-size: 0.95rem; margin-bottom: 4px;">{{ app.name }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">Trust: {{ app.trust_name }}</div>
+                        </td>
+                        <td>
+                            <span class="badge badge-pending" style="font-size: 0.7rem; padding: 3px 8px;">School</span>
+                        </td>
+                        <td style="color: var(--text-secondary);">
+                            {{ app.date_applied|date:"M d, Y" }}
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                <a href="{% url 'review_application' app.id %}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-magnifying-glass"></i> Review
+                                </a>
+                                <a href="{% url 'delete_application' app.id %}" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem; background: #dc2626; border-color: #dc2626;" onclick="return confirm('Are you sure you want to permanently delete application for {{ app.name }}?');">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                            <i class="fa-solid fa-inbox" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            No applications currently awaiting review.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

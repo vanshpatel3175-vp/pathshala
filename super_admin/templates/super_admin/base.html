@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Superadmin Portal{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    {% if request.user.is_authenticated and not no_sidebar %}
+    <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-gauge-high" style="color: var(--color-primary); font-size: 1.5rem;"></i>
+                <h2>SuperAdmin</h2>
+            </div>
+
+            <nav style="flex: 1;">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{% url 'dashboard' %}"
+                            class="sidebar-link {% if current_tab == 'dashboard' %}active{% endif %}">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'all_institutions' %}"
+                            class="sidebar-link {% if current_tab == 'institutions' %}active{% endif %}">
+                            <i class="fa-solid fa-school"></i>
+                            All Institutions
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'platform_users' %}"
+                            class="sidebar-link {% if current_tab == 'users' %}active{% endif %}">
+                            <i class="fa-solid fa-users-gear"></i>
+                            Platform Users
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'inquiries' %}"
+                            class="sidebar-link {% if current_tab == 'payment' %}active{% endif %}">
+                            <i class="fa-solid fa-credit-card"></i>
+                            Inquiries
+                            {% if pending_applications_count %}
+                            <span class="badge badge-awaiting"
+                                style="margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; text-transform: none;">{{ pending_applications_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'branch_requests' %}"
+                            class="sidebar-link {% if current_tab == 'branch_requests' %}active{% endif %}">
+                            <i class="fa-solid fa-code-pull-request"></i>
+                            Branch Requests
+                            {% if pending_branch_requests_count %}
+                            <span class="badge badge-awaiting"
+                                style="margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; text-transform: none;">{{ pending_branch_requests_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'logout' %}" class="sidebar-link"
+                    style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15)">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    LogOut
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Body Area -->
+        <main class="app-main">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    {% block standalone_content %}{% endblock %}
+    {% endif %}
+
+    <!-- Global Flash Notification Overlay -->
+    {% if messages %}
+    {% for message in messages %}
+    <div
+        class="alert-overlay glass-panel {% if message.tags == 'error' %}badge-disabled{% else %}badge-active{% endif %}">
+        <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"
+            style="font-size: 1.25rem;"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <script>
+        // Dismiss flash alerts after 4 seconds
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-overlay');
+            alerts.forEach(el => {
+                el.style.transition = 'opacity 0.5s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 4000);
+    </script>
+</body>
+
+</html>
