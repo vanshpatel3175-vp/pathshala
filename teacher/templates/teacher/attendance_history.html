@@ -1,0 +1,161 @@
+{% extends 'teacher/base.html' %}
+
+{% block title %}Attendance History{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Make calendar icon visible on dark background */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1><i class="fa-solid fa-clock-rotate-left" style="color: #818cf8; margin-right: 10px;"></i>Attendance History</h1>
+        <p>Review past attendance records for your classes</p>
+    </div>
+    <a href="{% url 'teacher_attendance' %}" class="btn btn-teacher" style="text-decoration: none;">
+        <i class="fa-solid fa-clipboard-check"></i> Take Attendance
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="glass-panel" style="padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--color-info);">
+    <form method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+                <i class="fa-solid fa-chalkboard"></i> Class
+            </label>
+            <select name="class_id"
+                style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                onchange="this.form.submit()">
+                <option value="">-- Choose a Class --</option>
+                {% for cls in assigned_classes %}
+                <option value="{{ cls.id }}" {% if selected_class and selected_class.id == cls.id %}selected{% endif %}>
+                    {{ cls.name }}{% if cls.section %} — {{ cls.section }}{% endif %} ({{ cls.branch.name }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="min-width: 170px;">
+            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+                <i class="fa-solid fa-calendar"></i> Filter by Date
+            </label>
+            <input type="date" name="date" value="{{ date_filter }}"
+                onchange="this.form.submit()"
+                style="height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; width: 100%;">
+        </div>
+        <button type="submit" class="btn btn-secondary" style="height: 44px; padding: 0 22px;">
+            <i class="fa-solid fa-filter"></i> Filter
+        </button>
+    </form>
+</div>
+
+{% if not assigned_classes %}
+<div class="glass-panel" style="padding: 50px; text-align: center; color: var(--text-muted);">
+    <i class="fa-solid fa-chalkboard" style="font-size: 3rem; display: block; margin-bottom: 14px; opacity: 0.35;"></i>
+    <h3 style="color: #fff; margin-bottom: 8px;">No Classes Assigned</h3>
+    <p>Your school admin has not assigned any class to you yet.</p>
+</div>
+
+{% elif selected_class %}
+
+{% if attendances_by_date %}
+<!-- Attendance grouped by date -->
+{% for att_date, records in attendances_by_date.items %}
+<div class="glass-panel" style="padding: 0; overflow: hidden; border-left: 4px solid #6366f1; margin-bottom: 20px;">
+    <!-- Date header -->
+    <div style="padding: 14px 22px; background: rgba(99,102,241,0.07); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="width: 40px; height: 40px; background: rgba(99,102,241,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-calendar-day" style="color: #818cf8;"></i>
+            </div>
+            <div>
+                <p style="font-weight: 700; color: #fff; margin: 0; font-size: 0.95rem;">{{ att_date }}</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">{{ records|length }} student(s) recorded</p>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {% with present_count=0 absent_count=0 late_count=0 %}
+            {% for rec in records %}
+                {% if rec.status == 'present' %}{% with present_count=present_count|add:1 %}{% endwith %}{% endif %}
+            {% endfor %}
+            {% endwith %}
+            <span style="padding: 4px 12px; background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.25); border-radius: 20px; font-size: 0.72rem; font-weight: 700;">
+                ✓ {{ records|length }} recorded
+            </span>
+            <a href="{% url 'teacher_attendance' %}?class_id={{ selected_class.id }}&date={{ att_date }}"
+                style="padding: 4px 12px; background: rgba(99,102,241,0.1); color: #818cf8; border: 1px solid rgba(99,102,241,0.25); border-radius: 20px; font-size: 0.72rem; font-weight: 700; text-decoration: none;">
+                <i class="fa-solid fa-pen"></i> Edit
+            </a>
+        </div>
+    </div>
+
+    <!-- Student rows -->
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: rgba(0,0,0,0.1);">
+                <th style="padding: 10px 18px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Student</th>
+                <th style="padding: 10px 18px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Status</th>
+                <th style="padding: 10px 18px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in records %}
+            <tr style="border-top: 1px solid rgba(255,255,255,0.04);">
+                <td style="padding: 12px 18px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                            {{ rec.student.name|first|upper }}
+                        </div>
+                        <span style="font-weight: 600; color: #fff; font-size: 0.875rem;">{{ rec.student.name }}</span>
+                    </div>
+                </td>
+                <td style="padding: 12px 18px;">
+                    {% if rec.status == 'present' %}
+                    <span style="padding: 4px 12px; background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; font-size: 0.72rem; font-weight: 700;">
+                        <i class="fa-solid fa-check"></i> Present
+                    </span>
+                    {% elif rec.status == 'absent' %}
+                    <span style="padding: 4px 12px; background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 20px; font-size: 0.72rem; font-weight: 700;">
+                        <i class="fa-solid fa-xmark"></i> Absent
+                    </span>
+                    {% else %}
+                    <span style="padding: 4px 12px; background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); border-radius: 20px; font-size: 0.72rem; font-weight: 700;">
+                        <i class="fa-solid fa-clock"></i> Late
+                    </span>
+                    {% endif %}
+                </td>
+                <td style="padding: 12px 18px; color: var(--text-secondary); font-size: 0.82rem;">
+                    {{ rec.note|default:"—" }}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+
+{% else %}
+<div class="glass-panel" style="padding: 50px; text-align: center; color: var(--text-muted);">
+    <i class="fa-solid fa-calendar-xmark" style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+    <p>No attendance records found{% if date_filter %} for {{ date_filter }}{% endif %}.</p>
+    <a href="{% url 'teacher_attendance' %}?class_id={{ selected_class.id }}" class="btn btn-teacher" style="margin-top: 14px; text-decoration: none; display: inline-block;">
+        <i class="fa-solid fa-clipboard-check"></i> Take Attendance Now
+    </a>
+</div>
+{% endif %}
+
+{% else %}
+<div class="glass-panel" style="padding: 50px; text-align: center; color: var(--text-muted);">
+    <i class="fa-solid fa-arrow-up" style="font-size: 2rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+    <p>Select a class above to view its attendance history.</p>
+</div>
+{% endif %}
+
+{% endblock %}

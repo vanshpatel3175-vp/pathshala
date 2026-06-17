@@ -95,6 +95,9 @@
                         style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
                         Branch</th>
                     <th
+                        style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
+                        Assigned Teacher</th>
+                    <th
                         style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em; text-align: right;">
                         Actions</th>
                 </tr>
@@ -116,7 +119,21 @@
                     </td>
                     <td style="padding: 14px 18px; color: var(--text-secondary); font-size: 0.9rem;">
                         {{ cls.branch.name}}</td>
-                    <td style="padding: 14px 18px; text-align: right;">
+                    <td style="padding: 14px 18px;">
+                        {% if cls.teacher %}
+                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(99,102,241,0.1); color: #818cf8; border: 1px solid rgba(99,102,241,0.25); border-radius: 20px; font-size: 0.78rem; font-weight: 600;">
+                            <i class="fa-solid fa-chalkboard-user"></i> {{ cls.teacher.name }}
+                        </span>
+                        {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.8rem; font-style: italic;">Not assigned</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 14px 18px; text-align: right; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                        <button type="button"
+                            onclick="openAssignTeacherDrawer('{{ cls.id }}', '{{ cls.teacher.id|default:'' }}')"
+                            style="padding: 5px 12px; font-size: 0.8rem; background: rgba(99,102,241,0.08); color: #818cf8; border: 1px solid rgba(99,102,241,0.2); border-radius: 6px; cursor: pointer;">
+                            <i class="fa-solid fa-chalkboard-user"></i> Assign
+                        </button>
                         <form method="POST" action="{% url 'school_classes' %}" style="display: inline;"
                             onsubmit="return confirm('Delete this class?')">
                             {% csrf_token %}
@@ -131,7 +148,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5" style="padding: 50px; text-align: center; color: var(--text-muted);">
+                    <td colspan="6" style="padding: 50px; text-align: center; color: var(--text-muted);">
                         <i class="fa-solid fa-chalkboard"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
                         No classes found. Add one below.
@@ -141,6 +158,34 @@
             </tbody>
         </table>
     </div>
+</div>
+
+<!-- Assign Teacher Drawer -->
+<div id="assign-teacher-drawer" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid #6366f1;">
+    <h3 style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-chalkboard-user" style="color: #818cf8;"></i> Assign Teacher to Class</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+    </h3>
+    <form method="POST" action="{% url 'school_classes' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="assign_teacher">
+        <input type="hidden" name="class_id" id="assign_class_id">
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label style="margin-bottom: 8px; display: block;">Select Teacher</label>
+            <select id="assign_teacher_id" name="teacher_id" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <option value="">-- Unassign / None --</option>
+                {% for t in teachers %}
+                <option value="{{ t.id }}">{{ t.name }} ({{ t.branch.name }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+            <i class="fa-solid fa-save"></i> Save Assignment
+        </button>
+    </form>
 </div>
 
 <!-- Add Class Card -->
@@ -200,4 +245,15 @@
         </button>
     </form>
 </div>
-{% endblock %}
+
+<script>
+    function openAssignTeacherDrawer(classId, currentTeacherId) {
+        document.getElementById('assign_class_id').value = classId;
+        const sel = document.getElementById('assign_teacher_id');
+        if (sel) {
+            sel.value = currentTeacherId || '';
+        }
+        openDrawer('assign-teacher-drawer');
+    }
+</script>
+{% endblock %}

@@ -190,6 +190,13 @@
                         </a>
                     </li>
                     {% endif %}
+                    <li>
+                        <a href="{% url 'school_attendance' %}"
+                            class="sidebar-link {% if current_tab == 'attendance' %}active{% endif %}">
+                            <i class="fa-solid fa-clipboard-list"></i>
+                            Attendance
+                        </a>
+                    </li>
                     <!-- <li>
                         <a href="{% url 'school_profile' %}"
                             class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">

@@ -78,6 +78,20 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'teacher_attendance' %}"
+                            class="sidebar-link {% if current_tab == 'attendance' %}active{% endif %}">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                            Take Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'teacher_attendance_history' %}"
+                            class="sidebar-link {% if current_tab == 'attendance_history' %}active{% endif %}">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            Attendance History
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'teacher_profile' %}"
                             class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
                             <i class="fa-solid fa-user-circle"></i>

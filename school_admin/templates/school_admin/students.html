@@ -117,15 +117,15 @@
             </div>
         </div>
 
-        <!-- Assign School (Branch) -->
         <div id="student-school-section" style="display: none; margin-bottom: 18px;">
             <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
                 <i class="fa-solid fa-school" style="margin-right: 6px;"></i> Step 4 — Assign School (Branch)
             </p>
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Assign School (Branch) <span style="color: var(--color-danger);">*</span></label>
-                <select name="branch_id" class="custom-select"
-                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <select id="register_branch_id" name="branch_id" class="custom-select"
+                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                    onchange="loadClassesForBranch(this.value)">
                     {% for branch in branches %}
                     {% if branch.id in selected_branch_ids %}
                     <option value="{{ branch.id }}" selected>{{ branch.name }} ({{ branch.city }})</option>
@@ -136,6 +136,23 @@
                     <option value="">-- Create a Branch First --</option>
                     {% endfor %}
                 </select>
+            </div>
+        </div>
+
+        <!-- Step 5: Class & Section -->
+        <div id="student-class-section" style="display: none; margin-bottom: 18px;">
+            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-chalkboard" style="margin-right: 6px;"></i> Step 5 — Assign Class &amp; Section
+            </p>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Class &amp; Section <span style="color: var(--text-muted); font-size: 0.75rem;">(optional)</span></label>
+                <select id="school_class_id" name="school_class_id" class="custom-select"
+                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    <option value="">-- Select Class (optional) --</option>
+                </select>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">
+                    <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>Classes are managed under <a href="/school/classes/" style="color: var(--color-primary);">Classes &amp; Sections</a>.
+                </p>
             </div>
         </div>
 
@@ -159,6 +176,7 @@
                         <th>Name</th>
                         <th>Email</th>
                         <th>School</th>
+                        <th>Class</th>
                         <th>Status</th>
                         <th style="text-align: right;">Action</th>
                     </tr>
@@ -186,11 +204,21 @@
                             <span class="badge badge-pending" style="font-size: 0.7rem;">{{ student.branch.name }}</span>
                         </td>
                         <td>
+                            {% if student.school_class %}
+                            <span class="badge" style="font-size: 0.7rem; background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 3px 10px;">
+                                {{ student.school_class.name }}{% if student.school_class.section %} &mdash; {{ student.school_class.section }}{% endif %}
+                            </span>
+                            {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.78rem;">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
                             <span class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}" style="font-size: 0.7rem;">{{ student.status|title }}</span>
                         </td>
                         <td style="text-align: right;">
                             <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}')">
+                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}')"
+                            >
                                 <i class="fa-solid fa-user-pen"></i> edit
                             </button>
                         </td>
@@ -198,7 +226,7 @@
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">
                             <i class="fa-solid fa-users-viewfinder"
                                 style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
                             No students found matching your query.
@@ -257,6 +285,7 @@
 
 <script>
     const LOOKUP_URL = "{% url 'school_user_lookup_api' %}";
+    const CLASSES_URL = "{% url 'classes_by_branch_api' %}";
     let searchDebounceTimer = null;
 
     const searchInput = document.getElementById('student-user-search');
@@ -357,6 +386,11 @@
         document.getElementById('display_last_name').value = lastName;
         document.getElementById('display_email').value = email;
         showStudentForm();
+        // Trigger class loading for currently selected branch
+        const branchSel = document.getElementById('register_branch_id');
+        if (branchSel && branchSel.value) {
+            loadClassesForBranch(branchSel.value);
+        }
         showLookupStatus('success', `<i class="fa-solid fa-circle-check"></i> User selected: <strong>${firstName} ${lastName}</strong>`);
     }
 
@@ -374,6 +408,7 @@
         document.getElementById('student-info-section').style.display = 'block';
         document.getElementById('student-password-section').style.display = 'block';
         document.getElementById('student-school-section').style.display = 'block';
+        document.getElementById('student-class-section').style.display = 'block';
         document.getElementById('student-submit-section').style.display = 'block';
     }
 
@@ -384,6 +419,7 @@
         document.getElementById('student-info-section').style.display = 'none';
         document.getElementById('student-password-section').style.display = 'none';
         document.getElementById('student-school-section').style.display = 'none';
+        document.getElementById('student-class-section').style.display = 'none';
         document.getElementById('student-submit-section').style.display = 'none';
         statusEl.style.display = 'none';
     }
@@ -394,5 +430,39 @@
         document.getElementById('edit_status').value = status;
         openDrawer('edit-student-card');
     }
+
+    // ── Load classes dynamically when branch changes ──────────────────────────
+    function loadClassesForBranch(branchId) {
+        const classSelect = document.getElementById('school_class_id');
+        if (!classSelect) return;
+        if (!branchId) {
+            classSelect.innerHTML = '<option value="">-- Select Class (optional) --</option>';
+            return;
+        }
+        fetch(`${CLASSES_URL}?branch_id=${encodeURIComponent(branchId)}`)
+            .then(r => r.json())
+            .then(data => {
+                const classes = data.classes || [];
+                let opts = '<option value="">-- Select Class (optional) --</option>';
+                classes.forEach(c => {
+                    opts += `<option value="${c.id}">${c.label}</option>`;
+                });
+                if (!classes.length) {
+                    opts += '<option value="" disabled>No classes found for this branch</option>';
+                }
+                classSelect.innerHTML = opts;
+            })
+            .catch(() => {
+                classSelect.innerHTML = '<option value="">-- Select Class (optional) --</option>';
+            });
+    }
+
+    // Auto-load classes on page load if a branch is pre-selected
+    (function() {
+        const branchSel = document.getElementById('register_branch_id');
+        if (branchSel && branchSel.value) {
+            loadClassesForBranch(branchSel.value);
+        }
+    })();
 </script>
 {% endblock %}

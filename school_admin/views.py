@@ -11,7 +11,7 @@ from django.utils import timezone
 from datetime import date
 from super_admin.models import SchoolApplication, Institution
 
-from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, SchoolUser, Medium
+from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, SchoolUser, Medium, Attendance
 
 def school_signup_view(request):
     if request.user.is_authenticated:
@@ -533,8 +533,16 @@ def school_students_view(request):
             
             # Create Student record
             from django.contrib.auth.hashers import make_password as hash_pw
+            class_id = request.POST.get('school_class_id', '').strip()
+            school_class_obj = None
+            if class_id:
+                try:
+                    school_class_obj = SchoolClass.objects.get(id=class_id, branch=branch)
+                except SchoolClass.DoesNotExist:
+                    pass
             student_obj = Student.objects.create(
                 branch=branch,
+                school_class=school_class_obj,
                 school_user=school_user,
                 name=school_user.full_name,
                 email=school_user.email,
@@ -560,6 +568,7 @@ def school_students_view(request):
 
     from .models import Medium
     mediums = Medium.objects.filter(institution=inst)
+    all_classes = SchoolClass.objects.filter(branch__in=branches).order_by('branch', 'name', 'section')
 
     context = {
         'profile': profile,
@@ -567,6 +576,7 @@ def school_students_view(request):
         'students': students,
         'branches': branches,
         'mediums': mediums,
+        'all_classes': all_classes,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'selected_branch_ids': selected_branch_ids,
@@ -870,6 +880,18 @@ def school_classes_view(request):
             cls.delete()
             messages.success(request, "Class deleted successfully.")
             return redirect(f"{reverse('school_classes')}?branch_id={deleted_branch_id}")
+        elif action == 'assign_teacher':
+            class_id = request.POST.get('class_id')
+            teacher_id = request.POST.get('teacher_id', '').strip()
+            cls = get_object_or_404(SchoolClass, id=class_id, branch__in=branches)
+            if teacher_id:
+                teacher_obj = get_object_or_404(Teacher, id=teacher_id, branch__in=branches)
+                cls.teacher = teacher_obj
+            else:
+                cls.teacher = None
+            cls.save()
+            messages.success(request, f"Teacher assigned to '{cls.name}' successfully.")
+            return redirect(f"{reverse('school_classes')}?branch_id={cls.branch_id}")
         else:
             name = request.POST.get('name', '').strip()
             section = request.POST.get('section', '').strip()
@@ -908,12 +930,15 @@ def school_classes_view(request):
     elif mediums.count() == 1:
         selected_medium_ids.append(mediums.first().id)
 
+    teachers = Teacher.objects.filter(branch__in=branches)
+
     context = {
         'profile': profile,
         'institution': inst,
         'branches': branches,
         'classes': classes,
         'mediums': mediums,
+        'teachers': teachers,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'selected_branch_ids': selected_branch_ids,
@@ -922,6 +947,66 @@ def school_classes_view(request):
         'current_tab': 'classes',
     }
     return render(request, 'school_admin/classes.html', context)
+
+
+# ─── Attendance Report (School Admin) ─────────────────────────────────────────
+
+@school_admin_required
+def school_attendance_view(request):
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+    branches = inst.branches.all()
+
+    branch_filter_id = request.GET.get('branch_id', '').strip()
+    class_filter_id = request.GET.get('class_id', '').strip()
+    date_filter = request.GET.get('date', '').strip()
+
+    classes = SchoolClass.objects.filter(branch__in=branches)
+    if branch_filter_id:
+        classes = classes.filter(branch_id=branch_filter_id)
+
+    selected_class = None
+    attendances = []
+    if class_filter_id:
+        selected_class = get_object_or_404(SchoolClass, id=class_filter_id, branch__in=branches)
+        qs = Attendance.objects.filter(school_class=selected_class).select_related('student', 'teacher')
+        if date_filter:
+            qs = qs.filter(date=date_filter)
+        attendances = qs.order_by('-date', 'student__name')
+
+    # Attendance summary per class
+    from django.db.models import Count, Q
+    class_summary = []
+    for cls in SchoolClass.objects.filter(branch__in=branches).select_related('teacher', 'branch'):
+        total = Attendance.objects.filter(school_class=cls).values('date').distinct().count()
+        present = Attendance.objects.filter(school_class=cls, status='present').count()
+        absent = Attendance.objects.filter(school_class=cls, status='absent').count()
+        class_summary.append({'cls': cls, 'sessions': total, 'present': present, 'absent': absent})
+
+    selected_branch_ids = []
+    if branch_filter_id:
+        try:
+            selected_branch_ids.append(int(branch_filter_id))
+        except ValueError:
+            pass
+    elif branches.count() == 1:
+        selected_branch_ids.append(branches.first().id)
+
+    context = {
+        'profile': profile,
+        'institution': inst,
+        'branches': branches,
+        'classes': SchoolClass.objects.filter(branch__in=branches),
+        'class_summary': class_summary,
+        'selected_class': selected_class,
+        'attendances': attendances,
+        'branch_filter_id': branch_filter_id,
+        'class_filter_id': class_filter_id,
+        'date_filter': date_filter,
+        'selected_branch_ids': selected_branch_ids,
+        'current_tab': 'attendance',
+    }
+    return render(request, 'school_admin/attendance.html', context)
 
 
 # ─── School Profile / Settings ─────────────────────────────────────────────────
@@ -1199,4 +1284,29 @@ def school_user_lookup_api(request):
         })
 
     return JsonResponse({'results': results})
+
+
+@school_admin_required
+def classes_by_branch_api(request):
+    """AJAX endpoint: return SchoolClass list for a given branch_id."""
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+    branch_id = request.GET.get('branch_id', '').strip()
+
+    if not branch_id:
+        return JsonResponse({'classes': []})
+
+    branch = Branch.objects.filter(id=branch_id, institution=inst).first()
+    if not branch:
+        return JsonResponse({'classes': []})
+
+    classes = SchoolClass.objects.filter(branch=branch).order_by('name', 'section')
+    data = []
+    for c in classes:
+        label = c.name
+        if c.section:
+            label += f' — {c.section}'
+        data.append({'id': c.id, 'label': label})
+
+    return JsonResponse({'classes': data})
 

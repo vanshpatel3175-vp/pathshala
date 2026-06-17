@@ -46,6 +46,7 @@ class Student(models.Model):
         ('inactive', 'Inactive'),
     ]
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='students')
+    school_class = models.ForeignKey('SchoolClass', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
     school_user = models.OneToOneField('SchoolUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='student_role')
     name = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
@@ -129,6 +130,12 @@ class SchoolClass(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='classes')
     name = models.CharField(max_length=100)
     section = models.CharField(max_length=50, blank=True, null=True)
+    teacher = models.ForeignKey(
+        'Teacher',
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='assigned_classes'
+    )
 
     def __str__(self):
         return f"{self.name} ({self.branch.name})"
@@ -157,3 +164,24 @@ class StudyMaterial(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.branch.name})"
+
+
+class Attendance(models.Model):
+    STATUS_CHOICES = [
+        ('present', 'Present'),
+        ('absent', 'Absent'),
+        ('late', 'Late'),
+    ]
+    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='attendances')
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='attendances')
+    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True, related_name='attendances_taken')
+    date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='present')
+    note = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = ('school_class', 'student', 'date')
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.student.name} — {self.school_class.name} — {self.date} — {self.status}"
