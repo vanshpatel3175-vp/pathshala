@@ -62,7 +62,8 @@
                     <h2 style="font-size: 1.1rem; line-height: 1.2;">
                         {{ institution.name|default:"Student Portal" }}
                     </h2>
-                    <span style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+                    <span
+                        style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
                         Student Portal
                     </span>
                 </div>
@@ -92,6 +93,13 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'student_result' %}"
+                            class="sidebar-link {% if current_tab == 'result' %}active{% endif %}">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            Result
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'student_study_materials' %}"
                             class="sidebar-link {% if current_tab == 'study_materials' %}active{% endif %}">
                             <i class="fa-solid fa-book-open"></i>
@@ -100,7 +108,8 @@
                     </li>
                     {% if request.user.teacher_profile %}
                     <li>
-                        <a href="{% url 'select_profile' %}" class="sidebar-link" style="border: 1px dashed rgba(255,255,255,0.15);">
+                        <a href="{% url 'select_profile' %}" class="sidebar-link"
+                            style="border: 1px dashed rgba(255,255,255,0.15);">
                             <i class="fa-solid fa-user-gear"></i>
                             Switch Profile
                         </a>
@@ -110,13 +119,16 @@
             </nav>
 
             <!-- Student Info Footer -->
-            <div style="padding: 16px; background: rgba(13,148,136,0.06); border-radius: 12px; border: 1px solid rgba(13,148,136,0.15); margin-bottom: 16px;">
+            <div
+                style="padding: 16px; background: rgba(13,148,136,0.06); border-radius: 12px; border: 1px solid rgba(13,148,136,0.15); margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #fff;">
+                    <div
+                        style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #fff;">
                         {{ request.user.first_name|first|upper }}
                     </div>
                     <div>
-                        <p style="font-weight: 600; font-size: 0.875rem; color: #fff; margin: 0;">{{ request.user.first_name }}</p>
+                        <p style="font-weight: 600; font-size: 0.875rem; color: #fff; margin: 0;">{{
+                            request.user.first_name }}</p>
                         <span class="student-badge"><i class="fa-solid fa-graduation-cap"></i> Student</span>
                     </div>
                 </div>
@@ -143,7 +155,8 @@
     <!-- Flash notifications -->
     {% if messages %}
     {% for message in messages %}
-    <div class="alert-overlay glass-panel {% if message.tags == 'error' %}badge-disabled{% else %}badge-active{% endif %}">
+    <div
+        class="alert-overlay glass-panel {% if message.tags == 'error' %}badge-disabled{% else %}badge-active{% endif %}">
         <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"
             style="font-size: 1.25rem;"></i>
         <span>{{ message }}</span>

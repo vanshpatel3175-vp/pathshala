@@ -96,3 +96,14 @@ def student_attendance_view(request):
     return render(request, 'student/attendance.html', context)
 
 
+@student_required
+def student_result_view(request):
+    profile = get_student_profile(request.user)
+    student = profile.student if profile else None
+    context = {
+        'student': student,
+        'institution': student.branch.institution if student else None,
+        'current_tab': 'result',
+    }
+    return render(request, 'student/result.html', context)
+
