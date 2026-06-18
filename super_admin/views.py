@@ -288,8 +288,8 @@ def platform_users_view(request):
 
 @superadmin_required
 def inquiries_view(request):
-    inquiries = Inquiry.objects.all().order_by('-last_active')
-    applications = SchoolApplication.objects.all().order_by('-date_applied')
+    inquiries = Inquiry.objects.exclude(status='Approved').order_by('-last_active')
+    applications = SchoolApplication.objects.exclude(status='Validated').order_by('-date_applied')
     
     context = {
         'inquiries': inquiries,
