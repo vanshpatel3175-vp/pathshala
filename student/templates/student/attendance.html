@@ -10,6 +10,24 @@
     </div>
 </div>
 
+<!-- Filter Section -->
+<div class="search-row" style="margin-bottom: 25px;">
+    <div style="flex: 1; display: flex; align-items: center; gap: 15px;">
+        <label for="statusFilter" style="color: var(--text-secondary); font-weight: 500;">Filter by Status:</label>
+        <select id="statusFilter" class="custom-select" style="max-width: 250px; height: 42px; border-radius: 8px; padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: #fff;" onchange="filterAttendance()">
+            <option value="all">All Records</option>
+            <option value="present">Present</option>
+            <option value="absent">Absent</option>
+            <option value="late">Late</option>
+        </select>
+        
+        <label for="monthFilter" style="color: var(--text-secondary); font-weight: 500; margin-left: 20px;">Filter by Month:</label>
+        <select id="monthFilter" class="custom-select" style="max-width: 250px; height: 42px; border-radius: 8px; padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: #fff;" onchange="filterAttendance()">
+            <option value="all">All Months</option>
+        </select>
+    </div>
+</div>
+
 <div class="glass-panel" style="padding: 30px; margin-bottom: 30px;">
     {% if attendance_records %}
     <div class="table-responsive">
@@ -24,7 +42,7 @@
             </thead>
             <tbody>
                 {% for record in attendance_records %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <tr class="attendance-row" data-status="{{ record.status }}" data-month-val="{{ record.date|date:'Y-m' }}" data-month-name="{{ record.date|date:'F Y' }}" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                     <td style="padding: 16px 12px;">{{ record.date|date:"M d, Y" }}</td>
                     <td style="padding: 16px 12px;">
                         {% if record.status == 'present' %}
@@ -50,4 +68,45 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const monthFilter = document.getElementById('monthFilter');
+    const rows = document.querySelectorAll('.attendance-row');
+    const months = new Set();
+    
+    rows.forEach(row => {
+        const monthVal = row.getAttribute('data-month-val');
+        const monthName = row.getAttribute('data-month-name');
+        if (monthVal && monthName) {
+            months.add(JSON.stringify({val: monthVal, name: monthName}));
+        }
+    });
+    
+    // Sort and add options (newest month first)
+    Array.from(months).map(m => JSON.parse(m)).sort((a,b) => b.val.localeCompare(a.val)).forEach(m => {
+        const option = document.createElement('option');
+        option.value = m.val;
+        option.textContent = m.name;
+        monthFilter.appendChild(option);
+    });
+});
+
+function filterAttendance() {
+    const statusValue = document.getElementById('statusFilter').value;
+    const monthValue = document.getElementById('monthFilter').value;
+    const rows = document.querySelectorAll('.attendance-row');
+    
+    rows.forEach(row => {
+        const matchStatus = (statusValue === 'all' || row.getAttribute('data-status') === statusValue);
+        const matchMonth = (monthValue === 'all' || row.getAttribute('data-month-val') === monthValue);
+        
+        if (matchStatus && matchMonth) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+</script>
 {% endblock %}

@@ -60,7 +60,7 @@
                 <i class="fa-solid fa-graduation-cap" style="color: var(--student-accent); font-size: 1.5rem;"></i>
                 <div>
                     <h2 style="font-size: 1.1rem; line-height: 1.2;">
-                        {{ institution.name|default:"Student Portal" }}
+                        {{ request.user.first_name }} {{ request.user.last_name }}
                     </h2>
                     <span
                         style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
@@ -127,8 +127,9 @@
                         {{ request.user.first_name|first|upper }}
                     </div>
                     <div>
-                        <p style="font-weight: 600; font-size: 0.875rem; color: #fff; margin: 0;">{{
-                            request.user.first_name }}</p>
+                        <p style="font-weight: 600; font-size: 0.875rem; color: #fff; margin: 0;">
+                            {{ request.user.first_name }}
+                        </p>
                         <span class="student-badge"><i class="fa-solid fa-graduation-cap"></i> Student</span>
                     </div>
                 </div>
