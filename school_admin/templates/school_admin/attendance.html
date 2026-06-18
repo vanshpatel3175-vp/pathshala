@@ -13,34 +13,6 @@
     </div>
 </div>
 
-<!-- Summary Cards -->
-<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 30px;">
-    {% for item in class_summary %}
-    <div class="glass-panel stats-card" style="border-top: 3px solid #6366f1; cursor: pointer;"
-        onclick="window.location.href='?class_id={{ item.cls.id }}'">
-        <div class="label" style="display: flex; align-items: center; gap: 6px; justify-content: center; flex-wrap: wrap;">
-            <i class="fa-solid fa-chalkboard" style="color: #818cf8;"></i>
-            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px;">
-                {{ item.cls.name }}{% if item.cls.section %} — {{ item.cls.section }}{% endif %}
-            </span>
-        </div>
-        <div style="display: flex; gap: 12px; margin-top: 8px; justify-content: center;">
-            <span style="font-size: 1.1rem; font-weight: 700; color: #34d399;">{{ item.present }}P</span>
-            <span style="font-size: 1.1rem; font-weight: 700; color: #f87171;">{{ item.absent }}A</span>
-        </div>
-        <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 4px;">{{ item.sessions }} sessions</div>
-        {% if item.cls.teacher %}
-        <div style="font-size: 0.7rem; color: #818cf8; margin-top: 4px;">
-            <i class="fa-solid fa-chalkboard-user"></i> {{ item.cls.teacher.name }}
-        </div>
-        {% endif %}
-    </div>
-    {% empty %}
-    <div class="glass-panel stats-card" style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">
-        No classes found. Create classes and assign teachers first.
-    </div>
-    {% endfor %}
-</div>
 
 <!-- Filter Bar -->
 <div class="glass-panel" style="padding: 22px; margin-bottom: 26px; border-left: 4px solid #6366f1; border-radius: 14px;">
@@ -172,7 +144,7 @@
 <div class="glass-panel" style="padding: 60px; text-align: center; color: var(--text-muted); border-radius: 16px;">
     <i class="fa-solid fa-clipboard-list" style="font-size: 3rem; display: block; margin-bottom: 14px; opacity: 0.3;"></i>
     <h3 style="color: #fff; margin-bottom: 8px;">Select a Class</h3>
-    <p>Choose a class from the filter above or click on a summary card to view attendance records.</p>
+    <p>Choose a class from the filter above to view attendance records.</p>
 </div>
 {% endif %}
 

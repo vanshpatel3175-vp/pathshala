@@ -92,6 +92,13 @@
                         </a>
                     </li>
                     <li>
+                        <a href="{% url 'teacher_study_materials' %}"
+                            class="sidebar-link {% if current_tab == 'study_materials' %}active{% endif %}">
+                            <i class="fa-solid fa-book-open"></i>
+                            Study Materials
+                        </a>
+                    </li>
+                    <li>
                         <a href="{% url 'teacher_profile' %}"
                             class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
                             <i class="fa-solid fa-user-circle"></i>

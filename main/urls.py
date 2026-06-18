@@ -24,6 +24,7 @@ urlpatterns = [
     path('login/', include('super_admin.urls')),
     path('teacher/', include('teacher.urls')),
     path('student/', include('student.urls')),
+    path('study-material/', include('study_material.urls')),
     path('', school_signup_view, name='school_signup_root'),
     path('api/', include('school_admin.api_urls')),
 ]

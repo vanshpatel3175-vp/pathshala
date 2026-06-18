@@ -1,0 +1,85 @@
+{% extends 'student/base.html' %}
+{% load static %}
+
+{% block title %}Study Materials - Student Portal{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
+    <div class="page-title">
+        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Study Materials
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Access materials and notes uploaded by your teachers.</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="glass-panel" style="padding: 20px; margin-bottom: 25px; border-radius: 12px; border-left: 4px solid var(--student-accent);">
+    <form method="GET" action="{% url 'student_study_materials' %}" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        <select name="category" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 150px;">
+            <option value="">All Categories</option>
+            {% for key, val in category_choices %}
+            <option value="{{ key }}" {% if key == category_filter %}selected{% endif %}>{{ val }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn" style="padding: 10px 20px; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+            <i class="fa-solid fa-filter"></i> Filter
+        </button>
+        {% if category_filter %}
+        <a href="{% url 'student_study_materials' %}" class="btn" style="padding: 10px 16px; border-radius: 8px; background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary);">
+            <i class="fa-solid fa-xmark"></i> Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- List of Materials -->
+<div class="glass-panel" style="padding: 25px; border-radius: 16px;">
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+        {% for mat in materials %}
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                    {% if mat.file_extension == 'pdf' %}
+                        <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
+                    {% elif mat.file_extension in 'doc,docx' %}
+                        <i class="fa-solid fa-file-word" style="color: #3b82f6;"></i>
+                    {% else %}
+                        <i class="fa-solid fa-file" style="color: var(--text-muted);"></i>
+                    {% endif %}
+                    {{ mat.title }}
+                </h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+                    <span class="badge" style="background: rgba(38,166,154,0.1); color: var(--color-primary); border: 1px solid rgba(38,166,154,0.2);">
+                        {{ mat.get_category_display }}
+                    </span>
+                    {% if mat.subject %}
+                    <span class="badge" style="background: rgba(255,255,255,0.05); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);">
+                        {{ mat.subject }}
+                    </span>
+                    {% endif %}
+                </div>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0 0 10px 0;">
+                    Uploaded by: <strong>{{ mat.uploaded_by_label }}</strong> on {{ mat.uploaded_at|date:"M d, Y" }}
+                </p>
+                {% if mat.description %}
+                <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; padding-left: 12px; border-left: 2px solid rgba(255,255,255,0.1);">
+                    {{ mat.description }}
+                </p>
+                {% endif %}
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ mat.file.url }}" target="_blank" class="btn btn-student" style="padding: 8px 16px; font-size: 0.85rem; text-decoration: none;">
+                    <i class="fa-solid fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="fa-solid fa-folder-open" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
+            <p>No study materials found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

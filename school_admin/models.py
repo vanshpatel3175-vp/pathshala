@@ -49,7 +49,7 @@ class Student(models.Model):
     school_class = models.ForeignKey('SchoolClass', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
     school_user = models.OneToOneField('SchoolUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='student_role')
     name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     password = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
 
@@ -62,7 +62,7 @@ class SchoolUser(models.Model):
     institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='school_users')
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     dob = models.DateField(null=True, blank=True)
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=100, default='Gujarat')
@@ -86,7 +86,7 @@ class Teacher(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='teachers')
     school_user = models.OneToOneField(SchoolUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='teacher_role')
     name = models.CharField(max_length=255)
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
     password = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
 
@@ -155,15 +155,7 @@ class Medium(models.Model):
     def __str__(self):
         return f"{self.name} ({self.institution.name})"
 
-class StudyMaterial(models.Model):
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='study_materials')
-    school_class = models.ForeignKey(SchoolClass, on_delete=models.CASCADE, related_name='study_materials', null=True, blank=True)
-    title = models.CharField(max_length=255)
-    file = models.FileField(upload_to='study_materials/')
-    uploaded_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.title} ({self.branch.name})"
 
 
 class Attendance(models.Model):

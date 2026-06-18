@@ -84,6 +84,20 @@
                             My Profile
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'student_attendance' %}"
+                            class="sidebar-link {% if current_tab == 'attendance' %}active{% endif %}">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'student_study_materials' %}"
+                            class="sidebar-link {% if current_tab == 'study_materials' %}active{% endif %}">
+                            <i class="fa-solid fa-book-open"></i>
+                            Study Materials
+                        </a>
+                    </li>
                     {% if request.user.teacher_profile %}
                     <li>
                         <a href="{% url 'select_profile' %}" class="sidebar-link" style="border: 1px dashed rgba(255,255,255,0.15);">

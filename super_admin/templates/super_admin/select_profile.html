@@ -217,61 +217,71 @@
         </div>
 
         <div class="cards-grid">
-            <!-- Card 1: Teacher Profile -->
-            <div class="profile-card card-teacher" onclick="document.getElementById('form-teacher').submit()">
+            {% for tp in teacher_profiles %}
+            <div class="profile-card card-teacher" onclick="document.getElementById('form-teacher-{{ tp.user.id }}').submit()">
                 <div class="icon-wrapper teacher-icon-wrapper">
                     <i class="fa-solid fa-chalkboard-user" style="font-size: 2.2rem;"></i>
                 </div>
-                <h3>Teacher Portal</h3>
+                <h3>{{ tp.teacher.name|default:"Teacher Portal" }}</h3>
                 <p class="role-subtitle teacher-role-subtitle">Registered Teacher</p>
                 
                 <div class="info-box">
                     <div class="info-item">
                         <i class="fa-solid fa-school"></i>
-                        <span>{{ teacher_school.name|default:"School" }}</span>
+                        <span>{{ tp.teacher.branch.institution.name|default:"School" }}</span>
                     </div>
-                    {% if teacher_branch %}
+                    {% if tp.teacher.branch %}
                     <div class="info-item">
                         <i class="fa-solid fa-code-branch"></i>
-                        <span>{{ teacher_branch.name }} ({{ teacher_branch.city }})</span>
+                        <span>{{ tp.teacher.branch.name }} ({{ tp.teacher.branch.city }})</span>
                     </div>
                     {% endif %}
                 </div>
 
-                <form id="form-teacher" method="POST" style="display: none;">
+                <form id="form-teacher-{{ tp.user.id }}" method="POST" style="display: none;">
                     {% csrf_token %}
                     <input type="hidden" name="role" value="TEACHER">
+                    <input type="hidden" name="user_id" value="{{ tp.user.id }}">
                 </form>
                 <button class="action-btn btn-teacher">Enter Portal</button>
             </div>
+            {% endfor %}
 
-            <!-- Card 2: Student Profile -->
-            <div class="profile-card card-student" onclick="document.getElementById('form-student').submit()">
+            {% for sp in student_profiles %}
+            <div class="profile-card card-student" onclick="document.getElementById('form-student-{{ sp.user.id }}').submit()">
                 <div class="icon-wrapper student-icon-wrapper">
                     <i class="fa-solid fa-graduation-cap" style="font-size: 2.2rem;"></i>
                 </div>
-                <h3>Student Portal</h3>
+                <h3>{{ sp.student.name|default:"Student Portal" }}</h3>
                 <p class="role-subtitle student-role-subtitle">Registered Student</p>
 
                 <div class="info-box">
                     <div class="info-item">
                         <i class="fa-solid fa-school"></i>
-                        <span>{{ student_school.name|default:"School" }}</span>
+                        <span>{{ sp.student.branch.institution.name|default:"School" }}</span>
                     </div>
-                    {% if student_branch %}
+                    {% if sp.student.branch %}
                     <div class="info-item">
                         <i class="fa-solid fa-code-branch"></i>
-                        <span>{{ student_branch.name }} ({{ student_branch.city }})</span>
+                        <span>{{ sp.student.branch.name }} ({{ sp.student.branch.city }})</span>
+                    </div>
+                    {% endif %}
+                    {% if sp.student.school_class %}
+                    <div class="info-item">
+                        <i class="fa-solid fa-users-viewfinder"></i>
+                        <span>Class: {{ sp.student.school_class.name }} {{ sp.student.school_class.section|default:"" }}</span>
                     </div>
                     {% endif %}
                 </div>
 
-                <form id="form-student" method="POST" style="display: none;">
+                <form id="form-student-{{ sp.user.id }}" method="POST" style="display: none;">
                     {% csrf_token %}
                     <input type="hidden" name="role" value="STUDENT">
+                    <input type="hidden" name="user_id" value="{{ sp.user.id }}">
                 </form>
                 <button class="action-btn btn-student">Enter Portal</button>
             </div>
+            {% endfor %}
         </div>
 
         <a href="{% url 'logout' %}" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">

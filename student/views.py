@@ -44,6 +44,8 @@ def student_dashboard_view(request):
     school_user = student.school_user if student else None
     institution = student.branch.institution if student else None
     branch = student.branch if student else None
+    school_class = student.school_class if student else None
+    class_teacher = school_class.teacher if school_class else None
 
     context = {
         'profile': profile,
@@ -51,6 +53,8 @@ def student_dashboard_view(request):
         'school_user': school_user,
         'institution': institution,
         'branch': branch,
+        'school_class': school_class,
+        'class_teacher': class_teacher,
         'current_tab': 'dashboard',
     }
     return render(request, 'student/dashboard.html', context)
@@ -72,3 +76,23 @@ def student_profile_view(request):
         'current_tab': 'profile',
     }
     return render(request, 'student/profile.html', context)
+
+@student_required
+def student_attendance_view(request):
+    profile = get_student_profile(request.user)
+    student = profile.student if profile else None
+    
+    from school_admin.models import Attendance
+    
+    # Get attendance records for this student, ordered by date descending
+    attendance_records = Attendance.objects.filter(student=student).order_by('-date') if student else []
+    
+    context = {
+        'student': student,
+        'institution': student.branch.institution if student else None,
+        'attendance_records': attendance_records,
+        'current_tab': 'attendance',
+    }
+    return render(request, 'student/attendance.html', context)
+
+

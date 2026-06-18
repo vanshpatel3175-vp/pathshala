@@ -1,0 +1,53 @@
+{% extends 'student/base.html' %}
+
+{% block title %}My Attendance{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>My Attendance</h1>
+        <p>Track your daily attendance records here.</p>
+    </div>
+</div>
+
+<div class="glass-panel" style="padding: 30px; margin-bottom: 30px;">
+    {% if attendance_records %}
+    <div class="table-responsive">
+        <table class="table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid rgba(13,148,136,0.3); text-align: left;">
+                    <th style="padding: 12px; color: var(--text-secondary);">Date</th>
+                    <th style="padding: 12px; color: var(--text-secondary);">Status</th>
+                    <th style="padding: 12px; color: var(--text-secondary);">Teacher</th>
+                    <th style="padding: 12px; color: var(--text-secondary);">Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in attendance_records %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 16px 12px;">{{ record.date|date:"M d, Y" }}</td>
+                    <td style="padding: 16px 12px;">
+                        {% if record.status == 'present' %}
+                        <span style="padding: 4px 10px; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #34d399;">Present</span>
+                        {% elif record.status == 'absent' %}
+                        <span style="padding: 4px 10px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #f87171;">Absent</span>
+                        {% elif record.status == 'late' %}
+                        <span style="padding: 4px 10px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: #fbbf24;">Late</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 16px 12px;">{{ record.teacher.name|default:"-" }}</td>
+                    <td style="padding: 16px 12px; color: var(--text-secondary);">{{ record.note|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px 20px;">
+        <i class="fa-solid fa-calendar-xmark" style="font-size: 3rem; color: rgba(255,255,255,0.1); margin-bottom: 15px;"></i>
+        <h3>No Attendance Records Found</h3>
+        <p style="color: var(--text-secondary);">Your attendance has not been recorded yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

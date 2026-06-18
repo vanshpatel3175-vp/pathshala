@@ -1,0 +1,44 @@
+{% extends 'student/base.html' %}
+
+{% block title %}Study Materials{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>Study Materials</h1>
+        <p>Access notes, assignments, and documents uploaded for your class.</p>
+    </div>
+</div>
+
+<div class="glass-panel" style="padding: 30px; margin-bottom: 30px;">
+    {% if study_materials %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+        {% for material in study_materials %}
+        <div style="padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; display: flex; flex-direction: column; transition: all 0.3s ease;">
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 15px;">
+                <div style="width: 48px; height: 48px; background: rgba(13,148,136,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fa-solid fa-file-pdf" style="font-size: 1.5rem; color: #14b8a6;"></i>
+                </div>
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">
+                    {{ material.uploaded_at|date:"M d, Y" }}
+                </span>
+            </div>
+            <h3 style="font-size: 1.1rem; margin-bottom: 8px;">{{ material.title }}</h3>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px; flex-grow: 1;">
+                Uploaded for {{ material.school_class.name }}
+            </p>
+            <a href="{{ material.file.url }}" target="_blank" class="btn btn-student" style="text-align: center; display: inline-block; width: 100%; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: 600;">
+                <i class="fa-solid fa-download" style="margin-right: 6px;"></i> Download
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px 20px;">
+        <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: rgba(255,255,255,0.1); margin-bottom: 15px;"></i>
+        <h3>No Study Materials Found</h3>
+        <p style="color: var(--text-secondary);">There are currently no study materials uploaded for your class.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

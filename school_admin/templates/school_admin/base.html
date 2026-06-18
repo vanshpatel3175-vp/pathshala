@@ -197,6 +197,15 @@
                             Attendance
                         </a>
                     </li>
+                    {% if institution.features.study_materials %}
+                    <li>
+                        <a href="{% url 'admin_study_materials' %}"
+                            class="sidebar-link {% if current_tab == 'study_materials' %}active{% endif %}">
+                            <i class="fa-solid fa-book-open"></i>
+                            Study Material
+                        </a>
+                    </li>
+                    {% endif %}
                     <!-- <li>
                         <a href="{% url 'school_profile' %}"
                             class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">

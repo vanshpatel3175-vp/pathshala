@@ -58,6 +58,14 @@
         <div class="label"><i class="fa-solid fa-code-branch" style="margin-right: 6px; color: var(--color-info);"></i>Branch</div>
         <div class="value" style="font-size: 1.4rem; color: #22d3ee;">{{ branch.name|default:"N/A" }}</div>
     </div>
+    <div class="glass-panel stats-card" style="border-top: 3px solid #8b5cf6;">
+        <div class="label"><i class="fa-solid fa-chalkboard-user" style="margin-right: 6px; color: #8b5cf6;"></i>Class</div>
+        <div class="value" style="font-size: 1.4rem; color: #a78bfa;">{{ school_class.name|default:"Unassigned" }}</div>
+    </div>
+    <div class="glass-panel stats-card" style="border-top: 3px solid #ec4899;">
+        <div class="label"><i class="fa-solid fa-person-chalkboard" style="margin-right: 6px; color: #ec4899;"></i>Class Teacher</div>
+        <div class="value" style="font-size: 1.4rem; color: #f472b6;">{{ class_teacher.name|default:"None Assigned" }}</div>
+    </div>
     <div class="glass-panel stats-card" style="border-top: 3px solid var(--color-success);">
         <div class="label"><i class="fa-solid fa-user-check" style="margin-right: 6px; color: var(--color-success);"></i>Status</div>
         <div class="value" style="font-size: 1.4rem; color: #34d399;">{{ student.status|title|default:"Active" }}</div>

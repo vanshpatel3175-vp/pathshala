@@ -201,12 +201,57 @@
     <form method="POST" action="{% url 'school_classes' %}">
         {% csrf_token %}
         <input type="hidden" name="action" value="add">
+        <input type="hidden" name="name" id="final-class-name">
 
         <div class="form-group" style="margin-bottom: 20px;">
-            <label for="name" style="margin-bottom: 8px; display: block;">Standard / Class Name *</label>
-            <input type="text" id="name" name="name" class="form-control" placeholder="e.g. 10th Standard, Class 1"
-                required
-                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            <label for="class-name-select" style="margin-bottom: 8px; display: block;">Standard / Class Name *</label>
+
+            <!-- Dropdown of existing + predefined class names -->
+            <select id="class-name-select" class="form-control"
+                onchange="handleClassNameChange(this)"
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; margin-bottom: 10px;">
+                <option value="">-- Select Standard --</option>
+                <!-- Predefined standards -->
+                <optgroup label="Primary (1–5)">
+                    <option value="Class 1">Class 1</option>
+                    <option value="Class 2">Class 2</option>
+                    <option value="Class 3">Class 3</option>
+                    <option value="Class 4">Class 4</option>
+                    <option value="Class 5">Class 5</option>
+                </optgroup>
+                <optgroup label="Middle (6–8)">
+                    <option value="Class 6">Class 6</option>
+                    <option value="Class 7">Class 7</option>
+                    <option value="Class 8">Class 8</option>
+                </optgroup>
+                <optgroup label="Secondary (9–10)">
+                    <option value="Class 9">Class 9</option>
+                    <option value="Class 10">Class 10</option>
+                </optgroup>
+                <optgroup label="Higher Secondary (11–12)">
+                    <option value="Class 11">Class 11</option>
+                    <option value="Class 12">Class 12</option>
+                </optgroup>
+                {% if existing_class_names %}
+                <optgroup label="Already Used in Your School">
+                    {% for cls_name in existing_class_names %}
+                    <option value="{{ cls_name }}">{{ cls_name }}</option>
+                    {% endfor %}
+                </optgroup>
+                {% endif %}
+                <option value="__custom__" style="color: var(--color-primary); font-style: italic;">➕ Add Custom Standard...</option>
+            </select>
+
+            <!-- Manual entry (shown only when "Add Custom" is chosen) -->
+            <div id="custom-class-name-wrapper" style="display: none;">
+                <input type="text" id="custom-class-name-input" class="form-control"
+                    placeholder="Enter custom standard name, e.g. Nursery, LKG, UKG…"
+                    oninput="syncCustomName()"
+                    style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--color-primary); color: #fff;">
+                <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
+                    <i class="fa-solid fa-circle-info"></i> This will create a new standard.
+                </p>
+            </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
@@ -240,10 +285,11 @@
                 {% endfor %}
             </select>
         </div>
-        <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;">
+        <button type="button" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" onclick="submitAddClassForm(this.form)">
             <i class="fa-solid fa-circle-check"></i> Save Class
         </button>
     </form>
+
 </div>
 
 <script>
@@ -254,6 +300,52 @@
             sel.value = currentTeacherId || '';
         }
         openDrawer('assign-teacher-drawer');
+    }
+
+    function handleClassNameChange(sel) {
+        const wrapper = document.getElementById('custom-class-name-wrapper');
+        const finalInput = document.getElementById('final-class-name');
+        const customInput = document.getElementById('custom-class-name-input');
+
+        if (sel.value === '__custom__') {
+            wrapper.style.display = 'block';
+            customInput.focus();
+            finalInput.value = customInput.value.trim();
+        } else {
+            wrapper.style.display = 'none';
+            finalInput.value = sel.value;
+        }
+    }
+
+    function syncCustomName() {
+        const customInput = document.getElementById('custom-class-name-input');
+        document.getElementById('final-class-name').value = customInput.value.trim();
+    }
+
+    function submitAddClassForm(form) {
+        const sel = document.getElementById('class-name-select');
+        const finalInput = document.getElementById('final-class-name');
+        const customInput = document.getElementById('custom-class-name-input');
+
+        if (sel.value === '__custom__') {
+            const customVal = customInput.value.trim();
+            if (!customVal) {
+                customInput.focus();
+                customInput.style.borderColor = 'var(--color-danger)';
+                alert('Please enter a custom standard name.');
+                return;
+            }
+            finalInput.value = customVal;
+        } else if (sel.value === '') {
+            sel.style.borderColor = 'var(--color-danger)';
+            alert('Please select a standard / class name.');
+            sel.focus();
+            return;
+        } else {
+            finalInput.value = sel.value;
+        }
+
+        form.submit();
     }
 </script>
 {% endblock %}
