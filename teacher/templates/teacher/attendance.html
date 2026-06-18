@@ -190,14 +190,18 @@
             <table class="custom-table" style="width: 100%;">
                 <thead>
                     <tr>
-                        <th style="padding: 12px 22px;">Student</th>
-                        <th style="padding: 12px 22px;">Status</th>
-                        <th style="padding: 12px 22px;">Note</th>
+                        <th style="padding: 12px 22px; width: 80px; text-align: left;">Roll No</th>
+                        <th style="padding: 12px 22px; text-align: left;">Student</th>
+                        <th style="padding: 12px 22px; text-align: left;">Status</th>
+                        <th style="padding: 12px 22px; text-align: left;">Note</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for student in students %}
-                    <tr class="att-row" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 14px 22px; font-weight: 700; color: #818cf8;">
+                            {% if student.roll_number %}{{ student.roll_number }}{% else %}-{% endif %}
+                        </td>
                         <td style="padding: 14px 22px;">
                             <div style="display: flex; align-items: center; gap: 14px;">
                                 <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0;">
