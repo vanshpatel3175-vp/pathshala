@@ -34,7 +34,8 @@
 <!-- Add User Form (Side Drawer) -->
 <div id="add-user-form-card" class="glass-panel side-drawer"
     style="padding: 30px; border-top: none; border-left: 4px solid var(--color-success);">
-    <h3 style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+    <h3
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
         <span><i class="fa-solid fa-user-plus" style="color: var(--color-success);"></i> Add New User</span>
         <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
             onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
@@ -45,7 +46,8 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">First Name *</label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Vansh" required
+                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Vansh"
+                        required
                         style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
@@ -55,7 +57,8 @@
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Email Address * <span style="color: var(--text-muted); font-size: 0.75rem;">(must be unique)</span></label>
+                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Email Address * <span
+                        style="color: var(--text-muted); font-size: 0.75rem;">(must be unique)</span></label>
                 <input type="email" name="email" class="form-control" placeholder="vansh@gmail.com" required
                     autocomplete="off"
                     style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
@@ -64,6 +67,16 @@
                 <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Date of Birth</label>
                 <input type="date" name="dob" class="form-control"
                     style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Gender</label>
+                <select name="gender" class="form-control"
+                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; appearance: none; cursor: pointer;">
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                    <option value="O">Other</option>
+                </select>
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
                 <div class="form-group" style="margin-bottom: 0;">
@@ -82,6 +95,7 @@
                 <textarea name="address" class="form-control" placeholder="Full address..." rows="2"
                     style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; resize: vertical;"></textarea>
             </div>
+
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Pincode</label>
                 <input type="text" name="pincode" class="form-control" placeholder="396445" maxlength="10"
@@ -127,12 +141,14 @@
                     <td>
                         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                             {% if su.teacher_role %}
-                            <span class="badge" style="background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); font-size: 0.7rem;">
+                            <span class="badge"
+                                style="background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); font-size: 0.7rem;">
                                 <i class="fa-solid fa-chalkboard-user"></i> Teacher
                             </span>
                             {% endif %}
                             {% if su.student_role %}
-                            <span class="badge" style="background: rgba(13,148,136,0.15); color: #14b8a6; border: 1px solid rgba(13,148,136,0.3); font-size: 0.7rem;">
+                            <span class="badge"
+                                style="background: rgba(13,148,136,0.15); color: #14b8a6; border: 1px solid rgba(13,148,136,0.3); font-size: 0.7rem;">
                                 <i class="fa-solid fa-graduation-cap"></i> Student
                             </span>
                             {% endif %}
@@ -152,8 +168,10 @@
                 {% else %}
                 <tr>
                     <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 50px;">
-                        <i class="fa-solid fa-users" style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
-                        No users found.{% if query %} Try a different search.{% else %} Click "Add New User" to register your first user.{% endif %}
+                        <i class="fa-solid fa-users"
+                            style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+                        No users found.{% if query %} Try a different search.{% else %} Click "Add New User" to register
+                        your first user.{% endif %}
                     </td>
                 </tr>
                 {% endif %}
@@ -165,7 +183,8 @@
 <!-- Edit User Card (Side Drawer) -->
 <div id="edit-user-card" class="glass-panel side-drawer"
     style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
-    <h3 style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+    <h3
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
         <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit User</span>
         <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
             onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>

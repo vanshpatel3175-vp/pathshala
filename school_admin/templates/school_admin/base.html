@@ -102,7 +102,7 @@
                 </div>
             </div>
 
-            <nav style="flex: 1;">
+            <nav style="flex: 1; overflow-y: auto; overflow-x: hidden; padding-right: 5px;">
                 <ul class="sidebar-menu">
                     <li>
                         <a href="{% url 'school_overview' %}"
@@ -129,6 +129,13 @@
                         </a>
                     </li>
                     {% endif %}
+                    <li>
+                        <a href="{% url 'school_users' %}"
+                            class="sidebar-link {% if current_tab == 'users' %}active{% endif %}">
+                            <i class="fa-solid fa-users"></i>
+                            Users
+                        </a>
+                    </li>
                     {% if institution.features.manage_students %}
                     <li>
                         <a href="{% url 'school_students' %}"
@@ -139,13 +146,7 @@
                     </li>
                     {% endif %}
                     {% if institution.features.manage_teachers %}
-                    <li>
-                        <a href="{% url 'school_users' %}"
-                            class="sidebar-link {% if current_tab == 'users' %}active{% endif %}">
-                            <i class="fa-solid fa-users"></i>
-                            Users
-                        </a>
-                    </li>
+
                     <li>
                         <a href="{% url 'school_teachers' %}"
                             class="sidebar-link {% if current_tab == 'teachers' %}active{% endif %}">

@@ -39,7 +39,17 @@ def school_login_api(request):
                     "message": " Valid Email Id and password is required."
                 }
             },status=400)
-    user = authenticate(request, username=email, password=password)
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    user_obj = User.objects.filter(email=email).first()
+    if not user_obj:
+        user_obj = User.objects.filter(username=email).first()
+        
+    user = None
+    if user_obj:
+        user = authenticate(request, username=user_obj.username, password=password)
+        
     if user is not None:
         refresh = RefreshToken.for_user(user)
         return Response({

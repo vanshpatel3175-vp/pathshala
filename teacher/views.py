@@ -183,6 +183,7 @@ def teacher_attendance_history_view(request):
     today_str = str(date_type.today())
     selected_class_id = request.GET.get('class_id', '').strip()
     date_filter = request.GET.get('date', '').strip()
+    status_filter = request.GET.get('status', '').strip()
     if not date_filter:
         date_filter = today_str
 
@@ -194,11 +195,24 @@ def teacher_attendance_history_view(request):
         qs = Attendance.objects.filter(school_class=selected_class).select_related('student').order_by('-date', 'student__name')
         if date_filter:
             qs = qs.filter(date=date_filter)
+        if status_filter:
+            qs = qs.filter(status=status_filter)
         for att in qs:
             d = str(att.date)
             if d not in attendances_by_date:
-                attendances_by_date[d] = []
-            attendances_by_date[d].append(att)
+                attendances_by_date[d] = {
+                    'records': [],
+                    'present_count': 0,
+                    'absent_count': 0,
+                    'late_count': 0
+                }
+            attendances_by_date[d]['records'].append(att)
+            if att.status == 'present':
+                attendances_by_date[d]['present_count'] += 1
+            elif att.status == 'absent':
+                attendances_by_date[d]['absent_count'] += 1
+            elif att.status == 'late':
+                attendances_by_date[d]['late_count'] += 1
 
     context = {
         'profile': profile,
@@ -209,6 +223,7 @@ def teacher_attendance_history_view(request):
         'selected_class': selected_class,
         'attendances_by_date': attendances_by_date,
         'date_filter': date_filter,
-        'current_tab': 'attendance',
+        'status_filter': status_filter,
+        'current_tab': 'attendance_history',
     }
     return render(request, 'teacher/attendance_history.html', context)

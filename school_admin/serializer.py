@@ -58,11 +58,53 @@ class schoolloginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
 class UserResponseSerializer(serializers.ModelSerializer):
-    city = serializers.CharField(source='school_profile.city', read_only=True, default='')
-    state = serializers.CharField(source='school_profile.state', read_only=True, default='')
-    phone_number = serializers.CharField(source='school_profile.phone', read_only=True, default='')
-    school_name = serializers.CharField(source='school_profile.institution.name', read_only=True, default='')
+    city = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+    phone_number = serializers.SerializerMethodField()
+    school_name = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'city', 'state', 'phone_number', 'school_name']
+        fields = ['email', 'first_name', 'last_name', 'role', 'city', 'state', 'phone_number', 'school_name']
+
+    def get_city(self, obj):
+        if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
+            return ""
+        if hasattr(obj, 'school_profile'):
+            return obj.school_profile.city
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.school_user:
+            return obj.teacher_profile.school_user.city
+        if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
+            return obj.student_profile.school_user.city
+        return ""
+
+    def get_state(self, obj):
+        if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
+            return ""
+        if hasattr(obj, 'school_profile'):
+            return obj.school_profile.state
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.school_user:
+            return obj.teacher_profile.school_user.state
+        if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
+            return obj.student_profile.school_user.state
+        return ""
+
+    def get_phone_number(self, obj):
+        if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
+            return ""
+        if hasattr(obj, 'school_profile'):
+            return obj.school_profile.phone
+        return ""
+
+    def get_school_name(self, obj):
+        if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
+            return "Super Admin Portal"
+        if hasattr(obj, 'school_profile') and obj.school_profile.institution:
+            return obj.school_profile.institution.name
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.institution:
+            return obj.teacher_profile.institution.name
+        if hasattr(obj, 'student_profile') and obj.student_profile.institution:
+            return obj.student_profile.institution.name
+        return ""
+    def get_role(self, obj):
+        return obj.role
