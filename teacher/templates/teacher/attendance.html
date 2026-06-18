@@ -9,13 +9,22 @@
         align-items: center;
         gap: 14px;
         padding: 14px 18px;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         transition: background 0.2s;
     }
-    .att-row:hover { background: rgba(255,255,255,0.02); }
-    .att-row:last-child { border-bottom: none; }
 
-    .att-radio-group { display: flex; gap: 8px; }
+    .att-row:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .att-row:last-child {
+        border-bottom: none;
+    }
+
+    .att-radio-group {
+        display: flex;
+        gap: 8px;
+    }
 
     .att-radio-label {
         display: inline-flex;
@@ -30,18 +39,56 @@
         transition: all 0.2s;
         user-select: none;
     }
-    .att-radio-label.present { border-color: rgba(16,185,129,0.3); color: #34d399; }
-    .att-radio-label.absent  { border-color: rgba(239,68,68,0.3);  color: #f87171; }
-    .att-radio-label.late    { border-color: rgba(251,191,36,0.3); color: #fbbf24; }
 
-    input[type="radio"]:checked + .att-radio-label.present { background: rgba(16,185,129,0.15);  border-color: #34d399; }
-    input[type="radio"]:checked + .att-radio-label.absent  { background: rgba(239,68,68,0.15);   border-color: #f87171; }
-    input[type="radio"]:checked + .att-radio-label.late    { background: rgba(251,191,36,0.15);  border-color: #fbbf24; }
+    .att-radio-label.present {
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #34d399;
+    }
 
-    input[type="radio"] { display: none; }
+    .att-radio-label.absent {
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #f87171;
+    }
 
-    .quick-btn { padding: 7px 18px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: 600; border: 1px solid var(--border-color); background: rgba(255,255,255,0.04); color: #fff; transition: all 0.2s; }
-    .quick-btn:hover { background: rgba(255,255,255,0.08); }
+    .att-radio-label.late {
+        border-color: rgba(251, 191, 36, 0.3);
+        color: #fbbf24;
+    }
+
+    input[type="radio"]:checked+.att-radio-label.present {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: #34d399;
+    }
+
+    input[type="radio"]:checked+.att-radio-label.absent {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: #f87171;
+    }
+
+    input[type="radio"]:checked+.att-radio-label.late {
+        background: rgba(251, 191, 36, 0.15);
+        border-color: #fbbf24;
+    }
+
+    input[type="radio"] {
+        display: none;
+    }
+
+    .quick-btn {
+        padding: 7px 18px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        font-weight: 600;
+        border: 1px solid var(--border-color);
+        background: rgba(255, 255, 255, 0.04);
+        color: #fff;
+        transition: all 0.2s;
+    }
+
+    .quick-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
 
     /* Make calendar icon visible on dark background */
     input[type="date"]::-webkit-calendar-picker-indicator {
@@ -67,7 +114,8 @@
 <div class="glass-panel" style="padding: 24px; margin-bottom: 24px; border-left: 4px solid #6366f1;">
     <form method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
         <div style="flex: 1; min-width: 200px;">
-            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+            <label
+                style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
                 <i class="fa-solid fa-chalkboard"></i> Select Class
             </label>
             <select name="class_id" id="class_id_select"
@@ -82,7 +130,8 @@
             </select>
         </div>
         <div style="min-width: 170px;">
-            <label style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+            <label
+                style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
                 <i class="fa-solid fa-calendar"></i> Date
             </label>
             <input type="date" name="date" value="{{ selected_date }}" max="{{ today_str }}"
@@ -112,7 +161,8 @@
 
     <div class="glass-panel" style="padding: 0; overflow: hidden; border-left: 4px solid #6366f1;">
         <!-- Header row -->
-        <div style="padding: 16px 22px; background: rgba(99,102,241,0.08); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div
+            style="padding: 16px 22px; background: rgba(99,102,241,0.08); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h3 style="font-size: 1.05rem; margin: 0; color: #fff;">
                     <i class="fa-solid fa-chalkboard" style="color: #818cf8; margin-right: 8px;"></i>
@@ -136,47 +186,61 @@
         </div>
 
         {% if students %}
-        <!-- Student Rows -->
-        <div>
-            {% for student in students %}
-            <div class="att-row">
-                <!-- Avatar + Name -->
-                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0;">
-                    {{ student.name|first|upper }}
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                    <p style="font-weight: 600; color: #fff; margin: 0; font-size: 0.9rem;">{{ student.name }}</p>
-                    <p style="font-size: 0.73rem; color: var(--text-muted); margin: 0;">{{ student.email }}</p>
-                </div>
+        <div style="overflow-x: auto;">
+            <table class="custom-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="padding: 12px 22px;">Student</th>
+                        <th style="padding: 12px 22px;">Status</th>
+                        <th style="padding: 12px 22px;">Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr class="att-row" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 14px 22px;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0;">
+                                    {{ student.name|first|upper }}
+                                </div>
+                                <div>
+                                    <p style="font-weight: 600; color: #fff; margin: 0; font-size: 0.9rem;">{{ student.name }}</p>
+                                    <p style="font-size: 0.73rem; color: var(--text-muted); margin: 0;">{{ student.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 14px 22px;">
+                            <div class="att-radio-group">
+                                <input type="radio" id="p_{{ student.id }}" name="status_{{ student.id }}" value="present">
+                                <label for="p_{{ student.id }}" class="att-radio-label present">
+                                    <i class="fa-solid fa-check"></i> Present
+                                </label>
 
-                <!-- Status Radio Buttons -->
-                <div class="att-radio-group">
-                    <input type="radio" id="p_{{ student.id }}" name="status_{{ student.id }}" value="present">
-                    <label for="p_{{ student.id }}" class="att-radio-label present">
-                        <i class="fa-solid fa-check"></i> Present
-                    </label>
+                                <input type="radio" id="a_{{ student.id }}" name="status_{{ student.id }}" value="absent">
+                                <label for="a_{{ student.id }}" class="att-radio-label absent">
+                                    <i class="fa-solid fa-xmark"></i> Absent
+                                </label>
 
-                    <input type="radio" id="a_{{ student.id }}" name="status_{{ student.id }}" value="absent">
-                    <label for="a_{{ student.id }}" class="att-radio-label absent">
-                        <i class="fa-solid fa-xmark"></i> Absent
-                    </label>
-
-                    <input type="radio" id="l_{{ student.id }}" name="status_{{ student.id }}" value="late">
-                    <label for="l_{{ student.id }}" class="att-radio-label late">
-                        <i class="fa-solid fa-clock"></i> Late
-                    </label>
-                </div>
-
-                <!-- Note field -->
-                <input type="text" name="note_{{ student.id }}"
-                    placeholder="Note (optional)"
-                    style="width: 140px; padding: 7px 10px; border-radius: 7px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-size: 0.8rem;">
-            </div>
-            {% endfor %}
+                                <input type="radio" id="l_{{ student.id }}" name="status_{{ student.id }}" value="late">
+                                <label for="l_{{ student.id }}" class="att-radio-label late">
+                                    <i class="fa-solid fa-clock"></i> Late
+                                </label>
+                            </div>
+                        </td>
+                        <td style="padding: 14px 22px;">
+                            <input type="text" name="note_{{ student.id }}" placeholder="Optional note..."
+                                class="att-note-input"
+                                style="width: 100%; height: 36px; border-radius: 6px; padding: 0 12px; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 0.8rem;">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
 
         <!-- Submit -->
-        <div style="padding: 20px 22px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: flex-end; gap: 12px;">
+        <div
+            style="padding: 20px 22px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: flex-end; gap: 12px;">
             <button type="submit" class="btn btn-teacher" style="padding: 12px 32px; font-size: 1rem;">
                 <i class="fa-solid fa-floppy-disk"></i> Save Attendance
             </button>
@@ -184,7 +248,8 @@
 
         {% else %}
         <div style="padding: 50px; text-align: center; color: var(--text-muted);">
-            <i class="fa-solid fa-users-slash" style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+            <i class="fa-solid fa-users-slash"
+                style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
             <p>No active students in this class yet.</p>
         </div>
         {% endif %}
@@ -203,7 +268,7 @@
     // Pre-fill radio buttons from existing records
     const existingData = {
         {% for sid, rec in existing_records.items %}
-        "{{ sid }}": "{{ rec.status }}",
+    "{{ sid }}": "{{ rec.status }}",
         {% endfor %}
     };
 
