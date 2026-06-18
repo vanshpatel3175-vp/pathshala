@@ -112,11 +112,10 @@
     </form>
 </div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start;">
-    <!-- Staff Listing Table -->
-    <div class="glass-panel" style="padding: 25px;">
-        <div class="table-container">
-            <table class="custom-table">
+<!-- Staff Listing Table -->
+<div class="glass-panel" style="padding: 25px;">
+    <div class="table-container" style="overflow-x: auto;">
+        <table class="custom-table" style="width: 100%; min-width: 900px;">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -140,7 +139,9 @@
                         </td>
                         <td>
                             <span class="badge badge-secondary"
-                                style="font-size: 0.7rem; color: var(--text-primary); border: 1px solid var(--border-color);">{{ staff.branch.name }}</span>
+                                style="font-size: 0.7rem; color: var(--text-primary); border: 1px solid var(--border-color); white-space: nowrap;">
+                                {{ staff.branch.name }}
+                            </span>
                         </td>
                         <td>
                             <span class="badge badge-validated" style="font-size: 0.7rem;">{{ staff.status }}</span>
@@ -164,11 +165,6 @@
                     {% endif %}
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Empty column to keep grid layout intact -->
-    <div style="display: flex; flex-direction: column; gap: 30px;">
     </div>
 </div>
 

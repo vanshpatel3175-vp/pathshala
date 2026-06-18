@@ -8,13 +8,15 @@
     <div class="page-title">
         <h1>Students Directory</h1>
         {% if branch_filter_id %}
-            {% for branch in branches %}
-                {% if branch_filter_id == branch.id|stringformat:"s" %}
-                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
-                {% endif %}
-            {% endfor %}
+        {% for branch in branches %}
+        {% if branch_filter_id == branch.id|stringformat:"s" %}
+        <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch:
+            <strong style="color: #fff;">{{ branch.name }}</strong>
+        </p>
+        {% endif %}
+        {% endfor %}
         {% else %}
-            <p>List, search, and register student accounts across all branches</p>
+        <p>List, search, and register student accounts across all branches</p>
         {% endif %}
     </div>
     <div>
@@ -37,7 +39,8 @@
         </div>
         <button type="submit" class="btn btn-secondary" style="padding: 11px 22px;">Search</button>
         {% if query %}
-        <a href="{% url 'school_students' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}" class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
+        <a href="{% url 'school_students' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}"
+            class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
         {% endif %}
     </div>
 </form>
@@ -56,16 +59,18 @@
         <input type="hidden" id="school_user_id" name="school_user_id">
 
         <!-- Step 1: Live Search Dropdown -->
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 10px;">
+        <div
+            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 10px;">
                 <i class="fa-solid fa-search" style="margin-right: 6px;"></i> Step 1 — Search User by Name or Email
             </p>
             <div style="position: relative;">
                 <div style="position: relative;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; z-index: 1;"></i>
+                    <i class="fa-solid fa-magnifying-glass"
+                        style="position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; z-index: 1;"></i>
                     <input type="text" id="student-user-search" class="form-control"
-                        placeholder="Type name or email to search users..."
-                        autocomplete="off"
+                        placeholder="Type name or email to search users..." autocomplete="off"
                         style="padding: 12px 13px 12px 38px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; width: 100%;">
                 </div>
                 <!-- Dropdown Results -->
@@ -79,24 +84,32 @@
 
         <!-- Step 2: Auto-filled Info (shown after lookup) -->
         <div id="student-info-section" style="display: none; margin-bottom: 18px;">
-            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
                 <i class="fa-solid fa-user-check" style="margin-right: 6px;"></i> Step 2 — Confirmed User Details
             </p>
-            <div style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+            <div
+                style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
-                        <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">First Name</p>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            First Name</p>
                         <input type="text" id="display_first_name" class="form-control" readonly
                             style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: #fff; border-radius: 8px; cursor: not-allowed;">
                     </div>
                     <div>
-                        <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">Last Name</p>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Last Name</p>
                         <input type="text" id="display_last_name" class="form-control" readonly
                             style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: #fff; border-radius: 8px; cursor: not-allowed;">
                     </div>
                 </div>
                 <div>
-                    <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">Email</p>
+                    <p
+                        style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                        Email</p>
                     <input type="text" id="display_email" class="form-control" readonly
                         style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: #fff; border-radius: 8px; cursor: not-allowed;">
                 </div>
@@ -105,24 +118,29 @@
 
         <!-- Password -->
         <div id="student-password-section" style="display: none; margin-bottom: 18px;">
-            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
                 <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Step 3 — Set Login Password
             </p>
             <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Password <span style="color: var(--color-danger);">*</span></label>
+                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Password <span
+                        style="color: var(--color-danger);">*</span></label>
                 <input type="password" id="student_password" name="password" class="form-control" placeholder="••••••••"
                     autocomplete="new-password"
                     style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: #fff;">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Student will use this password to login.</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Student will use this password
+                    to login.</p>
             </div>
         </div>
 
         <div id="student-school-section" style="display: none; margin-bottom: 18px;">
-            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
                 <i class="fa-solid fa-school" style="margin-right: 6px;"></i> Step 4 — Assign School (Branch)
             </p>
             <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Assign School (Branch) <span style="color: var(--color-danger);">*</span></label>
+                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Assign School (Branch) <span
+                        style="color: var(--color-danger);">*</span></label>
                 <select id="register_branch_id" name="branch_id" class="custom-select"
                     style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
                     onchange="loadClassesForBranch(this.value)">
@@ -141,17 +159,20 @@
 
         <!-- Step 5: Class & Section -->
         <div id="student-class-section" style="display: none; margin-bottom: 18px;">
-            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
                 <i class="fa-solid fa-chalkboard" style="margin-right: 6px;"></i> Step 5 — Assign Class &amp; Section
             </p>
             <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Class &amp; Section <span style="color: var(--text-muted); font-size: 0.75rem;">(optional)</span></label>
+                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Class &amp; Section <span
+                        style="color: var(--text-muted); font-size: 0.75rem;">(optional)</span></label>
                 <select id="school_class_id" name="school_class_id" class="custom-select"
                     style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
                     <option value="">-- Select Class (optional) --</option>
                 </select>
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">
-                    <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>Classes are managed under <a href="/school/classes/" style="color: var(--color-primary);">Classes &amp; Sections</a>.
+                    <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>Classes are managed under <a
+                        href="/school/classes/" style="color: var(--color-primary);">Classes &amp; Sections</a>.
                 </p>
             </div>
         </div>
@@ -165,81 +186,81 @@
     </form>
 </div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start;">
-    <!-- Students Listing Table -->
-    <div class="glass-panel" style="padding: 25px;">
-        <div class="table-container">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>School</th>
-                        <th>Class</th>
-                        <th>Status</th>
-                        <th style="text-align: right;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if students %}
-                    {% for student in students %}
-                    <tr>
-                        <td style="font-weight: 700; color: #ffffff;">#STD-{{ student.id|stringformat:"04d" }}</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #0d9488, #14b8a6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #fff; flex-shrink: 0;">
-                                    {{ student.name|first|upper }}
-                                </div>
-                                <div>
-                                    <p style="font-weight: 600; color: #fff; margin: 0;">{{ student.name }}</p>
-                                    {% if student.school_user %}
-                                    <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Via Users Directory</p>
-                                    {% endif %}
-                                </div>
+<!-- Students Listing Table -->
+<div class="glass-panel" style="padding: 25px; margin-top: 30px;">
+    <div class="table-container" style="overflow-x: auto;">
+        <table class="custom-table" style="width: 100%; min-width: 900px;">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>School</th>
+                    <th>Class</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                {% for student in students %}
+                <tr>
+                    <td style="font-weight: 700; color: #ffffff;">#STD-{{ student.id|stringformat:"04d" }}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 34px; height: 34px; background: linear-gradient(135deg, #0d9488, #14b8a6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                                {{ student.name|first|upper }}
                             </div>
-                        </td>
-                        <td style="color: var(--text-secondary);">{{ student.email }}</td>
-                        <td>
-                            <span class="badge badge-pending" style="font-size: 0.7rem;">{{ student.branch.name }}</span>
-                        </td>
-                        <td>
-                            {% if student.school_class %}
-                            <span class="badge" style="font-size: 0.7rem; background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 3px 10px;">
-                                {{ student.school_class.name }}{% if student.school_class.section %} &mdash; {{ student.school_class.section }}{% endif %}
-                            </span>
-                            {% else %}
-                            <span style="color: var(--text-muted); font-size: 0.78rem;">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}" style="font-size: 0.7rem;">{{ student.status|title }}</span>
-                        </td>
-                        <td style="text-align: right;">
-                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}')"
-                            >
-                                <i class="fa-solid fa-user-pen"></i> edit
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            <i class="fa-solid fa-users-viewfinder"
-                                style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-                            No students found matching your query.
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Empty column to keep grid layout intact -->
-    <div style="display: flex; flex-direction: column; gap: 30px;">
+                            <div>
+                                <p style="font-weight: 600; color: #fff; margin: 0;">{{ student.name }}</p>
+                                {% if student.school_user %}
+                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Via Users
+                                    Directory</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary);">{{ student.email }}</td>
+                    <td>
+                        <span class="badge badge-pending" style="font-size: 0.7rem; white-space: nowrap;">
+                            {{ student.branch.name }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if student.school_class %}
+                        <span class="badge"
+                            style="font-size: 0.7rem; background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 3px 10px; white-space: nowrap;">
+                            {{ student.school_class.name }}{% if student.school_class.section %} &mdash; {{ student.school_class.section }}{% endif %}
+                        </span>
+                        {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.78rem;">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span
+                            class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
+                            style="font-size: 0.7rem;">{{ student.status|title }}</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
+                            onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}')">
+                            <i class="fa-solid fa-user-pen"></i> edit
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        <i class="fa-solid fa-users-viewfinder"
+                            style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                        No students found matching your query.
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -260,7 +281,8 @@
 
         <div class="form-group" style="margin-bottom: 20px;">
             <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign School (Branch)</label>
-            <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+            <select id="edit_branch_id" name="branch_id" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
                 required>
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
@@ -270,7 +292,8 @@
 
         <div class="form-group" style="margin-bottom: 25px;">
             <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
-            <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+            <select id="edit_status" name="status" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
                 required>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
@@ -458,7 +481,7 @@
     }
 
     // Auto-load classes on page load if a branch is pre-selected
-    (function() {
+    (function () {
         const branchSel = document.getElementById('register_branch_id');
         if (branchSel && branchSel.value) {
             loadClassesForBranch(branchSel.value);

@@ -25,6 +25,7 @@
                     <th>User Name</th>
                     <th>Email / Phone</th>
                     <th>Date Joined</th>
+                    <th>Registered School</th>
                     <th>System Role</th>
                 </tr>
             </thead>
@@ -45,6 +46,19 @@
                         {{ user.date_joined|date:"M d, Y H:i" }}
                     </td>
                     <td>
+                        {% if user.role == 'SUPER ADMIN' %}
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">Platform Admin</span>
+                        {% elif user.school_profile %}
+                            <span class="badge" style="font-size: 0.7rem; background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2);">{{ user.school_profile.institution.name }}</span>
+                        {% elif user.student_profile %}
+                            <span class="badge" style="font-size: 0.7rem; background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3);">{{ user.student_profile.student.branch.institution.name }}</span>
+                        {% elif user.teacher_profile %}
+                            <span class="badge" style="font-size: 0.7rem; background: rgba(245,158,11,0.1); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2);">{{ user.teacher_profile.teacher.branch.institution.name }}</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-size: 0.75rem;">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
                         <span
                             class="badge {% if user.role == 'SUPER ADMIN' %}badge-validated{% else %}badge-pending{% endif %}"
                             style="font-size: 0.75rem;">
@@ -55,7 +69,7 @@
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
                         <i class="fa-solid fa-users-slash"
                             style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
                         No platform staff users found.

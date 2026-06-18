@@ -274,7 +274,9 @@ def toggle_institution_view(request, inst_id):
 
 @superadmin_required
 def platform_users_view(request):
-    users = User.objects.all().select_related('school_profile', 'school_profile__institution').order_by('-date_joined')
+    users = User.objects.filter(role__in=['SUPER ADMIN', 'SCHOOL STAFF']).select_related(
+        'school_profile', 'school_profile__institution'
+    ).order_by('-date_joined')
     total_users = users.count()
     
     context = {
