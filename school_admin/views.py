@@ -1156,7 +1156,15 @@ def school_users_view(request):
     if request.method == 'POST':
         action = request.POST.get('action', 'add')
 
-        if action == 'edit':
+        if action == 'delete':
+            user_id = request.POST.get('user_id')
+            su = get_object_or_404(SchoolUser, id=user_id, institution=inst)
+            name = su.full_name if hasattr(su, 'full_name') else f"{su.first_name} {su.last_name}"
+            su.delete()
+            messages.success(request, f"User '{name}' deleted successfully.")
+            return redirect('school_users')
+
+        elif action == 'edit':
             user_id = request.POST.get('user_id')
             su = get_object_or_404(SchoolUser, id=user_id, institution=inst)
             first_name = request.POST.get('first_name', '').strip()

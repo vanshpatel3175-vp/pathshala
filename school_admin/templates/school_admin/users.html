@@ -164,11 +164,21 @@
                             {% endif %}
                         </div>
                     </td>
-                    <td style="text-align: right;">
-                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                            onclick="openEditUserCard('{{ su.id }}', '{{ su.first_name|escapejs }}', '{{ su.last_name|escapejs }}', '{{ su.dob|default:'' }}', '{{ su.city|escapejs }}', '{{ su.state|escapejs }}', '{{ su.address|escapejs }}', '{{ su.pincode|escapejs }}', '{{ su.mobile_number|default:'' }}')">
-                            <i class="fa-solid fa-user-pen"></i> Edit
-                        </button>
+                    <td style="text-align: right; width: 80px;">
+                        <div style="display: flex; flex-direction: column; gap: 6px; align-items: stretch;">
+                            <button class="btn btn-secondary" style="width: 100%; padding: 4px 8px; font-size: 0.7rem; display: flex; justify-content: center;"
+                                onclick="openEditUserCard('{{ su.id }}', '{{ su.first_name|escapejs }}', '{{ su.last_name|escapejs }}', '{{ su.dob|default:'' }}', '{{ su.city|escapejs }}', '{{ su.state|escapejs }}', '{{ su.address|escapejs }}', '{{ su.pincode|escapejs }}', '{{ su.mobile_number|default:'' }}')">
+                                <span><i class="fa-solid fa-user-pen"></i> Edit</span>
+                            </button>
+                            <form method="POST" action="{% url 'school_users' %}" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');" style="margin: 0; display: block; width: 100%;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="user_id" value="{{ su.id }}">
+                                <button type="submit" class="btn btn-danger" style="width: 100%; padding: 4px 8px; font-size: 0.7rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); display: flex; justify-content: center;">
+                                    <span><i class="fa-solid fa-trash"></i> Del</span>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
