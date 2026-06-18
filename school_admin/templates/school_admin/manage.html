@@ -340,7 +340,7 @@
                     style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 7px 12px; color: #fff; font-size: 0.85rem; cursor: pointer;"
                     onchange="document.getElementById('branchSwitchForm').submit();">
                     {% for br in branches %}
-                    <option value="{{ br.id }}" {% if selected_branch.id==br.id %}selected{% endif %}>{{ br.name }}
+                    <option value="{{ br.id }}" {% if selected_branch.id == br.id %}selected{% endif %}>{{ br.name }}
                     </option>
                     {% endfor %}
                 </select>
@@ -381,8 +381,7 @@
         <i class="fa-solid fa-sitemap"></i> Academics &amp; Structure
     </button>
     {% endif %}
-    {% if institution.features.manage_students or institution.features.manage_teachers or
-    institution.features.manage_others %}
+    {% if institution.features.manage_students or institution.features.manage_teachers or institution.features.manage_others %}
     <button class="acc-tab {% if current_tab == 'members' %}active{% endif %}" onclick="switchTab('members', this)">
         <i class="fa-solid fa-users"></i> Membership Center
     </button>
@@ -417,8 +416,7 @@
 </div>
 
 <!-- ═══ ACADEMICS TAB ═══ -->
-<div id="tab-academics" class="tab-panel" {% if current_tab !='dashboard' and current_tab %}style="display:none;" {%
-    endif %}>
+<div id="tab-academics" class="tab-panel" {% if current_tab != 'dashboard' and current_tab %}style="display:none;"{% endif %}>
     <div class="panel-grid">
         {% if institution.features.manage_classes %}
         <!-- Classes -->
@@ -459,7 +457,7 @@
 </div>
 
 <!-- ═══ MEMBERS TAB ═══ -->
-<div id="tab-members" class="tab-panel" {% if current_tab !='members' %}style="display:none;" {% endif %}>
+<div id="tab-members" class="tab-panel" {% if current_tab != 'members' %}style="display:none;"{% endif %}>
     <div class="panel-grid">
         {% if institution.features.manage_students %}
         <!-- Students -->
@@ -588,7 +586,7 @@
 
 
 <!-- ═══ ATTENDANCE TAB ═══ -->
-<div id="tab-attendance" class="tab-panel" {% if current_tab !='attendance' %}style="display:none;" {% endif %}>
+<div id="tab-attendance" class="tab-panel" {% if current_tab != 'attendance' %}style="display:none;"{% endif %}>
     <div class="mgmt-console">
         <i class="fa-solid fa-user-check"></i>
         <h3>Attendance</h3>
