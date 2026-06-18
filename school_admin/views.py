@@ -1166,6 +1166,7 @@ def school_users_view(request):
             state = request.POST.get('state', '').strip()
             address = request.POST.get('address', '').strip()
             pincode = request.POST.get('pincode', '').strip()
+            mobile_number = request.POST.get('mobile_number', '').strip()
 
             if first_name and last_name:
                 su.first_name = first_name
@@ -1175,6 +1176,7 @@ def school_users_view(request):
                 su.state = state
                 su.address = address
                 su.pincode = pincode
+                su.mobile_number = mobile_number
                 su.save()
 
                 # Sync name changes to Teacher, Student, and User if the user is registered
@@ -1209,6 +1211,7 @@ def school_users_view(request):
             state = request.POST.get('state', '').strip()
             address = request.POST.get('address', '').strip()
             pincode = request.POST.get('pincode', '').strip()
+            mobile_number = request.POST.get('mobile_number', '').strip()
 
             if not (first_name and last_name and email):
                 messages.error(request, "First name, last name, and email are required.")
@@ -1234,6 +1237,7 @@ def school_users_view(request):
                 state=state,
                 address=address,
                 pincode=pincode,
+                mobile_number=mobile_number,
             )
             messages.success(request, f"User '{first_name} {last_name}' added successfully.")
             return redirect('school_users')

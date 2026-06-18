@@ -68,6 +68,7 @@ class SchoolUser(models.Model):
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=100, default='Gujarat')
     address = models.TextField(blank=True)
+    mobile_number = models.CharField(max_length=15, blank=True, null=True)
     pincode = models.CharField(max_length=10, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -94,6 +94,10 @@ class UserResponseSerializer(serializers.ModelSerializer):
             return ""
         if hasattr(obj, 'school_profile'):
             return obj.school_profile.phone
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.school_user:
+            return obj.teacher_profile.school_user.mobile_number or ""
+        if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
+            return obj.student_profile.school_user.mobile_number or ""
         return ""
 
     def get_school_name(self, obj):
