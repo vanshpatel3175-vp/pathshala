@@ -10,17 +10,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_head %}{% endblock %}
     <style>
-        /* Student portal accent: teal/cyan variant */
+        /* Student portal accent: dynamically linked to active theme variables */
         :root {
-            --student-accent: #0d9488;
-            --student-accent-hover: #14b8a6;
-            --student-accent-glow: rgba(13, 148, 136, 0.25);
+            --student-accent: var(--color-primary);
+            --student-accent-hover: var(--color-primary-hover);
+            --student-accent-glow: var(--border-glow);
         }
 
         .sidebar-link.active {
-            background: rgba(13, 148, 136, 0.12) !important;
-            border-color: rgba(13, 148, 136, 0.3) !important;
-            color: var(--text-primary) !important;
+            background: var(--student-accent-glow) !important;
+            border-color: var(--student-accent) !important;
+            color: var(--student-accent) !important;
         }
 
         .btn-student {
@@ -39,9 +39,9 @@
             align-items: center;
             gap: 6px;
             padding: 4px 12px;
-            background: rgba(13, 148, 136, 0.15);
-            color: #14b8a6;
-            border: 1px solid rgba(13, 148, 136, 0.3);
+            background: var(--student-accent-glow);
+            color: var(--student-accent);
+            border: 1px solid var(--student-accent);
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 700;
@@ -134,7 +134,7 @@
 
             <!-- Student Info Footer -->
             <div
-                style="padding: 16px; background: rgba(13,148,136,0.06); border-radius: 12px; border: 1px solid rgba(13,148,136,0.15); margin-bottom: 16px;">
+                style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                     <div
                         style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">
