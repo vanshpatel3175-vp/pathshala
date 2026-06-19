@@ -233,10 +233,7 @@
             </nav>
 
             <div class="sidebar-footer">
-                <button onclick="toggleTheme()" class="sidebar-link" style="width: 100%; border: none; background: rgba(255,255,255,0.02); margin-bottom: 10px; cursor: pointer; display: flex; justify-content: flex-start;">
-                    <i class="fa-solid fa-moon" id="theme-icon"></i>
-                    <span id="theme-text">Dark Mode</span>
-                </button>
+
                 <a href="{% url 'school_logout' %}" class="sidebar-link"
                     style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15)">
                     <i class="fa-solid fa-right-from-bracket"></i>
@@ -355,37 +352,7 @@
         }
     </script>
 
-    <script>
-        function toggleTheme() {
-            const htmlEl = document.documentElement;
-            const themeIcon = document.getElementById('theme-icon');
-            const themeText = document.getElementById('theme-text');
-            
-            if (htmlEl.getAttribute('data-theme') === 'light') {
-                htmlEl.removeAttribute('data-theme');
-                localStorage.setItem('theme', 'dark');
-                themeIcon.className = 'fa-solid fa-moon';
-                themeText.textContent = 'Dark Mode';
-            } else {
-                htmlEl.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-                themeIcon.className = 'fa-solid fa-sun';
-                themeText.textContent = 'Light Mode';
-            }
-        }
 
-        // Apply theme on load
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'light') {
-                document.documentElement.setAttribute('data-theme', 'light');
-                const themeIcon = document.getElementById('theme-icon');
-                const themeText = document.getElementById('theme-text');
-                if(themeIcon) themeIcon.className = 'fa-solid fa-sun';
-                if(themeText) themeText.textContent = 'Light Mode';
-            }
-        });
-    </script>
 </body>
 
 </html>
