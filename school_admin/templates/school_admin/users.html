@@ -115,36 +115,152 @@
     </form>
 </div>
 
-<!-- Users Table -->
+<!-- Users Table & Hidden Inputs for Filters -->
+<input type="hidden" id="filter-branch" value="">
+<input type="hidden" id="filter-role" value="">
+
 <div class="glass-panel" style="padding: 25px;">
+    <!-- Active Filters & Count Display -->
+    <div class="directory-filter-row" style="margin-bottom: 15px; justify-content: flex-end; padding: 0 10px;">
+        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            Showing <span id="visible-count" style="font-weight: 700; color: #fff;">{{ school_users|length }}</span> of <span style="font-weight: 700; color: #fff;">{{ school_users|length }}</span> users
+        </div>
+    </div>
+
     <div class="table-container">
-        <table class="custom-table">
+        <table class="custom-table" style="width: 100%; min-width: 900px;">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Name</th>
+                    <th class="custom-checkbox-col">
+                        <div class="custom-checkbox-wrapper">
+                            <div class="custom-checkbox-mock" onclick="toggleSelectAllUsers()"></div>
+                        </div>
+                    </th>
+                    <th>Person</th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>School (Branch)</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'branch-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="branch-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-branch', 'applyUserFilters')">All Branches</div>
+                                    {% for b in institution.branches.all %}
+                                    <div class="th-filter-option" data-value="{{ b.id }}" onclick="selectHeaderFilter(this, 'filter-branch', 'applyUserFilters')">{{ b.name }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>Roles</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'role-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="role-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-role', 'applyUserFilters')">All Roles</div>
+                                    <div class="th-filter-option" data-value="teacher" onclick="selectHeaderFilter(this, 'filter-role', 'applyUserFilters')">Teacher</div>
+                                    <div class="th-filter-option" data-value="student" onclick="selectHeaderFilter(this, 'filter-role', 'applyUserFilters')">Student</div>
+                                    <div class="th-filter-option" data-value="user" onclick="selectHeaderFilter(this, 'filter-role', 'applyUserFilters')">Plain User (Unassigned)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
                     <th>Email</th>
-                    <th>Mobile No</th>
-                    <th>DOB</th>
-                    <th>City</th>
-                    <th>State</th>
-                    <th>Pincode</th>
-                    <th>Role</th>
+                    <th>Location</th>
                     <th style="text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
                 {% if school_users %}
                 {% for su in school_users %}
-                <tr>
-                    <td style="font-weight: 700; color: #ffffff;">{{ forloop.counter }}</td>
-                    <td style="font-weight: 600; color: #ffffff;">{{ su.first_name }} {{ su.last_name }}</td>
-                    <td style="color: var(--text-secondary);">{{ su.email }}</td>
-                    <td style="color: var(--text-secondary);">{{ su.mobile_number|default:"—" }}</td>
-                    <td style="color: var(--text-secondary);">{{ su.dob|date:"d M Y"|default:"—" }}</td>
-                    <td>{{ su.city|default:"—" }}</td>
-                    <td>{{ su.state|default:"—" }}</td>
-                    <td>{{ su.pincode|default:"—" }}</td>
+                <tr class="person-row" 
+                    data-branch="{% if su.teacher_role %}{{ su.teacher_role.branch.id }}{% elif su.student_role %}{{ su.student_role.branch.id }}{% endif %}"
+                    data-role="{% if su.teacher_role %}teacher{% elif su.student_role %}student{% else %}user{% endif %}">
+                    <td class="custom-checkbox-col">
+                        <div class="custom-checkbox-wrapper">
+                            <div class="custom-checkbox-mock" onclick="toggleSelectUser(this)"></div>
+                        </div>
+                    </td>
+                    <td class="person-cell">
+                        <div class="person-name-wrapper">
+                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                                {{ su.first_name|first|upper }}{{ su.last_name|first|upper }}
+                            </div>
+                            <div>
+                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">{{ su.first_name }} {{ su.last_name }}</p>
+                                <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
+                                    {{ su.mobile_number|default:"—" }}
+                                </p>
+                            </div>
+                            
+                            <!-- Hover Tooltip Card Popover -->
+                            <div class="hover-card-popover">
+                                <div class="hover-card-banner bg-user">
+                                    <div class="hover-card-avatar-wrapper">
+                                        <div class="hover-card-avatar" style="background: #4f46e5; border: 3px solid #0b1918;">
+                                            {{ su.first_name|first|upper }}{{ su.last_name|first|upper }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hover-card-body">
+                                    <h4 class="hover-card-name">{{ su.first_name }} {{ su.last_name }}</h4>
+                                    <p class="hover-card-subtitle">
+                                        <i class="fa-solid fa-circle-user" style="color: var(--color-primary);"></i>
+                                        {% if su.teacher_role %}
+                                            Teacher Profile
+                                        {% elif su.student_role %}
+                                            Student Profile
+                                        {% else %}
+                                            Pre-registered User
+                                        {% endif %}
+                                    </p>
+                                    <div class="hover-card-details">
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Email</span>
+                                            <span class="hover-card-detail-value">{{ su.email }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Mobile</span>
+                                            <span class="hover-card-detail-value">{{ su.mobile_number|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">DOB</span>
+                                            <span class="hover-card-detail-value">{{ su.dob|date:"d M Y"|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Location</span>
+                                            <span class="hover-card-detail-value">{{ su.city|default:"—" }}{% if su.state %}, {{ su.state }}{% endif %}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Pincode</span>
+                                            <span class="hover-card-detail-value">{{ su.pincode|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Registered</span>
+                                            <span class="hover-card-detail-value">{{ su.created_at|date:"d M Y" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if su.teacher_role %}
+                        <span class="badge badge-pending" style="font-size: 0.7rem; white-space: nowrap;">
+                            {{ su.teacher_role.branch.name }}
+                        </span>
+                        {% elif su.student_role %}
+                        <span class="badge badge-pending" style="font-size: 0.7rem; white-space: nowrap;">
+                            {{ su.student_role.branch.name }}
+                        </span>
+                        {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+                        {% endif %}
+                    </td>
                     <td>
                         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                             {% if su.teacher_role %}
@@ -164,6 +280,10 @@
                             {% endif %}
                         </div>
                     </td>
+                    <td style="color: var(--text-secondary);">{{ su.email }}</td>
+                    <td style="color: var(--text-secondary);">
+                        {% if su.city %}{{ su.city }}{% if su.state %}, {{ su.state }}{% endif %}{% else %}—{% endif %}
+                    </td>
                     <td style="text-align: right; width: 80px;">
                         <div style="display: flex; flex-direction: column; gap: 6px; align-items: stretch;">
                             <button class="btn btn-secondary" style="width: 100%; padding: 4px 8px; font-size: 0.7rem; display: flex; justify-content: center;"
@@ -182,16 +302,16 @@
                     </td>
                 </tr>
                 {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                {% endif %}
+                
+                <!-- Dynamic Placeholder when filters yield zero rows -->
+                <tr id="no-results-placeholder" style="{% if school_users %}display: none;{% endif %}">
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
-                        No users found.{% if query %} Try a different search.{% else %} Click "Add New User" to register
-                        your first user.{% endif %}
+                        No users found matching the selected filters.{% if query %} Try a different search.{% else %} Click "Add New User" to register your first user.{% endif %}
                     </td>
                 </tr>
-                {% endif %}
             </tbody>
         </table>
     </div>
@@ -276,6 +396,73 @@
         document.getElementById('edit_pincode').value = pincode;
         document.getElementById('edit_mobile_number').value = mobileNumber;
         openDrawer('edit-user-card', 'edit_first_name');
+    }
+
+    function applyUserFilters() {
+        const branchVal = document.getElementById('filter-branch').value;
+        const roleVal = document.getElementById('filter-role').value;
+        
+        const rows = document.querySelectorAll('.person-row');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const rowBranch = row.getAttribute('data-branch');
+            const rowRole = row.getAttribute('data-role');
+            
+            let show = true;
+            
+            if (branchVal && rowBranch !== branchVal) {
+                show = false;
+            }
+            if (roleVal && rowRole !== roleVal) {
+                show = false;
+            }
+            
+            if (show) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('visible-count').textContent = visibleCount;
+        
+        const placeholder = document.getElementById('no-results-placeholder');
+        if (visibleCount === 0) {
+            if (placeholder) placeholder.style.display = '';
+        } else {
+            if (placeholder) placeholder.style.display = 'none';
+        }
+    }
+
+    function toggleSelectAllUsers() {
+        const headerMock = document.querySelector('th.custom-checkbox-col .custom-checkbox-mock');
+        const checked = headerMock.classList.toggle('checked');
+        if (checked) {
+            headerMock.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+            headerMock.innerHTML = '';
+        }
+        
+        document.querySelectorAll('td.custom-checkbox-col .custom-checkbox-mock').forEach(mock => {
+            if (checked) {
+                mock.classList.add('checked');
+                mock.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                mock.classList.remove('checked');
+                mock.innerHTML = '';
+            }
+        });
+    }
+
+    function toggleSelectUser(element) {
+        const checked = element.classList.toggle('checked');
+        if (checked) {
+            element.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+            element.innerHTML = '';
+        }
     }
 </script>
 {% endblock %}

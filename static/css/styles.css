@@ -719,3 +719,309 @@ h6 {
     gap: 8px;
     align-items: center;
 }
+
+/* User Directory Redesign Premium Styles */
+
+.directory-filter-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.directory-filter-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    padding: 8px 14px;
+    border-radius: 10px;
+    user-select: none;
+}
+
+.directory-filter-badge i {
+    color: var(--color-primary);
+    font-size: 0.85rem;
+}
+
+.directory-filter-badge span {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.person-cell {
+    position: relative;
+}
+
+.person-name-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.hover-card-popover {
+    opacity: 0;
+    visibility: hidden;
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%) scale(0.95);
+    width: 320px;
+    z-index: 9999;
+    pointer-events: none;
+    background: rgba(11, 25, 24, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+    text-align: left;
+}
+
+/* Adjust position for last few rows or when near bottom to avoid overflow */
+.person-row:nth-last-child(-n+3) .hover-card-popover {
+    top: auto;
+    bottom: -10px;
+    transform: scale(0.95);
+}
+
+.person-row:nth-last-child(-n+3):hover .hover-card-popover {
+    transform: scale(1);
+}
+
+.person-name-wrapper:hover .hover-card-popover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) scale(1);
+}
+
+.person-row:nth-last-child(-n+3) .person-name-wrapper:hover .hover-card-popover {
+    transform: translateY(0) scale(1);
+}
+
+.hover-card-banner {
+    height: 85px;
+    position: relative;
+}
+
+.hover-card-banner.bg-user {
+    background: linear-gradient(135deg, #6366f1, #818cf8, #a78bfa);
+}
+
+.hover-card-banner.bg-student {
+    background: linear-gradient(135deg, #0d9488, #14b8a6, #2dd4bf);
+}
+
+.hover-card-banner.bg-teacher {
+    background: linear-gradient(135deg, #4f46e5, #6366f1, #818cf8);
+}
+
+.hover-card-banner.bg-other {
+    background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
+}
+
+.hover-card-avatar-wrapper {
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    z-index: 2;
+}
+
+.hover-card-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 3px solid #0b1918;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.hover-card-body {
+    padding: 40px 20px 20px 20px;
+}
+
+.hover-card-name {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 2px;
+}
+
+.hover-card-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hover-card-details {
+    border-top: 1px solid var(--border-color);
+    padding-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.hover-card-detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+.hover-card-detail-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.hover-card-detail-value {
+    color: #ffffff;
+    font-weight: 600;
+    text-align: right;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Custom Checkbox Design matching mockup */
+.custom-checkbox-col {
+    width: 40px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.custom-checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-checkbox-mock {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border-color);
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.01);
+    transition: var(--transition-smooth);
+    cursor: pointer;
+}
+
+.person-row:hover .custom-checkbox-mock {
+    border-color: var(--color-primary);
+}
+
+.custom-checkbox-mock.checked {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 0.7rem;
+}
+
+/* Fix popover card vertical clipping by ensuring table containers have visible overflow on desktop screens */
+@media (min-width: 1024px) {
+    .table-container {
+        overflow: visible !important;
+    }
+}
+
+/* Header filter dropdown layout and components */
+.th-filter-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    width: 100%;
+}
+
+.th-filter-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+}
+
+.th-filter-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: var(--transition-smooth);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.th-filter-btn:hover,
+.th-filter-btn.active {
+    color: var(--color-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.th-filter-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 8px;
+    background: rgba(11, 25, 24, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    z-index: 10001;
+    padding: 6px;
+    min-width: 160px;
+    max-height: 250px;
+    overflow-y: auto;
+    text-transform: none; /* Override standard uppercase header text */
+    letter-spacing: normal;
+}
+
+.th-filter-dropdown.show {
+    display: block;
+}
+
+.th-filter-option {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 500;
+}
+
+.th-filter-option:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+}
+
+.th-filter-option.active {
+    background: rgba(4, 140, 127, 0.15);
+    color: var(--color-primary);
+    font-weight: 600;
+}

@@ -112,61 +112,184 @@
     </form>
 </div>
 
-<!-- Staff Listing Table -->
+<!-- Staff Table & Hidden Inputs for Filters -->
+<input type="hidden" id="filter-branch" value="">
+<input type="hidden" id="filter-role" value="">
+<input type="hidden" id="filter-status" value="">
+
 <div class="glass-panel" style="padding: 25px;">
+    <!-- Active Filters & Count Display -->
+    <div class="directory-filter-row" style="margin-bottom: 15px; justify-content: flex-end; padding: 0 10px;">
+        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            Showing <span id="visible-count" style="font-weight: 700; color: #fff;">{{ others|length }}</span> of <span style="font-weight: 700; color: #fff;">{{ others|length }}</span> staff
+        </div>
+    </div>
+
     <div class="table-container" style="overflow-x: auto;">
         <table class="custom-table" style="width: 100%; min-width: 900px;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>School</th>
-                        <th>Status</th>
-                        <th style="text-align: right;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if others %}
-                    {% for staff in others %}
-                    <tr>
-                        <td style="font-weight: 700; color: #ffffff;">{{ staff.id }}</td>
-                        <td style="font-weight: 600; color: #ffffff;">{{ staff.name }}</td>
-                        <td style="color: var(--text-secondary);">{{ staff.email }}</td>
-                        <td>
-                            <span class="badge badge-pending" style="font-size: 0.75rem;">{{ staff.role }}</span>
-                        </td>
-                        <td>
-                            <span class="badge badge-secondary"
-                                style="font-size: 0.7rem; color: var(--text-primary); border: 1px solid var(--border-color); white-space: nowrap;">
-                                {{ staff.branch.name }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="badge badge-validated" style="font-size: 0.7rem;">{{ staff.status }}</span>
-                        </td>
-                        <td style="text-align: right;">
-                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                                onclick="openEditStaffCard('{{ staff.id }}', '{{ staff.name|escapejs }}', '{{ staff.email|escapejs }}', '{{ staff.role|escapejs }}', '{{ staff.branch.id }}', '{{ staff.status }}')">
-                                <i class="fa-solid fa-user-pen"></i> edit
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            <i class="fa-solid fa-users-viewfinder"
-                                style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-                            No staff accounts found matching your query.
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+            <thead>
+                <tr>
+                    <th class="custom-checkbox-col">
+                        <div class="custom-checkbox-wrapper">
+                            <div class="custom-checkbox-mock" onclick="toggleSelectAllStaff()"></div>
+                        </div>
+                    </th>
+                    <th>Person</th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>School (Branch)</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'branch-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="branch-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">All Branches</div>
+                                    {% for b in branches %}
+                                    <div class="th-filter-option" data-value="{{ b.id }}" onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">{{ b.name }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>Role</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'role-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="role-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">All Roles</div>
+                                    <div class="th-filter-option" data-value="Student" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Student</div>
+                                    <div class="th-filter-option" data-value="Principal" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Principal</div>
+                                    <div class="th-filter-option" data-value="Teacher" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Teacher</div>
+                                    {% for cr in custom_roles %}
+                                    <div class="th-filter-option" data-value="{{ cr.name }}" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">{{ cr.name }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>Status</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'status-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="status-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">All Statuses</div>
+                                    <div class="th-filter-option" data-value="active" onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">Active</div>
+                                    <div class="th-filter-option" data-value="inactive" onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">Inactive</div>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if others %}
+                {% for staff in others %}
+                <tr class="person-row"
+                    data-branch="{{ staff.branch.id }}"
+                    data-role="{{ staff.role }}"
+                    data-status="{{ staff.status }}">
+                    <td class="custom-checkbox-col">
+                        <div class="custom-checkbox-wrapper">
+                            <div class="custom-checkbox-mock" onclick="toggleSelectStaff(this)"></div>
+                        </div>
+                    </td>
+                    <td class="person-cell">
+                        <div class="person-name-wrapper">
+                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #d97706, #fbbf24); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                                {{ staff.name|first|upper }}
+                            </div>
+                            <div>
+                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">{{ staff.name }}</p>
+                                <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
+                                    {{ staff.email }}
+                                </p>
+                            </div>
+                            
+                            <!-- Hover Tooltip Card Popover -->
+                            <div class="hover-card-popover">
+                                <div class="hover-card-banner bg-other">
+                                    <div class="hover-card-avatar-wrapper">
+                                        <div class="hover-card-avatar" style="background: #d97706; border: 3px solid #0b1918;">
+                                            {{ staff.name|first|upper }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hover-card-body">
+                                    <h4 class="hover-card-name">{{ staff.name }}</h4>
+                                    <p class="hover-card-subtitle">
+                                        <i class="fa-solid fa-user-shield" style="color: var(--color-primary);"></i>
+                                        Staff Member Profile
+                                    </p>
+                                    <div class="hover-card-details">
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Staff ID</span>
+                                            <span class="hover-card-detail-value">#STF-{{ staff.id|stringformat:"04d" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Email</span>
+                                            <span class="hover-card-detail-value">{{ staff.email }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Assigned Role</span>
+                                            <span class="hover-card-detail-value">{{ staff.role }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">School Branch</span>
+                                            <span class="hover-card-detail-value">{{ staff.branch.name }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Status</span>
+                                            <span class="hover-card-detail-value">
+                                                <span class="badge badge-validated" style="font-size: 0.65rem; padding: 2px 8px;">{{ staff.status }}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-secondary"
+                            style="font-size: 0.7rem; color: var(--text-primary); border: 1px solid var(--border-color); white-space: nowrap;">
+                            {{ staff.branch.name }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-pending" style="font-size: 0.75rem;">{{ staff.role }}</span>
+                    </td>
+                    <td>
+                        <span class="badge badge-validated" style="font-size: 0.7rem;">{{ staff.status }}</span>
+                    </td>
+                    <td style="text-align: right;">
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
+                            onclick="openEditStaffCard('{{ staff.id }}', '{{ staff.name|escapejs }}', '{{ staff.email|escapejs }}', '{{ staff.role|escapejs }}', '{{ staff.branch.id }}', '{{ staff.status }}')">
+                            <i class="fa-solid fa-user-pen"></i> edit
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
+                
+                <!-- Dynamic Placeholder when filters yield zero rows -->
+                <tr id="no-results-placeholder" style="{% if others %}display: none;{% endif %}">
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                        <i class="fa-solid fa-users"
+                            style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+                        No staff members found matching the selected filters.{% if query %} Try a different search.{% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
+
 
     <!-- Edit Staff Card -->
     <div id="edit-staff-card" class="glass-panel side-drawer"
@@ -240,6 +363,78 @@
         document.getElementById('edit_role').value = role;
         
         openDrawer('edit-staff-card', 'edit_name');
+    }
+
+    function applyStaffFilters() {
+        const branchVal = document.getElementById('filter-branch').value;
+        const roleVal = document.getElementById('filter-role').value;
+        const statusVal = document.getElementById('filter-status').value;
+        
+        const rows = document.querySelectorAll('.person-row');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const rowBranch = row.getAttribute('data-branch');
+            const rowRole = row.getAttribute('data-role');
+            const rowStatus = row.getAttribute('data-status');
+            
+            let show = true;
+            
+            if (branchVal && rowBranch !== branchVal) {
+                show = false;
+            }
+            if (roleVal && rowRole !== roleVal) {
+                show = false;
+            }
+            if (statusVal && rowStatus !== statusVal) {
+                show = false;
+            }
+            
+            if (show) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('visible-count').textContent = visibleCount;
+        
+        const placeholder = document.getElementById('no-results-placeholder');
+        if (visibleCount === 0) {
+            if (placeholder) placeholder.style.display = '';
+        } else {
+            if (placeholder) placeholder.style.display = 'none';
+        }
+    }
+
+    function toggleSelectAllStaff() {
+        const headerMock = document.querySelector('th.custom-checkbox-col .custom-checkbox-mock');
+        const checked = headerMock.classList.toggle('checked');
+        if (checked) {
+            headerMock.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+            headerMock.innerHTML = '';
+        }
+        
+        document.querySelectorAll('td.custom-checkbox-col .custom-checkbox-mock').forEach(mock => {
+            if (checked) {
+                mock.classList.add('checked');
+                mock.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                mock.classList.remove('checked');
+                mock.innerHTML = '';
+            }
+        });
+    }
+
+    function toggleSelectStaff(element) {
+        const checked = element.classList.toggle('checked');
+        if (checked) {
+            element.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+            element.innerHTML = '';
+        }
     }
 </script>
 {% endblock %}
