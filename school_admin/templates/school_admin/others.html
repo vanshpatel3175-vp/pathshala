@@ -89,8 +89,7 @@
                     style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
                     required>
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}" {% if branch_filter_id==branch.id|stringformat:"s" %}selected{%
-                        endif %}>{{ branch.name }} ({{ branch.city }})</option>
+                    <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
                     {% empty %}
                     <option value="">-- Create a Branch First --</option>
                     {% endfor %}

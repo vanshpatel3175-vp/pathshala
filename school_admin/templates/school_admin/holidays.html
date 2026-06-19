@@ -457,8 +457,7 @@
                 <select name="branch_name" id="branch_id">
                     <option value="">— Select Branch —</option>
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}" {% if default_branch and default_branch.id==branch.id %}selected{%
-                        endif %}>
+                    <option value="{{ branch.id }}" {% if default_branch and default_branch.id == branch.id %}selected{% endif %}>
                         {{ branch.name }}
                     </option>
                     {% endfor %}
@@ -498,8 +497,7 @@
             <select name="branch_id" id="filter_branch" onchange="this.form.submit()">
                 <option value="">All Branches</option>
                 {% for branch in branches %}
-                <option value="{{ branch.id }}" {% if filter_branch_id==branch.id|stringformat:"s" %}selected{% endif
-                    %}>
+                <option value="{{ branch.id }}" {% if filter_branch_id == branch.id|stringformat:"s" %}selected{% endif %}>
                     {{ branch.name }}
                 </option>
                 {% endfor %}

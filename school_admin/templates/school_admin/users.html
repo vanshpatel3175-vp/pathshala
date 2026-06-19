@@ -242,18 +242,15 @@
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Mobile</span>
-                                            <span class="hover-card-detail-value">{{ su.mobile_number|default:"—"
-                                                }}</span>
+                                            <span class="hover-card-detail-value">{{ su.mobile_number|default:"—" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">DOB</span>
-                                            <span class="hover-card-detail-value">{{ su.dob|date:"d M Y"|default:"—"
-                                                }}</span>
+                                            <span class="hover-card-detail-value">{{ su.dob|date:"d M Y"|default:"—" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Location</span>
-                                            <span class="hover-card-detail-value">{{ su.city|default:"—" }}{% if
-                                                su.state %}, {{ su.state }}{% endif %}</span>
+                                            <span class="hover-card-detail-value">{{ su.city|default:"—" }}{% if su.state %}, {{ su.state }}{% endif %}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Pincode</span>
