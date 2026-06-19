@@ -111,8 +111,8 @@
 
     /* Stat circle enhancements */
     .circle-stat-card {
-        background: radial-gradient(circle at 50% 50%, rgba(22, 49, 46, 0.8) 0%, rgba(7, 18, 17, 0.9) 100%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        background: var(--bg-card) !important;
+        border: 1px solid var(--border-color) !important;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
         transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
         position: relative;
@@ -126,7 +126,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle at center, rgba(4, 140, 127, 0.1) 0%, transparent 70%);
+        background: radial-gradient(circle at center, var(--border-glow) 0%, transparent 70%);
         opacity: 0;
         transition: opacity 0.4s ease;
         pointer-events: none;
@@ -134,8 +134,8 @@
 
     .circle-stat-card:hover {
         transform: translateY(-5px) scale(1.05) !important;
-        border-color: rgba(4, 140, 127, 0.4) !important;
-        box-shadow: 0 15px 40px rgba(4, 140, 127, 0.25) !important;
+        border-color: var(--color-primary) !important;
+        box-shadow: 0 15px 40px var(--border-glow) !important;
     }
 
     .circle-stat-card:hover::before {
@@ -440,14 +440,14 @@
 
     <div class="circle-stat-card">
         <i class="fa-solid fa-chalkboard-user"
-            style="color: var(--color-success); font-size: 1.25rem; margin-bottom: 6px; z-index: 2;"></i>
+            style="color: var(--color-primary); font-size: 1.25rem; margin-bottom: 6px; z-index: 2;"></i>
         <div class="stat-value" style="z-index: 2;">{{ total_teachers }}</div>
         <div class="stat-label" style="z-index: 2;">Total Teachers</div>
     </div>
 
     <div class="circle-stat-card">
         <i class="fa-solid fa-school"
-            style="color: var(--color-info); font-size: 1.25rem; margin-bottom: 6px; z-index: 2;"></i>
+            style="color: var(--color-primary); font-size: 1.25rem; margin-bottom: 6px; z-index: 2;"></i>
         <div class="stat-value" style="z-index: 2;">{{ total_classes }}</div>
         <div class="stat-label" style="z-index: 2;">Total Classes</div>
     </div>

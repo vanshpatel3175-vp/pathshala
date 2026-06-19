@@ -194,11 +194,7 @@
         <table class="custom-table" style="width: 100%; min-width: 900px;">
             <thead>
                 <tr>
-                    <th class="custom-checkbox-col">
-                        <div class="custom-checkbox-wrapper">
-                            <div class="custom-checkbox-mock" onclick="toggleSelectAllTeachers()"></div>
-                        </div>
-                    </th>
+
                     <th>Person</th>
                     <th>
                         <div class="th-filter-wrapper">
@@ -248,11 +244,7 @@
                 {% if teachers %}
                 {% for teacher in teachers %}
                 <tr class="person-row" data-branch="{{ teacher.branch.id }}" data-status="{{ teacher.status }}">
-                    <td class="custom-checkbox-col">
-                        <div class="custom-checkbox-wrapper">
-                            <div class="custom-checkbox-mock" onclick="toggleSelectTeacher(this)"></div>
-                        </div>
-                    </td>
+
                     <td class="person-cell">
                         <div class="person-name-wrapper">
                             <div
@@ -349,7 +341,7 @@
 
                 <!-- Dynamic Placeholder when filters yield zero rows -->
                 <tr id="no-results-placeholder" style="{% if teachers %}display: none;{% endif %}">
-                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
                         No teachers found matching the selected filters.{% if query %} Try a different search.

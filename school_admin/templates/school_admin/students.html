@@ -333,10 +333,16 @@
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Class</span>
+<<<<<<< HEAD
                                             <span class="hover-card-detail-value">{% if student.school_class %}
                                                 {{ student.school_class.name }}{% if student.school_class.section %} -
                                                 {{ student.school_class.section }}{% endif %}{% else %}—
                                                 {% endif %}</span>
+=======
+                                            <span class="hover-card-detail-value">{% if student.school_class %}{{
+                                                student.school_class.name }}{% if student.school_class.section %} - {{
+                                                student.school_class.section }}{% endif %}{% else %}—{% endif %}</span>
+>>>>>>> 8f7a3bf5057055e3e5b6fe5c5858eedc91303d42
                                         </div>
                                         {% if student.school_user %}
                                         <div class="hover-card-detail-item">
@@ -405,8 +411,13 @@
                     <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+<<<<<<< HEAD
                         No students found matching the selected filters.{% if query %} Try a different search.
                         {% endif %}
+=======
+                        No students found matching the selected filters.{% if query %} Try a different search.{% endif
+                        %}
+>>>>>>> 8f7a3bf5057055e3e5b6fe5c5858eedc91303d42
                     </td>
                 </tr>
             </tbody>
