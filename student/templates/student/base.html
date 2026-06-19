@@ -106,6 +106,20 @@
                             Study Materials
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'student_holidays' %}"
+                            class="sidebar-link {% if current_tab == 'holidays' %}active{% endif %}">
+                            <i class="fa-solid fa-umbrella-beach"></i>
+                            Holidays
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'student_events' %}"
+                            class="sidebar-link {% if current_tab == 'events' %}active{% endif %}">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            Events
+                        </a>
+                    </li>
                     {% if request.user.teacher_profile %}
                     <li>
                         <a href="{% url 'select_profile' %}" class="sidebar-link"

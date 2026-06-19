@@ -227,3 +227,63 @@ def teacher_attendance_history_view(request):
         'current_tab': 'attendance_history',
     }
     return render(request, 'teacher/attendance_history.html', context)
+
+
+@teacher_required
+def teacher_holidays_view(request):
+    """Teacher views holidays for their branch."""
+    profile = get_teacher_profile(request.user)
+    teacher = profile.teacher
+    branch = teacher.branch if teacher else None
+    institution = teacher.branch.institution if teacher else None
+
+    from school_admin.models import Holiday
+    holidays = []
+    if branch and institution:
+        # Show holidays for this branch OR holidays applied to all branches (branch field is null)
+        from django.db.models import Q
+        holidays = Holiday.objects.filter(
+            institution=institution
+        ).filter(
+            Q(branch=branch) | Q(branch__isnull=True)
+        ).order_by('start_date')
+
+    context = {
+        'profile': profile,
+        'teacher': teacher,
+        'institution': institution,
+        'branch': branch,
+        'holidays': holidays,
+        'current_tab': 'holidays',
+    }
+    return render(request, 'teacher/holidays.html', context)
+
+
+@teacher_required
+def teacher_events_view(request):
+    """Teacher views events for their branch."""
+    profile = get_teacher_profile(request.user)
+    teacher = profile.teacher
+    branch = teacher.branch if teacher else None
+    institution = teacher.branch.institution if teacher else None
+
+    from school_admin.models import Event
+    events = []
+    if branch and institution:
+        from django.db.models import Q
+        events = Event.objects.filter(
+            institution=institution
+        ).filter(
+            Q(branch=branch) | Q(branch__isnull=True)
+        ).order_by('start_date')
+
+    context = {
+        'profile': profile,
+        'teacher': teacher,
+        'institution': institution,
+        'branch': branch,
+        'events': events,
+        'current_tab': 'events',
+    }
+    return render(request, 'teacher/events.html', context)
+

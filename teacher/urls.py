@@ -8,4 +8,6 @@ urlpatterns = [
     path('profile/', views.teacher_profile_view, name='teacher_profile'),
     path('attendance/', views.teacher_attendance_view, name='teacher_attendance'),
     path('attendance/history/', views.teacher_attendance_history_view, name='teacher_attendance_history'),
+    path('holidays/', views.teacher_holidays_view, name='teacher_holidays'),
+    path('events/', views.teacher_events_view, name='teacher_events'),
 ]

@@ -20,4 +20,6 @@ urlpatterns = [
     path('api/user-lookup/', views.school_user_lookup_api, name='school_user_lookup_api'),
     path('api/classes-by-branch/', views.classes_by_branch_api, name='classes_by_branch_api'),
     path('attendance/', views.school_attendance_view, name='school_attendance'),
+    path('holidays/', views.school_holidays_view, name='school_holidays'),
+    path('events/', views.school_events_view, name='school_events'),
 ]

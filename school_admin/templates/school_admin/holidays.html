@@ -1,0 +1,646 @@
+{% extends 'school_admin/base.html' %}
+{% block title %}Holidays{% endblock %}
+
+{% block content %}
+<style>
+    .holiday-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .holiday-header h1 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #fff;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .holiday-header h1 i {
+        color: var(--color-primary);
+        font-size: 1.4rem;
+    }
+    .holiday-stats {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+    .hstat-card {
+        flex: 1;
+        min-width: 140px;
+        padding: 20px 24px;
+        border-radius: 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(var(--glass-blur));
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .hstat-card .hstat-val {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #fff;
+        font-family: var(--font-heading);
+    }
+    .hstat-card .hstat-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+    .hstat-card .hstat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+    }
+    .holiday-form-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 28px 32px;
+        margin-bottom: 28px;
+        backdrop-filter: blur(var(--glass-blur));
+        box-shadow: var(--card-shadow);
+    }
+    .holiday-form-card h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 22px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .holiday-form-card h2 i { color: var(--color-primary); }
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        align-items: end;
+    }
+    .form-group label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 7px;
+    }
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(38,166,154,0.12);
+    }
+    .form-group .validation-msg {
+        font-size: 0.75rem;
+        color: var(--color-danger);
+        margin-top: 5px;
+        display: none;
+    }
+    .all-branches-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        border-radius: 10px;
+        background: rgba(38,166,154,0.07);
+        border: 1px solid rgba(38,166,154,0.2);
+        margin-top: 4px;
+        cursor: pointer;
+    }
+    .all-branches-row input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--color-primary);
+        cursor: pointer;
+    }
+    .all-branches-row label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        cursor: pointer;
+        margin: 0;
+        user-select: none;
+    }
+    .submit-row {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 22px;
+    }
+    .btn-add-holiday {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 26px;
+        border-radius: 12px;
+        border: none;
+        background: linear-gradient(135deg, var(--color-primary), #26a69a);
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(38,166,154,0.3);
+    }
+    .btn-add-holiday:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(38,166,154,0.4);
+    }
+    /* ── Holiday List ── */
+    .holiday-list-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 28px 32px;
+        backdrop-filter: blur(var(--glass-blur));
+        box-shadow: var(--card-shadow);
+    }
+    .holiday-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    .holiday-list-header h2 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .holiday-list-header h2 i { color: var(--color-primary); }
+    .branch-filter-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .branch-filter-row select {
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        outline: none;
+    }
+    .holiday-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .holiday-table th {
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-secondary);
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 600;
+    }
+    .holiday-table td {
+        padding: 13px 14px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+        font-size: 0.875rem;
+        color: var(--text-primary);
+        vertical-align: middle;
+    }
+    .holiday-table tr:last-child td { border-bottom: none; }
+    .holiday-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .holiday-name-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .holiday-icon-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(38,166,154,0.12);
+        border: 1px solid rgba(38,166,154,0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: var(--color-primary);
+        font-size: 0.9rem;
+    }
+    .badge-single-day {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(251,191,36,0.12);
+        color: #fbbf24;
+        border: 1px solid rgba(251,191,36,0.2);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+    .badge-range {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(99,102,241,0.12);
+        color: #818cf8;
+        border: 1px solid rgba(99,102,241,0.2);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+    .badge-branch-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(16,185,129,0.1);
+        color: #34d399;
+        border: 1px solid rgba(16,185,129,0.2);
+    }
+    .badge-branch-name {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 9px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(38,166,154,0.1);
+        color: #26a69a;
+        border: 1px solid rgba(38,166,154,0.2);
+    }
+    .btn-delete-holiday {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 8px;
+        border: 1px solid rgba(239,68,68,0.25);
+        background: rgba(239,68,68,0.06);
+        color: var(--color-danger);
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-delete-holiday:hover {
+        background: rgba(239,68,68,0.14);
+        border-color: rgba(239,68,68,0.4);
+    }
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        gap: 14px;
+        color: var(--text-secondary);
+        text-align: center;
+    }
+    .empty-state i {
+        font-size: 3rem;
+        opacity: 0.3;
+    }
+    .empty-state p { font-size: 0.9rem; margin: 0; }
+    .date-range-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+    }
+    .date-range-display .date-arrow {
+        color: var(--text-secondary);
+        font-size: 0.7rem;
+    }
+</style>
+
+<div class="holiday-header">
+    <h1>
+        <i class="fa-solid fa-umbrella-beach"></i>
+        Holiday Management
+    </h1>
+    <span style="font-size:0.8rem; color:var(--text-secondary);">{{ institution.name }}</span>
+</div>
+
+<!-- Stats Row -->
+<div class="holiday-stats">
+    <div class="hstat-card">
+        <div class="hstat-icon" style="color:#26a69a;">🏖️</div>
+        <div class="hstat-val">{{ holidays.count }}</div>
+        <div class="hstat-label">Total Holidays</div>
+    </div>
+    <div class="hstat-card">
+        <div class="hstat-icon" style="color:#6366f1;">🏢</div>
+        <div class="hstat-val">{{ total_branches }}</div>
+        <div class="hstat-label">Total Branches</div>
+    </div>
+</div>
+
+<!-- Add Holiday Form -->
+<div class="holiday-form-card">
+    <h2><i class="fa-solid fa-calendar-plus"></i> Add New Holiday</h2>
+    <form method="post" id="holidayForm" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="add">
+        <div class="form-grid">
+            <!-- Holiday Name -->
+            <div class="form-group">
+                <label for="holiday_name">Holiday Name *</label>
+                <input type="text" id="holiday_name" name="holiday_name" placeholder="e.g. Diwali, Republic Day…" autocomplete="off" required>
+                <div class="validation-msg" id="name-error">Holiday name is required.</div>
+            </div>
+            <!-- Start Date -->
+            <div class="form-group">
+                <label for="start_date">Start Date *</label>
+                <input type="date" id="start_date" name="start_date" required>
+                <div class="validation-msg" id="start-error">Start date is required.</div>
+            </div>
+            <!-- End Date -->
+            <div class="form-group">
+                <label for="end_date">End Date *</label>
+                <input type="date" id="end_date" name="end_date" required>
+                <div class="validation-msg" id="end-error">End date cannot be before start date.</div>
+            </div>
+            <!-- Branch -->
+            <div class="form-group" id="branch-group">
+                <label for="branch_id">Branch *</label>
+                <select name="branch_name" id="branch_id">
+                    <option value="">— Select Branch —</option>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}"
+                        {% if default_branch and default_branch.id == branch.id %}selected{% endif %}>
+                        {{ branch.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="validation-msg" id="branch-error">Please select a branch or check "All Branches".</div>
+            </div>
+        </div>
+
+        <!-- All Branches Toggle (only show if more than one branch) -->
+        {% if total_branches > 1 %}
+        <div class="all-branches-row" style="margin-top:16px;" onclick="toggleAllBranches()">
+            <input type="checkbox" id="all_branches_checkbox" name="add_branch" onchange="toggleAllBranches()">
+            <label for="all_branches_checkbox">
+                <i class="fa-solid fa-building-columns" style="color:var(--color-primary); margin-right:6px;"></i>
+                Apply to <strong>All Branches</strong>
+            </label>
+        </div>
+        {% endif %}
+
+        <div class="submit-row">
+            <button type="submit" class="btn-add-holiday" id="submitHolidayBtn">
+                <i class="fa-solid fa-plus"></i>
+                Add Holiday
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Holiday List -->
+<div class="holiday-list-card">
+    <div class="holiday-list-header">
+        <h2><i class="fa-solid fa-list-check"></i> Holiday List</h2>
+        {% if total_branches > 1 %}
+        <form method="get" class="branch-filter-row">
+            <label for="filter_branch" style="font-size:0.8rem;color:var(--text-secondary);margin:0;">Filter by Branch:</label>
+            <select name="branch_id" id="filter_branch" onchange="this.form.submit()">
+                <option value="">All Branches</option>
+                {% for branch in branches %}
+                <option value="{{ branch.id }}" {% if filter_branch_id == branch.id|stringformat:"s" %}selected{% endif %}>
+                    {{ branch.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if holidays %}
+    <div style="overflow-x: auto;">
+        <table class="holiday-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Holiday Name</th>
+                    <th>Branch</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for holiday in holidays %}
+                <tr>
+                    <td style="color:var(--text-secondary);">{{ forloop.counter }}</td>
+                    <td>
+                        <div class="holiday-name-cell">
+                            <div class="holiday-icon-circle">
+                                <i class="fa-solid fa-sun"></i>
+                            </div>
+                            <span style="font-weight:600;">{{ holiday.holiday_name }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if holiday.branch %}
+                            <span class="badge-branch-name"><i class="fa-solid fa-building"></i> {{ holiday.branch.name }}</span>
+                        {% else %}
+                            <span class="badge-branch-all"><i class="fa-solid fa-building-columns"></i> All Branches</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ holiday.start_date|date:"d M Y" }}</td>
+                    <td>{{ holiday.end_date|date:"d M Y" }}</td>
+                    <td>
+                        {% if holiday.is_single_day %}
+                            <span class="badge-single-day"><i class="fa-solid fa-circle-dot"></i> Single Day</span>
+                        {% else %}
+                            {% with days=holiday.end_date|timeuntil:holiday.start_date %}
+                            <span class="badge-range"><i class="fa-solid fa-calendar-week"></i> Multi-Day</span>
+                            {% endwith %}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form method="post" style="display:inline;" onsubmit="return confirm('Delete holiday \'{{ holiday.holiday_name }}\'?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="holiday_id" value="{{ holiday.id }}">
+                            <button type="submit" class="btn-delete-holiday">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-calendar-xmark"></i>
+        <p>No holidays added yet. Use the form above to add holidays.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function() {
+    const startInput = document.getElementById('start_date');
+    const endInput = document.getElementById('end_date');
+    const nameInput = document.getElementById('holiday_name');
+    const branchSelect = document.getElementById('branch_id');
+    const form = document.getElementById('holidayForm');
+    const nameError = document.getElementById('name-error');
+    const startError = document.getElementById('start-error');
+    const endError = document.getElementById('end-error');
+    const branchError = document.getElementById('branch-error');
+    const allBranchCheckbox = document.getElementById('all_branches_checkbox');
+    const branchGroup = document.getElementById('branch-group');
+
+    // Set today as minimum for start_date
+    const today = new Date().toISOString().split('T')[0];
+    // End date can't be before start date
+    if (startInput && endInput) {
+        startInput.addEventListener('change', function() {
+            // When start date changes, set min for end date = start date
+            endInput.min = this.value;
+            if (endInput.value && endInput.value < this.value) {
+                endInput.value = this.value;
+            }
+            endError.style.display = 'none';
+        });
+
+        endInput.addEventListener('change', function() {
+            if (startInput.value && this.value < startInput.value) {
+                endError.style.display = 'block';
+                endError.textContent = 'End date cannot be before start date.';
+                this.value = '';
+            } else {
+                endError.style.display = 'none';
+            }
+        });
+    }
+
+    // Form validation before submit
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            let valid = true;
+
+            if (!nameInput.value.trim()) {
+                nameError.style.display = 'block';
+                nameInput.focus();
+                valid = false;
+            } else {
+                nameError.style.display = 'none';
+            }
+
+            if (!startInput.value) {
+                startError.style.display = 'block';
+                valid = false;
+            } else {
+                startError.style.display = 'none';
+            }
+
+            if (!endInput.value) {
+                endError.style.display = 'block';
+                endError.textContent = 'End date is required.';
+                valid = false;
+            } else if (endInput.value < startInput.value) {
+                endError.style.display = 'block';
+                endError.textContent = 'End date cannot be before start date.';
+                valid = false;
+            } else {
+                // validation rule: if today is start date then do not choose yesterday as end date.
+                const todayStr = new Date().toISOString().split('T')[0];
+                if (startInput.value === todayStr) {
+                    const yesterdayDate = new Date();
+                    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+                    const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+                    if (endInput.value === yesterdayStr) {
+                        endError.style.display = 'block';
+                        endError.textContent = 'If today is start date, do not choose yesterday as end date.';
+                        valid = false;
+                    } else {
+                        endError.style.display = 'none';
+                    }
+                } else {
+                    endError.style.display = 'none';
+                }
+            }
+
+            const allChecked = allBranchCheckbox ? allBranchCheckbox.checked : false;
+            if (!allChecked && branchSelect && !branchSelect.value) {
+                branchError.style.display = 'block';
+                valid = false;
+            } else {
+                if (branchError) branchError.style.display = 'none';
+            }
+
+            if (!valid) e.preventDefault();
+        });
+    }
+
+    // Real-time name validation
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            if (this.value.trim()) nameError.style.display = 'none';
+        });
+    }
+})();
+
+function toggleAllBranches() {
+    const checkbox = document.getElementById('all_branches_checkbox');
+    const branchGroup = document.getElementById('branch-group');
+
+    if (!checkbox) return;
+
+    if (checkbox.checked) {
+        if (branchGroup) {
+            branchGroup.style.opacity = '0.4';
+            branchGroup.style.pointerEvents = 'none';
+            const sel = branchGroup.querySelector('select');
+            if (sel) sel.removeAttribute('required');
+        }
+    } else {
+        if (branchGroup) {
+            branchGroup.style.opacity = '1';
+            branchGroup.style.pointerEvents = '';
+            const sel = branchGroup.querySelector('select');
+        }
+    }
+}
+</script>
+{% endblock %}

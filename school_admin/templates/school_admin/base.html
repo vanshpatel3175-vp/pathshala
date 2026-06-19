@@ -198,6 +198,20 @@
                             Attendance
                         </a>
                     </li>
+                    <li>
+                        <a href="{% url 'school_holidays' %}"
+                            class="sidebar-link {% if current_tab == 'holidays' %}active{% endif %}">
+                            <i class="fa-solid fa-umbrella-beach"></i>
+                            Holidays
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'school_events' %}"
+                            class="sidebar-link {% if current_tab == 'events' %}active{% endif %}">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            Events
+                        </a>
+                    </li>
                     {% if institution.features.study_materials %}
                     <li>
                         <a href="{% url 'admin_study_materials' %}"

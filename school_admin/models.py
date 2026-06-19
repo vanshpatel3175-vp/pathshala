@@ -179,3 +179,46 @@ class Attendance(models.Model):
 
     def __str__(self):
         return f"{self.student.name} — {self.school_class.name} — {self.date} — {self.status}"
+
+
+class Holiday(models.Model):
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='holidays')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True, related_name='holidays')
+    # null branch means the holiday applies to ALL branches of the institution
+    holiday_name = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-start_date']
+
+    def __str__(self):
+        branch_str = self.branch.name if self.branch else "All Branches"
+        return f"{self.holiday_name} ({branch_str}) [{self.start_date} – {self.end_date}]"
+
+    @property
+    def is_single_day(self):
+        return self.start_date == self.end_date
+
+
+class Event(models.Model):
+    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='events')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, null=True, blank=True, related_name='events')
+    # null branch means the event applies to ALL branches of the institution
+    event_name = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-start_date']
+
+    def __str__(self):
+        branch_str = self.branch.name if self.branch else "All Branches"
+        return f"{self.event_name} ({branch_str}) [{self.start_date} – {self.end_date}]"
+
+    @property
+    def is_single_day(self):
+        return self.start_date == self.end_date
+

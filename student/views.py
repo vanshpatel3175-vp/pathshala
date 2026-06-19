@@ -107,3 +107,61 @@ def student_result_view(request):
     }
     return render(request, 'student/result.html', context)
 
+
+@student_required
+def student_holidays_view(request):
+    """Student views holidays for their branch."""
+    profile = get_student_profile(request.user)
+    student = profile.student if profile else None
+    branch = student.branch if student else None
+    institution = student.branch.institution if student else None
+
+    from school_admin.models import Holiday
+    from django.db.models import Q
+    holidays = []
+    if branch and institution:
+        holidays = Holiday.objects.filter(
+            institution=institution
+        ).filter(
+            Q(branch=branch) | Q(branch__isnull=True)
+        ).order_by('start_date')
+
+    context = {
+        'student': student,
+        'profile': profile,
+        'institution': institution,
+        'branch': branch,
+        'holidays': holidays,
+        'current_tab': 'holidays',
+    }
+    return render(request, 'student/holidays.html', context)
+
+
+@student_required
+def student_events_view(request):
+    """Student views events for their branch."""
+    profile = get_student_profile(request.user)
+    student = profile.student if profile else None
+    branch = student.branch if student else None
+    institution = student.branch.institution if student else None
+
+    from school_admin.models import Event
+    from django.db.models import Q
+    events = []
+    if branch and institution:
+        events = Event.objects.filter(
+            institution=institution
+        ).filter(
+            Q(branch=branch) | Q(branch__isnull=True)
+        ).order_by('start_date')
+
+    context = {
+        'student': student,
+        'profile': profile,
+        'institution': institution,
+        'branch': branch,
+        'events': events,
+        'current_tab': 'events',
+    }
+    return render(request, 'student/events.html', context)
+

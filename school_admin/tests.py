@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from super_admin.models import Institution
-from school_admin.models import SchoolAdminProfile, Branch, Teacher, SchoolUser, Student
+from school_admin.models import SchoolAdminProfile, Branch, Teacher, SchoolUser, Student, Holiday, Event
 
 User = get_user_model()
 
@@ -239,4 +239,249 @@ class TeacherRegistrationAndLoginTest(TestCase):
         user = User.objects.get(email='dual@testschool.com')
         self.assertEqual(user.teacher_profile.teacher, teacher)
         self.assertEqual(user.student_profile.student, student)
+
+
+# ─── Holiday Tests ──────────────────────────────────────────────────────────
+
+from datetime import date, timedelta
+from school_admin.models import Holiday
+
+class HolidayTests(TestCase):
+    def setUp(self):
+        # Create an institution
+        self.institution = Institution.objects.create(
+            name="Test School",
+            email="admin@testschool.com",
+            status="active",
+            expired_date="2027-01-01T00:00:00Z"
+        )
+        # Create branch
+        self.branch = Branch.objects.create(
+            institution=self.institution,
+            name="Main Branch",
+            city="Navsari",
+            status="active"
+        )
+        self.branch2 = Branch.objects.create(
+            institution=self.institution,
+            name="Second Branch",
+            city="Surat",
+            status="active"
+        )
+        # Create a school admin user and profile
+        self.admin_user = User.objects.create_user(
+            username="admin@testschool.com",
+            email="admin@testschool.com",
+            password="password123",
+            role="SCHOOL STAFF"
+        )
+        self.admin_profile = SchoolAdminProfile.objects.create(
+            user=self.admin_user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        self.client = Client()
+        self.client.login(username="admin@testschool.com", password="password123")
+
+    def test_holiday_list_view_get(self):
+        # Access the holidays management page
+        response = self.client.get(reverse('school_holidays'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'school_admin/holidays.html')
+
+    def test_add_holiday_for_specific_branch(self):
+        # Create holiday for a specific branch
+        start_date = date.today() + timedelta(days=5)
+        end_date = date.today() + timedelta(days=6)
+        response = self.client.post(reverse('school_holidays'), {
+            'action': 'add',
+            'holiday_name': 'Diwali Specific',
+            'start_date': start_date.strftime('%Y-%m-%d'),
+            'end_date': end_date.strftime('%Y-%m-%d'),
+            'branch_name': self.branch.id,
+        })
+        self.assertRedirects(response, reverse('school_holidays'))
+        
+        # Verify Holiday created
+        holiday = Holiday.objects.filter(holiday_name='Diwali Specific').first()
+        self.assertIsNotNone(holiday)
+        self.assertEqual(holiday.branch, self.branch)
+        self.assertEqual(holiday.start_date, start_date)
+        self.assertEqual(holiday.end_date, end_date)
+
+    def test_add_holiday_for_all_branches(self):
+        # Create holiday for all branches
+        start_date = date.today() + timedelta(days=5)
+        end_date = date.today() + timedelta(days=6)
+        response = self.client.post(reverse('school_holidays'), {
+            'action': 'add',
+            'holiday_name': 'Diwali Global',
+            'start_date': start_date.strftime('%Y-%m-%d'),
+            'end_date': end_date.strftime('%Y-%m-%d'),
+            'add_branch': 'on',
+            'branch_name': '',
+        })
+        self.assertRedirects(response, reverse('school_holidays'))
+        
+        # Verify Holiday created with branch=None
+        holiday = Holiday.objects.filter(holiday_name='Diwali Global').first()
+        self.assertIsNotNone(holiday)
+        self.assertIsNone(holiday.branch)
+
+    def test_add_holiday_validation_today_vs_yesterday(self):
+        # Start date today, end date yesterday
+        start_date = date.today()
+        end_date = date.today() - timedelta(days=1)
+        response = self.client.post(reverse('school_holidays'), {
+            'action': 'add',
+            'holiday_name': 'Invalid Holiday',
+            'start_date': start_date.strftime('%Y-%m-%d'),
+            'end_date': end_date.strftime('%Y-%m-%d'),
+            'branch_name': self.branch.id,
+        })
+        self.assertRedirects(response, reverse('school_holidays'))
+        
+        # Verify no Holiday was created
+        holiday_count = Holiday.objects.filter(holiday_name='Invalid Holiday').count()
+        self.assertEqual(holiday_count, 0)
+
+    def test_delete_holiday(self):
+        holiday = Holiday.objects.create(
+            institution=self.institution,
+            branch=self.branch,
+            holiday_name='ToDelete',
+            start_date=date.today(),
+            end_date=date.today()
+        )
+        response = self.client.post(reverse('school_holidays'), {
+            'action': 'delete',
+            'holiday_id': holiday.id
+        })
+        self.assertRedirects(response, reverse('school_holidays'))
+        
+        # Verify deleted
+        self.assertEqual(Holiday.objects.filter(id=holiday.id).count(), 0)
+
+
+# ─── Event Tests ────────────────────────────────────────────────────────────
+
+from school_admin.models import Event
+
+class EventTests(TestCase):
+    def setUp(self):
+        # Create an institution
+        self.institution = Institution.objects.create(
+            name="Test School",
+            email="admin@testschool.com",
+            status="active",
+            expired_date="2027-01-01T00:00:00Z"
+        )
+        # Create branch
+        self.branch = Branch.objects.create(
+            institution=self.institution,
+            name="Main Branch",
+            city="Navsari",
+            status="active"
+        )
+        self.branch2 = Branch.objects.create(
+            institution=self.institution,
+            name="Second Branch",
+            city="Surat",
+            status="active"
+        )
+        # Create a school admin user and profile
+        self.admin_user = User.objects.create_user(
+            username="admin@testschool.com",
+            email="admin@testschool.com",
+            password="password123",
+            role="SCHOOL STAFF"
+        )
+        self.admin_profile = SchoolAdminProfile.objects.create(
+            user=self.admin_user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        self.client = Client()
+        self.client.login(username="admin@testschool.com", password="password123")
+
+    def test_event_list_view_get(self):
+        # Access the events management page
+        response = self.client.get(reverse('school_events'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'school_admin/events.html')
+
+    def test_add_event_for_specific_branch(self):
+        # Create event for a specific branch
+        start_date = date.today() + timedelta(days=5)
+        end_date = date.today() + timedelta(days=6)
+        response = self.client.post(reverse('school_events'), {
+            'action': 'add',
+            'event_name': 'Diwali Specific Event',
+            'start_date': start_date.strftime('%Y-%m-%d'),
+            'end_date': end_date.strftime('%Y-%m-%d'),
+            'branch_name': self.branch.id,
+        })
+        self.assertRedirects(response, reverse('school_events'))
+        
+        # Verify Event created
+        event = Event.objects.filter(event_name='Diwali Specific Event').first()
+        self.assertIsNotNone(event)
+        self.assertEqual(event.branch, self.branch)
+        self.assertEqual(event.start_date, start_date)
+        self.assertEqual(event.end_date, end_date)
+
+    def test_add_event_for_all_branches(self):
+        # Create event for all branches
+        start_date = date.today() + timedelta(days=5)
+        end_date = date.today() + timedelta(days=6)
+        response = self.client.post(reverse('school_events'), {
+            'action': 'add',
+            'event_name': 'Diwali Global Event',
+            'start_date': start_date.strftime('%Y-%m-%d'),
+            'end_date': end_date.strftime('%Y-%m-%d'),
+            'add_branch': 'on',
+            'branch_name': '',
+        })
+        self.assertRedirects(response, reverse('school_events'))
+        
+        # Verify Event created with branch=None
+        event = Event.objects.filter(event_name='Diwali Global Event').first()
+        self.assertIsNotNone(event)
+        self.assertIsNone(event.branch)
+
+    def test_add_event_validation_today_vs_yesterday(self):
+        # Start date today, end date yesterday
+        start_date = date.today()
+        end_date = date.today() - timedelta(days=1)
+        response = self.client.post(reverse('school_events'), {
+            'action': 'add',
+            'event_name': 'Invalid Event',
+            'start_date': start_date.strftime('%Y-%m-%d'),
+            'end_date': end_date.strftime('%Y-%m-%d'),
+            'branch_name': self.branch.id,
+        })
+        self.assertRedirects(response, reverse('school_events'))
+        
+        # Verify no Event was created
+        event_count = Event.objects.filter(event_name='Invalid Event').count()
+        self.assertEqual(event_count, 0)
+
+    def test_delete_event(self):
+        event = Event.objects.create(
+            institution=self.institution,
+            branch=self.branch,
+            event_name='ToDeleteEvent',
+            start_date=date.today(),
+            end_date=date.today()
+        )
+        response = self.client.post(reverse('school_events'), {
+            'action': 'delete',
+            'event_id': event.id
+        })
+        self.assertRedirects(response, reverse('school_events'))
+        
+        # Verify deleted
+        self.assertEqual(Event.objects.filter(id=event.id).count(), 0)
+
+
 

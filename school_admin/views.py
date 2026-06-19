@@ -11,7 +11,7 @@ from django.utils import timezone
 from datetime import date
 from super_admin.models import SchoolApplication, Institution
 
-from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, SchoolUser, Medium, Attendance
+from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, SchoolUser, Medium, Attendance, Holiday, Event
 
 def school_signup_view(request):
     if request.user.is_authenticated:
@@ -1321,4 +1321,198 @@ def classes_by_branch_api(request):
         data.append({'id': c.id, 'label': label})
 
     return JsonResponse({'classes': data})
+
+
+# ─── Holidays Management ──────────────────────────────────────────────────────
+
+@school_admin_required
+def school_holidays_view(request):
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+    branches = inst.branches.all()
+    total_branches = branches.count()
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'add')
+
+        if action == 'delete':
+            holiday_id = request.POST.get('holiday_id')
+            holiday = get_object_or_404(Holiday, id=holiday_id, institution=inst)
+            holiday.delete()
+            messages.success(request, "Holiday deleted successfully.")
+            return redirect('school_holidays')
+
+        else:  # add
+            holiday_name = request.POST.get('holiday_name', '').strip()
+            start_date_str = request.POST.get('start_date', '').strip()
+            end_date_str = request.POST.get('end_date', '').strip()
+            add_branch = request.POST.get('add_branch')
+            branch_id = request.POST.get('branch_name', '').strip()
+
+            if not holiday_name:
+                messages.error(request, "Holiday name is required.")
+                return redirect('school_holidays')
+            if not start_date_str or not end_date_str:
+                messages.error(request, "Start date and end date are required.")
+                return redirect('school_holidays')
+
+            from datetime import datetime, date, timedelta
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, "Invalid date format.")
+                return redirect('school_holidays')
+
+            today = date.today()
+            if start_date == today and end_date == (today - timedelta(days=1)):
+                messages.error(request, "If today is the start date, you cannot choose yesterday as the end date.")
+                return redirect('school_holidays')
+
+            if end_date < start_date:
+                messages.error(request, "End date cannot be before start date.")
+                return redirect('school_holidays')
+
+            if add_branch == 'on':
+                # Create a single holiday for the institution (branch=None means all branches)
+                Holiday.objects.create(
+                    institution=inst,
+                    branch=None,
+                    holiday_name=holiday_name,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+                messages.success(request, f"Holiday '{holiday_name}' added for all branches.")
+            elif branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                Holiday.objects.create(
+                    institution=inst,
+                    branch=branch,
+                    holiday_name=holiday_name,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+                messages.success(request, f"Holiday '{holiday_name}' added for branch '{branch.name}'.")
+            else:
+                messages.error(request, "Please select a branch or choose 'All Branches'.")
+            return redirect('school_holidays')
+
+    # Gather and filter holidays
+    holidays = Holiday.objects.filter(institution=inst).select_related('branch')
+    filter_branch_id = request.GET.get('branch_id', '').strip()
+    if filter_branch_id:
+        from django.db.models import Q
+        holidays = holidays.filter(Q(branch_id=filter_branch_id) | Q(branch__isnull=True))
+
+    # Auto-select branch if only one
+    default_branch = branches.first() if total_branches == 1 else None
+
+    context = {
+        'profile': profile,
+        'institution': inst,
+        'branches': branches,
+        'holidays': holidays,
+        'total_branches': total_branches,
+        'default_branch': default_branch,
+        'filter_branch_id': filter_branch_id,
+        'current_tab': 'holidays',
+    }
+    return render(request, 'school_admin/holidays.html', context)
+
+
+# ─── Events Management ────────────────────────────────────────────────────────
+
+@school_admin_required
+def school_events_view(request):
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+    branches = inst.branches.all()
+    total_branches = branches.count()
+
+    if request.method == 'POST':
+        action = request.POST.get('action', 'add')
+
+        if action == 'delete':
+            event_id = request.POST.get('event_id')
+            event = get_object_or_404(Event, id=event_id, institution=inst)
+            event.delete()
+            messages.success(request, "Event deleted successfully.")
+            return redirect('school_events')
+
+        else:  # add
+            event_name = request.POST.get('event_name', '').strip()
+            start_date_str = request.POST.get('start_date', '').strip()
+            end_date_str = request.POST.get('end_date', '').strip()
+            add_branch = request.POST.get('add_branch')
+            branch_id = request.POST.get('branch_name', '').strip()
+
+            if not event_name:
+                messages.error(request, "Event name is required.")
+                return redirect('school_events')
+            if not start_date_str or not end_date_str:
+                messages.error(request, "Start date and end date are required.")
+                return redirect('school_events')
+
+            from datetime import datetime, date, timedelta
+            try:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            except ValueError:
+                messages.error(request, "Invalid date format.")
+                return redirect('school_events')
+
+            today = date.today()
+            if start_date == today and end_date == (today - timedelta(days=1)):
+                messages.error(request, "If today is the start date, you cannot choose yesterday as the end date.")
+                return redirect('school_events')
+
+            if end_date < start_date:
+                messages.error(request, "End date cannot be before start date.")
+                return redirect('school_events')
+
+            if add_branch == 'on':
+                # Create a single event for the institution (branch=None means all branches)
+                Event.objects.create(
+                    institution=inst,
+                    branch=None,
+                    event_name=event_name,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+                messages.success(request, f"Event '{event_name}' added for all branches.")
+            elif branch_id:
+                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+                Event.objects.create(
+                    institution=inst,
+                    branch=branch,
+                    event_name=event_name,
+                    start_date=start_date,
+                    end_date=end_date,
+                )
+                messages.success(request, f"Event '{event_name}' added for branch '{branch.name}'.")
+            else:
+                messages.error(request, "Please select a branch or choose 'All Branches'.")
+            return redirect('school_events')
+
+    # Gather and filter events
+    events = Event.objects.filter(institution=inst).select_related('branch')
+    filter_branch_id = request.GET.get('branch_id', '').strip()
+    if filter_branch_id:
+        from django.db.models import Q
+        events = events.filter(Q(branch_id=filter_branch_id) | Q(branch__isnull=True))
+
+    # Auto-select branch if only one
+    default_branch = branches.first() if total_branches == 1 else None
+
+    context = {
+        'profile': profile,
+        'institution': inst,
+        'branches': branches,
+        'events': events,
+        'total_branches': total_branches,
+        'default_branch': default_branch,
+        'filter_branch_id': filter_branch_id,
+        'current_tab': 'events',
+    }
+    return render(request, 'school_admin/events.html', context)
 
