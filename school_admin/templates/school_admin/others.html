@@ -139,11 +139,7 @@
         <table class="custom-table" style="width: 100%; min-width: 900px;">
             <thead>
                 <tr>
-                    <th class="custom-checkbox-col">
-                        <div class="custom-checkbox-wrapper">
-                            <div class="custom-checkbox-mock" onclick="toggleSelectAllStaff()"></div>
-                        </div>
-                    </th>
+
                     <th>Person</th>
                     <th>
                         <div class="th-filter-wrapper">
@@ -223,11 +219,7 @@
                 {% for staff in others %}
                 <tr class="person-row" data-branch="{{ staff.branch.id }}" data-role="{{ staff.role }}"
                     data-status="{{ staff.status }}">
-                    <td class="custom-checkbox-col">
-                        <div class="custom-checkbox-wrapper">
-                            <div class="custom-checkbox-mock" onclick="toggleSelectStaff(this)"></div>
-                        </div>
-                    </td>
+
                     <td class="person-cell">
                         <div class="person-name-wrapper">
                             <div
@@ -314,7 +306,7 @@
 
                 <!-- Dynamic Placeholder when filters yield zero rows -->
                 <tr id="no-results-placeholder" style="{% if others %}display: none;{% endif %}">
-                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
                         No staff members found matching the selected filters.{% if query %} Try a different search.{% endif %}

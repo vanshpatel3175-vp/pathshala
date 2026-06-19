@@ -132,11 +132,7 @@
         <table class="custom-table" style="width: 100%; min-width: 900px;">
             <thead>
                 <tr>
-                    <th class="custom-checkbox-col">
-                        <div class="custom-checkbox-wrapper">
-                            <div class="custom-checkbox-mock" onclick="toggleSelectAllUsers()"></div>
-                        </div>
-                    </th>
+
                     <th>Person</th>
                     <th>
                         <div class="th-filter-wrapper">
@@ -193,11 +189,7 @@
                 <tr class="person-row"
                     data-branch="{% if su.teacher_role %}{{ su.teacher_role.branch.id }}{% elif su.student_role %}{{ su.student_role.branch.id }}{% endif %}"
                     data-role="{% if su.teacher_role %}teacher{% elif su.student_role %}student{% else %}user{% endif %}">
-                    <td class="custom-checkbox-col">
-                        <div class="custom-checkbox-wrapper">
-                            <div class="custom-checkbox-mock" onclick="toggleSelectUser(this)"></div>
-                        </div>
-                    </td>
+
                     <td class="person-cell">
                         <div class="person-name-wrapper">
                             <div
@@ -328,7 +320,7 @@
 
                 <!-- Dynamic Placeholder when filters yield zero rows -->
                 <tr id="no-results-placeholder" style="{% if school_users %}display: none;{% endif %}">
-                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
                         No users found matching the selected filters.{% if query %} Try a different search.{% else %}
