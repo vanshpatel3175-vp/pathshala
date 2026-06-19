@@ -163,3 +163,24 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"Subscription {self.sr_no} for {self.inquiry.full_name}"
+
+
+class ThemeSetting(models.Model):
+    THEME_CHOICES = [
+        ('default', 'Default Dark Theme'),
+        ('ocean-cyan', 'Ocean Cyan'),
+        ('royal-blue', 'Royal Blue'),
+        ('premium-pink', 'Premium Pink'),
+    ]
+    name = models.CharField(max_length=50, choices=THEME_CHOICES, unique=True)
+    is_active = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.get_name_display()
+
+    def save(self, *args, **kwargs):
+        if self.is_active:
+            # Deactivate all other themes
+            ThemeSetting.objects.exclude(pk=self.pk).update(is_active=False)
+        super().save(*args, **kwargs)

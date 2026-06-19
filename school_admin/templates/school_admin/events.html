@@ -11,25 +11,29 @@
         gap: 16px;
         flex-wrap: wrap;
     }
+
     .event-header h1 {
         font-size: 1.6rem;
         font-weight: 800;
-        color: #fff;
+        color: var(--text-primary);
         margin: 0;
         display: flex;
         align-items: center;
         gap: 12px;
     }
+
     .event-header h1 i {
         color: var(--color-primary);
         font-size: 1.4rem;
     }
+
     .event-stats {
         display: flex;
         gap: 16px;
         flex-wrap: wrap;
         margin-bottom: 28px;
     }
+
     .estat-card {
         flex: 1;
         min-width: 140px;
@@ -43,12 +47,14 @@
         flex-direction: column;
         gap: 4px;
     }
+
     .estat-card .estat-val {
         font-size: 1.8rem;
         font-weight: 800;
-        color: #fff;
+        color: var(--text-primary);
         font-family: var(--font-heading);
     }
+
     .estat-card .estat-label {
         font-size: 0.7rem;
         text-transform: uppercase;
@@ -56,10 +62,12 @@
         color: var(--text-secondary);
         font-weight: 600;
     }
+
     .estat-card .estat-icon {
         font-size: 1.5rem;
         margin-bottom: 8px;
     }
+
     .event-form-card {
         background: var(--bg-card);
         border: 1px solid var(--border-color);
@@ -69,22 +77,28 @@
         backdrop-filter: blur(var(--glass-blur));
         box-shadow: var(--card-shadow);
     }
+
     .event-form-card h2 {
         font-size: 1.1rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
         margin: 0 0 22px 0;
         display: flex;
         align-items: center;
         gap: 10px;
     }
-    .event-form-card h2 i { color: var(--color-primary); }
+
+    .event-form-card h2 i {
+        color: var(--color-primary);
+    }
+
     .form-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 18px;
         align-items: end;
     }
+
     .form-group label {
         display: block;
         font-size: 0.78rem;
@@ -94,6 +108,7 @@
         letter-spacing: 0.06em;
         margin-bottom: 7px;
     }
+
     .form-group input,
     .form-group select {
         width: 100%;
@@ -107,34 +122,39 @@
         transition: border-color 0.2s;
         box-sizing: border-box;
     }
+
     .form-group input:focus,
     .form-group select:focus {
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px rgba(38,166,154,0.12);
+        box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.12);
     }
+
     .form-group .validation-msg {
         font-size: 0.75rem;
         color: var(--color-danger);
         margin-top: 5px;
         display: none;
     }
+
     .all-branches-row {
         display: flex;
         align-items: center;
         gap: 10px;
         padding: 12px 16px;
         border-radius: 10px;
-        background: rgba(38,166,154,0.07);
-        border: 1px solid rgba(38,166,154,0.2);
+        background: rgba(38, 166, 154, 0.07);
+        border: 1px solid rgba(38, 166, 154, 0.2);
         margin-top: 4px;
         cursor: pointer;
     }
+
     .all-branches-row input[type="checkbox"] {
         width: 18px;
         height: 18px;
         accent-color: var(--color-primary);
         cursor: pointer;
     }
+
     .all-branches-row label {
         font-size: 0.875rem;
         font-weight: 600;
@@ -143,11 +163,13 @@
         margin: 0;
         user-select: none;
     }
+
     .submit-row {
         display: flex;
         justify-content: flex-end;
         margin-top: 22px;
     }
+
     .btn-add-event {
         display: inline-flex;
         align-items: center;
@@ -156,17 +178,19 @@
         border-radius: 12px;
         border: none;
         background: linear-gradient(135deg, var(--color-primary), #26a69a);
-        color: #fff;
+        color: var(--text-primary);
         font-size: 0.9rem;
         font-weight: 700;
         cursor: pointer;
         transition: all 0.2s;
-        box-shadow: 0 4px 14px rgba(38,166,154,0.3);
+        box-shadow: 0 4px 14px rgba(38, 166, 154, 0.3);
     }
+
     .btn-add-event:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(38,166,154,0.4);
+        box-shadow: 0 6px 20px rgba(38, 166, 154, 0.4);
     }
+
     /* ── Event List ── */
     .event-list-card {
         background: var(--bg-card);
@@ -176,6 +200,7 @@
         backdrop-filter: blur(var(--glass-blur));
         box-shadow: var(--card-shadow);
     }
+
     .event-list-header {
         display: flex;
         align-items: center;
@@ -184,22 +209,28 @@
         flex-wrap: wrap;
         gap: 12px;
     }
+
     .event-list-header h2 {
         font-size: 1.1rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
         margin: 0;
         display: flex;
         align-items: center;
         gap: 10px;
     }
-    .event-list-header h2 i { color: var(--color-primary); }
+
+    .event-list-header h2 i {
+        color: var(--color-primary);
+    }
+
     .branch-filter-row {
         display: flex;
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
     }
+
     .branch-filter-row select {
         padding: 8px 14px;
         border-radius: 10px;
@@ -209,10 +240,12 @@
         font-size: 0.85rem;
         outline: none;
     }
+
     .event-table {
         width: 100%;
         border-collapse: collapse;
     }
+
     .event-table th {
         padding: 10px 14px;
         text-align: left;
@@ -223,26 +256,35 @@
         border-bottom: 1px solid var(--border-color);
         font-weight: 600;
     }
+
     .event-table td {
         padding: 13px 14px;
-        border-bottom: 1px solid rgba(255,255,255,0.04);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
         font-size: 0.875rem;
         color: var(--text-primary);
         vertical-align: middle;
     }
-    .event-table tr:last-child td { border-bottom: none; }
-    .event-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .event-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .event-table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
     .event-name-cell {
         display: flex;
         align-items: center;
         gap: 12px;
     }
+
     .event-icon-circle {
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: rgba(38,166,154,0.12);
-        border: 1px solid rgba(38,166,154,0.25);
+        background: rgba(38, 166, 154, 0.12);
+        border: 1px solid rgba(38, 166, 154, 0.25);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -250,6 +292,7 @@
         color: var(--color-primary);
         font-size: 0.9rem;
     }
+
     .badge-single-day {
         display: inline-flex;
         align-items: center;
@@ -258,12 +301,13 @@
         border-radius: 12px;
         font-size: 0.68rem;
         font-weight: 700;
-        background: rgba(251,191,36,0.12);
+        background: rgba(251, 191, 36, 0.12);
         color: #fbbf24;
-        border: 1px solid rgba(251,191,36,0.2);
+        border: 1px solid rgba(251, 191, 36, 0.2);
         letter-spacing: 0.05em;
         text-transform: uppercase;
     }
+
     .badge-range {
         display: inline-flex;
         align-items: center;
@@ -272,12 +316,13 @@
         border-radius: 12px;
         font-size: 0.68rem;
         font-weight: 700;
-        background: rgba(99,102,241,0.12);
+        background: rgba(99, 102, 241, 0.12);
         color: #818cf8;
-        border: 1px solid rgba(99,102,241,0.2);
+        border: 1px solid rgba(99, 102, 241, 0.2);
         letter-spacing: 0.05em;
         text-transform: uppercase;
     }
+
     .badge-branch-all {
         display: inline-flex;
         align-items: center;
@@ -286,10 +331,11 @@
         border-radius: 12px;
         font-size: 0.68rem;
         font-weight: 700;
-        background: rgba(16,185,129,0.1);
+        background: rgba(16, 185, 129, 0.1);
         color: #34d399;
-        border: 1px solid rgba(16,185,129,0.2);
+        border: 1px solid rgba(16, 185, 129, 0.2);
     }
+
     .badge-branch-name {
         display: inline-flex;
         align-items: center;
@@ -298,28 +344,31 @@
         border-radius: 12px;
         font-size: 0.68rem;
         font-weight: 700;
-        background: rgba(38,166,154,0.1);
+        background: rgba(38, 166, 154, 0.1);
         color: #26a69a;
-        border: 1px solid rgba(38,166,154,0.2);
+        border: 1px solid rgba(38, 166, 154, 0.2);
     }
+
     .btn-delete-event {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         padding: 6px 14px;
         border-radius: 8px;
-        border: 1px solid rgba(239,68,68,0.25);
-        background: rgba(239,68,68,0.06);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        background: rgba(239, 68, 68, 0.06);
         color: var(--color-danger);
         font-size: 0.8rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
     }
+
     .btn-delete-event:hover {
-        background: rgba(239,68,68,0.14);
-        border-color: rgba(239,68,68,0.4);
+        background: rgba(239, 68, 68, 0.14);
+        border-color: rgba(239, 68, 68, 0.4);
     }
+
     .empty-state {
         display: flex;
         flex-direction: column;
@@ -330,11 +379,16 @@
         color: var(--text-secondary);
         text-align: center;
     }
+
     .empty-state i {
         font-size: 3rem;
         opacity: 0.3;
     }
-    .empty-state p { font-size: 0.9rem; margin: 0; }
+
+    .empty-state p {
+        font-size: 0.9rem;
+        margin: 0;
+    }
 </style>
 
 <div class="event-header">
@@ -369,7 +423,8 @@
             <!-- Event Name -->
             <div class="form-group">
                 <label for="event_name">Event Name *</label>
-                <input type="text" id="event_name" name="event_name" placeholder="e.g. Sports Day, Annual Function…" autocomplete="off" required>
+                <input type="text" id="event_name" name="event_name" placeholder="e.g. Sports Day, Annual Function…"
+                    autocomplete="off" required>
                 <div class="validation-msg" id="name-error">Event name is required.</div>
             </div>
             <!-- Start Date -->
@@ -390,8 +445,8 @@
                 <select name="branch_name" id="branch_id">
                     <option value="">— Select Branch —</option>
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}"
-                        {% if default_branch and default_branch.id == branch.id %}selected{% endif %}>
+                    <option value="{{ branch.id }}" {% if default_branch and default_branch.id==branch.id %}selected{%
+                        endif %}>
                         {{ branch.name }}
                     </option>
                     {% endfor %}
@@ -426,11 +481,13 @@
         <h2><i class="fa-solid fa-list-check"></i> Event List</h2>
         {% if total_branches > 1 %}
         <form method="get" class="branch-filter-row">
-            <label for="filter_branch" style="font-size:0.8rem;color:var(--text-secondary);margin:0;">Filter by Branch:</label>
+            <label for="filter_branch" style="font-size:0.8rem;color:var(--text-secondary);margin:0;">Filter by
+                Branch:</label>
             <select name="branch_id" id="filter_branch" onchange="this.form.submit()">
                 <option value="">All Branches</option>
                 {% for branch in branches %}
-                <option value="{{ branch.id }}" {% if filter_branch_id == branch.id|stringformat:"s" %}selected{% endif %}>
+                <option value="{{ branch.id }}" {% if filter_branch_id==branch.id|stringformat:"s" %}selected{% endif
+                    %}>
                     {{ branch.name }}
                 </option>
                 {% endfor %}
@@ -467,22 +524,24 @@
                     </td>
                     <td>
                         {% if event.branch %}
-                            <span class="badge-branch-name"><i class="fa-solid fa-building"></i> {{ event.branch.name }}</span>
+                        <span class="badge-branch-name"><i class="fa-solid fa-building"></i> {{ event.branch.name
+                            }}</span>
                         {% else %}
-                            <span class="badge-branch-all"><i class="fa-solid fa-building-columns"></i> All Branches</span>
+                        <span class="badge-branch-all"><i class="fa-solid fa-building-columns"></i> All Branches</span>
                         {% endif %}
                     </td>
                     <td>{{ event.start_date|date:"d M Y" }}</td>
                     <td>{{ event.end_date|date:"d M Y" }}</td>
                     <td>
                         {% if event.is_single_day %}
-                            <span class="badge-single-day"><i class="fa-solid fa-circle-dot"></i> Single Day</span>
+                        <span class="badge-single-day"><i class="fa-solid fa-circle-dot"></i> Single Day</span>
                         {% else %}
-                            <span class="badge-range"><i class="fa-solid fa-calendar-week"></i> Multi-Day</span>
+                        <span class="badge-range"><i class="fa-solid fa-calendar-week"></i> Multi-Day</span>
                         {% endif %}
                     </td>
                     <td>
-                        <form method="post" style="display:inline;" onsubmit="return confirm('Delete event \'{{ event.event_name }}\'?');">
+                        <form method="post" style="display:inline;"
+                            onsubmit="return confirm('Delete event \'{{ event.event_name }}\'?');">
                             {% csrf_token %}
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="event_id" value="{{ event.id }}">
@@ -505,126 +564,126 @@
 </div>
 
 <script>
-(function() {
-    const startInput = document.getElementById('start_date');
-    const endInput = document.getElementById('end_date');
-    const nameInput = document.getElementById('event_name');
-    const branchSelect = document.getElementById('branch_id');
-    const form = document.getElementById('eventForm');
-    const nameError = document.getElementById('name-error');
-    const startError = document.getElementById('start-error');
-    const endError = document.getElementById('end-error');
-    const branchError = document.getElementById('branch-error');
-    const allBranchCheckbox = document.getElementById('all_branches_checkbox');
-    const branchGroup = document.getElementById('branch-group');
+    (function () {
+        const startInput = document.getElementById('start_date');
+        const endInput = document.getElementById('end_date');
+        const nameInput = document.getElementById('event_name');
+        const branchSelect = document.getElementById('branch_id');
+        const form = document.getElementById('eventForm');
+        const nameError = document.getElementById('name-error');
+        const startError = document.getElementById('start-error');
+        const endError = document.getElementById('end-error');
+        const branchError = document.getElementById('branch-error');
+        const allBranchCheckbox = document.getElementById('all_branches_checkbox');
+        const branchGroup = document.getElementById('branch-group');
 
-    // Set today as minimum for start_date
-    const today = new Date().toISOString().split('T')[0];
-    if (startInput && endInput) {
-        startInput.addEventListener('change', function() {
-            endInput.min = this.value;
-            if (endInput.value && endInput.value < this.value) {
-                endInput.value = this.value;
-            }
-            endError.style.display = 'none';
-        });
-
-        endInput.addEventListener('change', function() {
-            if (startInput.value && this.value < startInput.value) {
-                endError.style.display = 'block';
-                endError.textContent = 'End date cannot be before start date.';
-                this.value = '';
-            } else {
+        // Set today as minimum for start_date
+        const today = new Date().toISOString().split('T')[0];
+        if (startInput && endInput) {
+            startInput.addEventListener('change', function () {
+                endInput.min = this.value;
+                if (endInput.value && endInput.value < this.value) {
+                    endInput.value = this.value;
+                }
                 endError.style.display = 'none';
-            }
-        });
-    }
+            });
 
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            let valid = true;
-
-            if (!nameInput.value.trim()) {
-                nameError.style.display = 'block';
-                nameInput.focus();
-                valid = false;
-            } else {
-                nameError.style.display = 'none';
-            }
-
-            if (!startInput.value) {
-                startError.style.display = 'block';
-                valid = false;
-            } else {
-                startError.style.display = 'none';
-            }
-
-            if (!endInput.value) {
-                endError.style.display = 'block';
-                endError.textContent = 'End date is required.';
-                valid = false;
-            } else if (endInput.value < startInput.value) {
-                endError.style.display = 'block';
-                endError.textContent = 'End date cannot be before start date.';
-                valid = false;
-            } else {
-                // validation rule: if today is start date then do not choose yesterday as end date.
-                const todayStr = new Date().toISOString().split('T')[0];
-                if (startInput.value === todayStr) {
-                    const yesterdayDate = new Date();
-                    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-                    const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
-                    if (endInput.value === yesterdayStr) {
-                        endError.style.display = 'block';
-                        endError.textContent = 'If today is start date, do not choose yesterday as end date.';
-                        valid = false;
-                    } else {
-                        endError.style.display = 'none';
-                    }
+            endInput.addEventListener('change', function () {
+                if (startInput.value && this.value < startInput.value) {
+                    endError.style.display = 'block';
+                    endError.textContent = 'End date cannot be before start date.';
+                    this.value = '';
                 } else {
                     endError.style.display = 'none';
                 }
-            }
-
-            const allChecked = allBranchCheckbox ? allBranchCheckbox.checked : false;
-            if (!allChecked && branchSelect && !branchSelect.value) {
-                branchError.style.display = 'block';
-                valid = false;
-            } else {
-                if (branchError) branchError.style.display = 'none';
-            }
-
-            if (!valid) e.preventDefault();
-        });
-    }
-
-    if (nameInput) {
-        nameInput.addEventListener('input', function() {
-            if (this.value.trim()) nameError.style.display = 'none';
-        });
-    }
-})();
-
-function toggleAllBranches() {
-    const checkbox = document.getElementById('all_branches_checkbox');
-    const branchGroup = document.getElementById('branch-group');
-
-    if (!checkbox) return;
-
-    if (checkbox.checked) {
-        if (branchGroup) {
-            branchGroup.style.opacity = '0.4';
-            branchGroup.style.pointerEvents = 'none';
-            const sel = branchGroup.querySelector('select');
-            if (sel) sel.removeAttribute('required');
+            });
         }
-    } else {
-        if (branchGroup) {
-            branchGroup.style.opacity = '1';
-            branchGroup.style.pointerEvents = '';
-            const sel = branchGroup.querySelector('select');
+
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                let valid = true;
+
+                if (!nameInput.value.trim()) {
+                    nameError.style.display = 'block';
+                    nameInput.focus();
+                    valid = false;
+                } else {
+                    nameError.style.display = 'none';
+                }
+
+                if (!startInput.value) {
+                    startError.style.display = 'block';
+                    valid = false;
+                } else {
+                    startError.style.display = 'none';
+                }
+
+                if (!endInput.value) {
+                    endError.style.display = 'block';
+                    endError.textContent = 'End date is required.';
+                    valid = false;
+                } else if (endInput.value < startInput.value) {
+                    endError.style.display = 'block';
+                    endError.textContent = 'End date cannot be before start date.';
+                    valid = false;
+                } else {
+                    // validation rule: if today is start date then do not choose yesterday as end date.
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    if (startInput.value === todayStr) {
+                        const yesterdayDate = new Date();
+                        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+                        const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
+                        if (endInput.value === yesterdayStr) {
+                            endError.style.display = 'block';
+                            endError.textContent = 'If today is start date, do not choose yesterday as end date.';
+                            valid = false;
+                        } else {
+                            endError.style.display = 'none';
+                        }
+                    } else {
+                        endError.style.display = 'none';
+                    }
+                }
+
+                const allChecked = allBranchCheckbox ? allBranchCheckbox.checked : false;
+                if (!allChecked && branchSelect && !branchSelect.value) {
+                    branchError.style.display = 'block';
+                    valid = false;
+                } else {
+                    if (branchError) branchError.style.display = 'none';
+                }
+
+                if (!valid) e.preventDefault();
+            });
+        }
+
+        if (nameInput) {
+            nameInput.addEventListener('input', function () {
+                if (this.value.trim()) nameError.style.display = 'none';
+            });
+        }
+    })();
+
+    function toggleAllBranches() {
+        const checkbox = document.getElementById('all_branches_checkbox');
+        const branchGroup = document.getElementById('branch-group');
+
+        if (!checkbox) return;
+
+        if (checkbox.checked) {
+            if (branchGroup) {
+                branchGroup.style.opacity = '0.4';
+                branchGroup.style.pointerEvents = 'none';
+                const sel = branchGroup.querySelector('select');
+                if (sel) sel.removeAttribute('required');
+            }
+        } else {
+            if (branchGroup) {
+                branchGroup.style.opacity = '1';
+                branchGroup.style.pointerEvents = '';
+                const sel = branchGroup.querySelector('select');
+            }
         }
     }
-}
 </script>
 {% endblock %}

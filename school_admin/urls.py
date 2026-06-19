@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from super_admin import views as super_admin_views
 
 urlpatterns = [
     path('', views.school_overview_view, name='school_overview'),
@@ -22,4 +23,5 @@ urlpatterns = [
     path('attendance/', views.school_attendance_view, name='school_attendance'),
     path('holidays/', views.school_holidays_view, name='school_holidays'),
     path('events/', views.school_events_view, name='school_events'),
+    path('theme-settings/', super_admin_views.theme_settings_view, name='theme_settings'),
 ]

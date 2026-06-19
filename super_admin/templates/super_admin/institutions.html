@@ -35,7 +35,7 @@
                 {% if institutions %}
                 {% for inst in institutions %}
                 <tr>
-                    <td style="font-weight: 600; color: #ffffff;">
+                    <td style="font-weight: 600; color: var(--text-primary);">
                         {{ inst.name }}
                         {% if inst.branches.count > 1 %}
                         <button class="btn btn-secondary"
@@ -119,7 +119,7 @@
                             <div class="glass-panel"
                                 style="padding: 10px 15px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.15); min-width: 200px; display: flex; flex-direction: column; justify-content: space-between;">
                                 <div>
-                                    <div style="font-weight: 600; color: #ffffff; font-size: 0.88rem;">
+                                    <div style="font-weight: 600; color: var(--text-primary); font-size: 0.88rem;">
                                         <i class="fa-solid fa-code-branch"
                                             style="color: var(--color-primary); font-size: 0.8rem; margin-right: 5px;"></i>
                                         {{ branch.name }} (<code>{{ branch.branch_code }}</code>)

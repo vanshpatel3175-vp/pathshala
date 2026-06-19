@@ -536,3 +536,48 @@ def select_profile_view(request):
         'student_profiles': student_profiles,
     }
     return render(request, 'super_admin/select_profile.html', context)
+
+@login_required
+def theme_settings_view(request):
+    if request.user.role not in ['SUPER ADMIN', 'SCHOOL STAFF']:
+        messages.error(request, 'Access Denied.')
+        return redirect('school_overview' if request.user.role == 'SCHOOL STAFF' else 'dashboard')
+        
+    from .models import ThemeSetting
+    
+    if request.method == 'POST':
+        theme_code = request.POST.get('theme_code')
+        if theme_code:
+            # Set active theme
+            theme, created = ThemeSetting.objects.get_or_create(name=theme_code)
+            theme.is_active = True
+            theme.save()
+            messages.success(request, f'Theme updated successfully!')
+            return redirect(request.META.get('HTTP_REFERER', 'theme_settings'))
+            
+    active_theme = ThemeSetting.objects.filter(is_active=True).first()
+    active_code = active_theme.name if active_theme else 'default'
+    
+    themes = [
+        {'code': 'default', 'name': 'Default Dark Theme', 'color': '#26a69a'},
+        {'code': 'ocean-cyan', 'name': 'Ocean Cyan', 'color': '#00BCD4'},
+        {'code': 'royal-blue', 'name': 'Royal Blue', 'color': '#2563EB'},
+        {'code': 'premium-pink', 'name': 'Premium Pink', 'color': '#EC4899'},
+    ]
+    
+    base_template = 'school_admin/base.html' if request.user.role == 'SCHOOL STAFF' else 'super_admin/base.html'
+    
+    institution = None
+    if request.user.role == 'SCHOOL STAFF':
+        try:
+            institution = request.user.school_profile.institution
+        except Exception:
+            pass
+            
+    return render(request, 'super_admin/theme_settings.html', {
+        'themes': themes,
+        'active_code': active_code,
+        'current_tab': 'themes',
+        'base_template': base_template,
+        'institution': institution
+    })

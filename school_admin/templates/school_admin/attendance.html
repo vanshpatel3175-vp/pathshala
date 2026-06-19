@@ -6,7 +6,7 @@
 <!-- Page Header -->
 <div class="page-header" style="margin-bottom: 30px;">
     <div class="page-title">
-        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Attendance Report
         </h1>
         <p style="color: var(--text-secondary); font-size: 0.95rem;">View and monitor student attendance across all classes</p>
@@ -20,7 +20,7 @@
         {% if branches|length > 1 %}
         <div style="min-width: 180px;">
             <label style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Branch</label>
-            <select name="branch_id" style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" onchange="this.form.submit()">
+            <select name="branch_id" style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);" onchange="this.form.submit()">
                 <option value="">All Branches</option>
                 {% for br in branches %}
                 <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name }}</option>
@@ -30,7 +30,7 @@
         {% endif %}
         <div style="flex: 1; min-width: 200px;">
             <label style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Class</label>
-            <select name="class_id" style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" onchange="this.form.submit()">
+            <select name="class_id" style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);" onchange="this.form.submit()">
                 <option value="">-- Select Class --</option>
                 {% for cls in classes %}
                 <option value="{{ cls.id }}" {% if class_filter_id == cls.id|stringformat:"s" %}selected{% endif %}>
@@ -42,7 +42,7 @@
         <div style="min-width: 170px;">
             <label style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Date</label>
             <input type="date" name="date" value="{{ date_filter }}"
-                style="height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; width: 100%;">
+                style="height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
         </div>
         <button type="submit" class="btn btn-primary" style="height: 44px; padding: 0 22px;">
             <i class="fa-solid fa-filter"></i> Filter
@@ -60,7 +60,7 @@
 <div class="glass-panel" style="padding: 0; overflow: hidden; border-left: 4px solid #6366f1; border-radius: 16px;">
     <div style="padding: 18px 24px; background: rgba(99,102,241,0.07); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
         <div>
-            <h3 style="font-size: 1.1rem; color: #fff; margin: 0; font-family: var(--font-heading);">
+            <h3 style="font-size: 1.1rem; color: var(--text-primary); margin: 0; font-family: var(--font-heading);">
                 <i class="fa-solid fa-chalkboard" style="color: #818cf8; margin-right: 8px;"></i>
                 {{ selected_class.name }}{% if selected_class.section %} &mdash; {{ selected_class.section }}{% endif %}
             </h3>
@@ -97,11 +97,11 @@
             <tr style="border-top: 1px solid rgba(255,255,255,0.04); transition: background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
                 <td style="padding: 13px 20px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: var(--text-primary); flex-shrink: 0;">
                             {{ att.student.name|first|upper }}
                         </div>
                         <div>
-                            <p style="font-weight: 600; color: #fff; margin: 0; font-size: 0.875rem;">{{ att.student.name }}</p>
+                            <p style="font-weight: 600; color: var(--text-primary); margin: 0; font-size: 0.875rem;">{{ att.student.name }}</p>
                             <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0;">{{ att.student.email }}</p>
                         </div>
                     </div>
@@ -143,7 +143,7 @@
 {% else %}
 <div class="glass-panel" style="padding: 60px; text-align: center; color: var(--text-muted); border-radius: 16px;">
     <i class="fa-solid fa-clipboard-list" style="font-size: 3rem; display: block; margin-bottom: 14px; opacity: 0.3;"></i>
-    <h3 style="color: #fff; margin-bottom: 8px;">Select a Class</h3>
+    <h3 style="color: var(--text-primary); margin-bottom: 8px;">Select a Class</h3>
     <p>Choose a class from the filter above to view attendance records.</p>
 </div>
 {% endif %}

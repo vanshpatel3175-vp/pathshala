@@ -20,12 +20,12 @@
         .sidebar-link.active {
             background: rgba(13, 148, 136, 0.12) !important;
             border-color: rgba(13, 148, 136, 0.3) !important;
-            color: #ffffff !important;
+            color: var(--text-primary) !important;
         }
 
         .btn-student {
             background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover));
-            color: #ffffff;
+            color: var(--text-primary);
             box-shadow: 0 4px 14px 0 var(--student-accent-glow);
         }
 
@@ -51,7 +51,7 @@
     </style>
 </head>
 
-<body>
+<body data-theme="{{ active_theme_code|default:'default' }}">
     {% if request.user.is_authenticated %}
     <div class="app-shell">
         <!-- Student Sidebar -->
@@ -137,11 +137,11 @@
                 style="padding: 16px; background: rgba(13,148,136,0.06); border-radius: 12px; border: 1px solid rgba(13,148,136,0.15); margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                     <div
-                        style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #fff;">
+                        style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--student-accent), var(--student-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">
                         {{ request.user.first_name|first|upper }}
                     </div>
                     <div>
-                        <p style="font-weight: 600; font-size: 0.875rem; color: #fff; margin: 0;">
+                        <p style="font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin: 0;">
                             {{ request.user.first_name }}
                         </p>
                         <span class="student-badge"><i class="fa-solid fa-graduation-cap"></i> Student</span>

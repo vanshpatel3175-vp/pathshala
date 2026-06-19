@@ -11,7 +11,7 @@
         {% for branch in branches %}
         {% if branch.id in selected_branch_ids %}
         <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch:
-            <strong style="color: #fff;">{{ branch.name }}</strong>
+            <strong style="color: var(--text-primary);">{{ branch.name }}</strong>
         </p>
         {% endif %}
         {% endfor %}
@@ -69,7 +69,7 @@
                     <input type="text" id="teacher-user-search" class="form-control"
                         placeholder="Type name or email to search users..."
                         autocomplete="off"
-                        style="padding: 12px 13px 12px 38px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: #fff; width: 100%;">
+                        style="padding: 12px 13px 12px 38px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
                 </div>
                 <!-- Dropdown Results -->
                 <div id="user-search-dropdown" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 200;
@@ -90,18 +90,18 @@
                     <div>
                         <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">First Name</p>
                         <input type="text" id="display_first_name" class="form-control" readonly
-                            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: #fff; border-radius: 8px; cursor: not-allowed;">
+                            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
                     </div>
                     <div>
                         <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">Last Name</p>
                         <input type="text" id="display_last_name" class="form-control" readonly
-                            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: #fff; border-radius: 8px; cursor: not-allowed;">
+                            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
                     </div>
                 </div>
                 <div>
                     <p style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">Email</p>
                     <input type="text" id="display_email" class="form-control" readonly
-                        style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: #fff; border-radius: 8px; cursor: not-allowed;">
+                        style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
                 </div>
             </div>
         </div>
@@ -115,7 +115,7 @@
                 <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Password <span style="color: var(--color-danger);">*</span></label>
                 <input type="password" id="teacher_password" name="password" class="form-control" placeholder="••••••••"
                     autocomplete="new-password"
-                    style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: #fff;">
+                    style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);">
                 <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Teacher will use this password to login.</p>
             </div>
         </div>
@@ -128,7 +128,7 @@
             <div class="form-group" style="margin-bottom: 14px;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Assign School (Branch) <span style="color: var(--color-danger);">*</span></label>
                 <select name="branch_id" class="custom-select"
-                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                     {% for branch in branches %}
                     {% if branch.id in selected_branch_ids %}
                     <option value="{{ branch.id }}" selected>{{ branch.name }} ({{ branch.city }})</option>
@@ -143,7 +143,7 @@
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Assign Medium</label>
                 <select name="medium_id" class="custom-select"
-                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                     <option value="">-- Select Medium (optional) --</option>
                     {% for medium in mediums %}
                     <option value="{{ medium.id }}">{{ medium.name }}</option>
@@ -179,14 +179,14 @@
                 {% if teachers %}
                 {% for teacher in teachers %}
                 <tr>
-                    <td style="font-weight: 700; color: #ffffff;">#TCH-{{ teacher.id|stringformat:"04d" }}</td>
+                    <td style="font-weight: 700; color: var(--text-primary);">#TCH-{{ teacher.id|stringformat:"04d" }}</td>
                     <td>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                            <div style="width: 34px; height: 34px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; color: var(--text-primary); flex-shrink: 0;">
                                 {{ teacher.name|first|upper }}
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #fff; margin: 0;">{{ teacher.name }}</p>
+                                <p style="font-weight: 600; color: var(--text-primary); margin: 0;">{{ teacher.name }}</p>
                                 {% if teacher.school_user %}
                                 <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0;">Via Users Directory</p>
                                 {% endif %}
@@ -240,7 +240,7 @@
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="margin-bottom: 8px; display: block; font-size: 0.85rem;">Assign School (Branch)</label>
             <select id="edit_branch_id" name="branch_id" class="custom-select"
-                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" required>
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);" required>
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
                 {% endfor %}
@@ -250,7 +250,7 @@
         <div class="form-group" style="margin-bottom: 25px;">
             <label style="margin-bottom: 8px; display: block; font-size: 0.85rem;">Status</label>
             <select id="edit_status" name="status" class="custom-select"
-                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" required>
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);" required>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
             </select>
@@ -334,11 +334,11 @@
                     onmouseover="if(!${alreadyTeacher}) this.style.background='rgba(255,255,255,0.04)'"
                     onmouseout="this.style.background='transparent'">
                     <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#048C7F,#05998C);
-                        display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; color:#fff; flex-shrink:0;">
+                        display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; color:var(--text-primary); flex-shrink:0;">
                         ${initials.toUpperCase()}
                     </div>
                     <div style="flex:1; min-width:0;">
-                        <p style="font-weight:600; color:#fff; margin:0; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                        <p style="font-weight:600; color:var(--text-primary); margin:0; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                             ${u.full_name}
                         </p>
                         <p style="color:var(--text-secondary); margin:0; font-size:0.78rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">

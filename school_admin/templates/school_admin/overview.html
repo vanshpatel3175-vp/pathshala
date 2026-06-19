@@ -14,7 +14,7 @@
         visibility: hidden;
         width: 260px;
         background-color: rgba(18, 24, 38, 0.95);
-        color: #fff;
+        color: var(--text-primary);
         text-align: center;
         border-radius: 8px;
         padding: 10px 14px;
@@ -144,7 +144,7 @@
 
     .circle-stat-card .stat-value {
         font-size: 2.25rem !important;
-        background: linear-gradient(135deg, #ffffff 60%, var(--color-primary));
+        background: linear-gradient(135deg, var(--text-primary) 60%, var(--color-primary));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         text-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
@@ -224,7 +224,7 @@
     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
     <div class="page-title">
         <h1
-            style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Overview</h1>
         <p style="color: var(--text-secondary); font-size: 0.95rem;">Administration panel for <strong>{{institution.name
                 }}</strong></p>
@@ -274,43 +274,43 @@
         <i class="fa-solid fa-plus"></i> Add Branch
     </button>
     {% else %}
-        {% if pending_request %}
-        <span class="badge"
-            style="background: rgba(245, 158, 11, 0.1); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-            <i class="fa-solid fa-spinner fa-spin"></i> Request Pending
-        </span>
-        {% elif approved_request %}
-        <span class="badge"
-            style="background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-            <i class="fa-solid fa-circle-check"></i> Request Approved
-        </span>
-        <button onclick="openAddBranchModal()" class="btn btn-primary"
-            style="margin-left: 10px; padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-            <i class="fa-solid fa-plus"></i> Add Branch
+    {% if pending_request %}
+    <span class="badge"
+        style="background: rgba(245, 158, 11, 0.1); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+        <i class="fa-solid fa-spinner fa-spin"></i> Request Pending
+    </span>
+    {% elif approved_request %}
+    <span class="badge"
+        style="background: rgba(16, 185, 129, 0.1); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+        <i class="fa-solid fa-circle-check"></i> Request Approved
+    </span>
+    <button onclick="openAddBranchModal()" class="btn btn-primary"
+        style="margin-left: 10px; padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-plus"></i> Add Branch
+    </button>
+    {% elif rejected_request %}
+    <span class="badge"
+        style="background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+        <i class="fa-solid fa-circle-xmark"></i> Request Rejected
+    </span>
+    <form method="POST" action="{% url 'school_overview' %}" style="display: inline; margin-left: 10px;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="request_branch">
+        <button type="submit" class="btn btn-secondary"
+            style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
+            <i class="fa-solid fa-rotate-left"></i> Re-Submit Request
         </button>
-        {% elif rejected_request %}
-        <span class="badge"
-            style="background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2); font-weight: 600; padding: 8px 16px; border-radius: 30px; display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-            <i class="fa-solid fa-circle-xmark"></i> Request Rejected
-        </span>
-        <form method="POST" action="{% url 'school_overview' %}" style="display: inline; margin-left: 10px;">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="request_branch">
-            <button type="submit" class="btn btn-secondary"
-                style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
-                <i class="fa-solid fa-rotate-left"></i> Re-Submit Request
-            </button>
-        </form>
-        {% else %}
-        <form method="POST" action="{% url 'school_overview' %}" style="display: inline;">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="request_branch">
-            <button type="submit" class="btn btn-primary"
-                style="padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border: none; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-paper-plane"></i> Request Branch Approval
-            </button>
-        </form>
-        {% endif %}
+    </form>
+    {% else %}
+    <form method="POST" action="{% url 'school_overview' %}" style="display: inline;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="request_branch">
+        <button type="submit" class="btn btn-primary"
+            style="padding: 10px 20px; font-size: 0.9rem; background: var(--color-primary); border: none; border-radius: 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-paper-plane"></i> Request Branch Approval
+        </button>
+    </form>
+    {% endif %}
     {% endif %}
     {% endif %}
     {% else %}
@@ -332,7 +332,7 @@
             <i class="fa-solid fa-ban"></i>
         </div>
         <div>
-            <h4 style="font-family: var(--font-heading); margin-bottom: 2px; font-weight: 600; color: #fff;">Institution
+            <h4 style="font-family: var(--font-heading); margin-bottom: 2px; font-weight: 600; color: var(--text-primary);">Institution
                 Disabled</h4>
             <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
                 {% if institution.activation_requested %}
@@ -397,7 +397,7 @@
             <i class="fa-solid fa-hourglass-half"></i>
         </div>
         <div style="flex: 1; min-width: 250px;">
-            <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 6px; color: #fff;">
+            <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 6px; color: var(--text-primary);">
                 Registration Pending Approval</h2>
             <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
                 Thank you for registering! Your application is currently in the validation queue.
@@ -460,7 +460,7 @@
     <div
         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
         <h3
-            style="margin: 0; font-family: var(--font-heading); display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 700; color: #fff;">
+            style="margin: 0; font-family: var(--font-heading); display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 700; color: var(--text-primary);">
             <i class="fa-solid fa-circle-info" style="color: var(--color-primary);"></i> Branch Details (School
             Dashboard)
         </h3>
@@ -474,13 +474,13 @@
             <div
                 style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 600;">
                 School Name</div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">{{ main_branch.name }}</div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">{{ main_branch.name }}</div>
         </div>
         <div class="detail-item-card">
             <div
                 style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 600;">
                 School Code</div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #fff;"><code
+            <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);"><code
                     style="background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--color-primary);">{{ main_branch.branch_code }}</code>
             </div>
         </div>
@@ -488,14 +488,14 @@
             <div
                 style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 600;">
                 City / State</div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">
+            <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">
                 {{ main_branch.city }}, {{profile.state|default:"Gujarat" }}</div>
         </div>
         <div class="detail-item-card">
             <div
                 style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 600;">
                 Address</div>
-            <div style="font-size: 1.15rem; font-weight: 700; color: #fff;">
+            <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);">
                 {{ main_branch.address|default:"Main CampusAddress" }}</div>
         </div>
     </div>
@@ -512,7 +512,7 @@
                 <i class="fa-solid fa-chart-line" style="color: var(--color-primary);"></i> Branch Statistics
             </h3>
             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 4px;">Displaying statistics for:
-                <strong style="color: #fff;">{{ selected_branch.name }}</strong>
+                <strong style="color: var(--text-primary);">{{ selected_branch.name }}</strong>
             </p>
         </div>
         <form method="GET" action="{% url 'school_overview' %}" id="branchSelectorForm"
@@ -520,7 +520,7 @@
             <label for="branch_id" style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">Switch
                 Branch:</label>
             <select name="branch_id" id="branch_id" class="form-input"
-                style="width: auto; padding: 8px 16px; font-size: 0.9rem; border-radius: 8px; background: var(--bg-primary); color: #fff; border: 1px solid var(--border-color);"
+                style="width: auto; padding: 8px 16px; font-size: 0.9rem; border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);"
                 onchange="document.getElementById('branchSelectorForm').submit();">
                 {% for br in branches %}
                 <option value="{{ br.id }}" {% if selected_branch and selected_branch.id == br.id %}selected{% endif %}>
@@ -538,7 +538,7 @@
                 <i class="fa-solid fa-user-graduate"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1.2;">{{
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{
                     branch_students_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
@@ -553,7 +553,7 @@
                 <i class="fa-solid fa-chalkboard-user"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1.2;">{{
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{
                     branch_teachers_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
@@ -568,7 +568,7 @@
                 <i class="fa-solid fa-school"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: #fff; line-height: 1.2;">{{ branch_classes_count
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_classes_count
                     }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
@@ -628,7 +628,7 @@
                 <tr
                     style="border-bottom: 1px solid var(--border-color); transition: var(--transition-smooth); {% if selected_branch.id == br.id %}background: rgba(38, 166, 154, 0.03); border-left: 3px solid var(--color-primary);{% endif %}">
                     <td style="padding: 15px 20px;"><code>{{ br.branch_code }}</code></td>
-                    <td style="padding: 15px 20px;"><strong style="color: #fff;">{{ br.name }}</strong></td>
+                    <td style="padding: 15px 20px;"><strong style="color: var(--text-primary);">{{ br.name }}</strong></td>
                     <td style="padding: 15px 20px;">{{ br.city }}</td>
                     <td style="padding: 15px 20px; color: var(--text-secondary);">{{ br.address|default:"-" }}</td>
                     <td style="padding: 15px 20px;">
@@ -684,7 +684,7 @@
     <div class="modal-content glass-panel">
         <span class="modal-close" onclick="closeAddBranchModal()">&times;</span>
         <h2
-            style="font-family: var(--font-heading); margin-bottom: 20px; font-weight: 700; color: #fff; font-size: 1.5rem;">
+            style="font-family: var(--font-heading); margin-bottom: 20px; font-weight: 700; color: var(--text-primary); font-size: 1.5rem;">
             <i class="fa-solid fa-code-branch" style="color: var(--color-primary);"></i> Add New Branch
         </h2>
         <form method="POST" action="{% url 'school_overview' %}">
@@ -697,7 +697,7 @@
                     Name</label>
                 <input type="text" name="name" id="name" required placeholder="e.g. Primary Wing, West Campus"
                     class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
@@ -705,7 +705,7 @@
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">City</label>
                 <input type="text" name="city" id="city" required placeholder="e.g. Navsari, Ahmedabad"
                     class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
@@ -714,14 +714,14 @@
                     Code (Optional)</label>
                 <input type="text" name="branch_code" id="branch_code"
                     placeholder="e.g. BR-RN-02 (leave blank to auto-generate)" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group" style="margin-bottom: 25px;">
                 <label for="address"
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Address</label>
                 <textarea name="address" id="address" placeholder="Enter branch location details..." class="form-input"
-                    style="width: 100%; height: 80px; resize: vertical; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-sans);"></textarea>
+                    style="width: 100%; height: 80px; resize: vertical; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); font-family: var(--font-sans);"></textarea>
             </div>
 
             <div style="display: flex; gap: 12px; justify-content: flex-end;">
@@ -757,7 +757,7 @@
     <div class="modal-content glass-panel">
         <span class="modal-close" onclick="closeEditBranchModal()">&times;</span>
         <h2
-            style="font-family: var(--font-heading); margin-bottom: 20px; font-weight: 700; color: #fff; font-size: 1.5rem;">
+            style="font-family: var(--font-heading); margin-bottom: 20px; font-weight: 700; color: var(--text-primary); font-size: 1.5rem;">
             <i class="fa-solid fa-pen-to-square" style="color: var(--color-primary);"></i> Edit Branch
         </h2>
         <form method="POST" action="{% url 'school_overview' %}">
@@ -771,14 +771,14 @@
                     Name</label>
                 <input type="text" name="name" id="edit_name" required placeholder="e.g. Primary Wing"
                     class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
                 <label for="edit_city"
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">City</label>
                 <input type="text" name="city" id="edit_city" required placeholder="e.g. Navsari" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
@@ -787,7 +787,7 @@
                     Code</label>
                 <input type="text" name="branch_code" id="edit_branch_code" placeholder="e.g. BR-RN-02"
                     class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group" style="margin-bottom: 15px;">
@@ -795,14 +795,14 @@
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Address</label>
                 <textarea name="address" id="edit_address" placeholder="Enter branch location details..."
                     class="form-input"
-                    style="width: 100%; height: 80px; resize: vertical; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; font-family: var(--font-sans);"></textarea>
+                    style="width: 100%; height: 80px; resize: vertical; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); font-family: var(--font-sans);"></textarea>
             </div>
 
             <div class="form-group" style="margin-bottom: 25px;">
                 <label for="edit_status"
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Status</label>
                 <select name="status" id="edit_status" required class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; height: 45px;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); height: 45px;">
                     <option value="active">Active</option>
                     <option value="disabled">Disabled</option>
                 </select>

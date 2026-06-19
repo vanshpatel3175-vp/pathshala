@@ -42,11 +42,11 @@
                     {% for req in branch_requests %}
                     <tr>
                         <td>
-                            <div style="font-weight: 600; color: #ffffff; font-size: 0.95rem; margin-bottom: 4px;">{{ req.institution.name }}</div>
+                            <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem; margin-bottom: 4px;">{{ req.institution.name }}</div>
                             <div style="font-size: 0.75rem; color: var(--text-secondary);">Email: {{ req.institution.email }}</div>
                         </td>
                         <td>
-                            <div style="font-size: 0.85rem; color: #ffffff;">{{ req.institution.school_code|default:"N/A" }}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-primary);">{{ req.institution.school_code|default:"N/A" }}</div>
                             <div style="font-size: 0.75rem; color: var(--color-primary);">Plan: {{ req.institution.plan|default:"Standard" }}</div>
                         </td>
                         <td style="color: var(--text-secondary); font-size: 0.85rem;">

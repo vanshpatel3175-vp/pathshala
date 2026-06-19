@@ -26,7 +26,7 @@
                     style="display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px;">Select
                     School</label>
                 <select name="school_id" id="school_id" class="form-control"
-                    style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: #fff;"
+                    style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary);"
                     onchange="this.form.submit()">
                     <option value="">-- Search and Select a School --</option>
                     {% for inst in institutions %}
@@ -46,7 +46,7 @@
 {% if selected_inst %}
 <div class="glass-panel" style="padding: 25px;">
     <h3
-        style="margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+        style="margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
         <i class="fa-solid fa-sliders" style="color: var(--color-primary); margin-right: 10px;"></i>
         Module Access for {{ selected_inst.name }}
     </h3>
@@ -62,7 +62,7 @@
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
                 <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-code-branch" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff; flex: 1;">Branches Module</span>
+                    <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Branches Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
@@ -80,7 +80,7 @@
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
                 <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-users" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff; flex: 1;">Users Module</span>
+                    <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Users Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
@@ -104,7 +104,7 @@
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
                 <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-database" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff; flex: 1;">Masters Module</span>
+                    <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Masters Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
@@ -128,7 +128,7 @@
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
                 <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-briefcase" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
-                    <span style="font-weight: 500; color: #fff; flex: 1;">Operations Module</span>
+                    <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Operations Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
@@ -161,7 +161,7 @@
 {% else %}
 <div class="glass-panel" style="padding: 40px; text-align: center; color: var(--text-muted);">
     <i class="fa-solid fa-magnifying-glass" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i>
-    <h3 style="margin-bottom: 5px; color: #fff;">No School Selected</h3>
+    <h3 style="margin-bottom: 5px; color: var(--text-primary);">No School Selected</h3>
     <p>Please search and select an institution from the dropdown above to view and modify its access permissions.</p>
 </div>
 {% endif %}
@@ -178,7 +178,7 @@
     }
 
     .select2-container--default .select2-selection--single .select2-selection__rendered {
-        color: #fff;
+        color: var(--text-primary);
         line-height: 40px;
         padding-left: 12px;
     }
@@ -203,7 +203,7 @@
 
     .select2-search--dropdown .select2-search__field {
         background-color: rgba(0, 0, 0, 0.2);
-        color: #fff;
+        color: var(--text-primary);
         border: 1px solid var(--border-color);
     }
 </style>

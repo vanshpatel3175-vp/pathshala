@@ -12,13 +12,13 @@
     </a> -->
     <div class="page-title">
         <h1
-            style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Classes</h1>
         {% if branch_filter_id %}
         {% for branch in branches %}
         {% if branch_filter_id == branch.id|stringformat:"s" %}
         <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing classes for school: <strong
-                style="color: #fff;">{{ branch.name }}</strong></p>
+                style="color: var(--text-primary);">{{ branch.name }}</strong></p>
         {% endif %}
         {% endfor %}
         {% else %}
@@ -48,10 +48,10 @@
             <i class="fa-solid fa-search"
                 style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
             <input type="text" name="q" value="{{ query }}" placeholder="Search classes..." class="form-input"
-                style="padding-left: 40px; width: 100%; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; padding-top: 10px; padding-bottom: 10px;">
+                style="padding-left: 40px; width: 100%; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); padding-top: 10px; padding-bottom: 10px;">
         </div>
         <select name="branch_id" class="form-input"
-            style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 180px;">
+            style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); min-width: 180px;">
             {% if branches|length > 1 %}
             <option value="">All Branches</option>
             {% endif %}
@@ -107,7 +107,7 @@
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;">
                     <td style="padding: 14px 18px; color: var(--text-muted); font-size: 0.85rem;">{{ forloop.counter }}
                     </td>
-                    <td style="padding: 14px 18px;"><strong style="color: #fff;">{{ cls.name }}</strong></td>
+                    <td style="padding: 14px 18px;"><strong style="color: var(--text-primary);">{{ cls.name }}</strong></td>
                     <td style="padding: 14px 18px;">
                         {% if cls.section %}
                         <span
@@ -175,7 +175,7 @@
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="margin-bottom: 8px; display: block;">Select Teacher</label>
             <select id="assign_teacher_id" name="teacher_id" class="custom-select"
-                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                 <option value="">-- Unassign / None --</option>
                 {% for t in teachers %}
                 <option value="{{ t.id }}">{{ t.name }} ({{ t.branch.name }})</option>
@@ -209,7 +209,7 @@
             <!-- Dropdown of existing + predefined class names -->
             <select id="class-name-select" class="form-control"
                 onchange="handleClassNameChange(this)"
-                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; margin-bottom: 10px;">
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); margin-bottom: 10px;">
                 <option value="">-- Select Standard --</option>
                 <!-- Predefined standards -->
                 <optgroup label="Primary (1–5)">
@@ -247,7 +247,7 @@
                 <input type="text" id="custom-class-name-input" class="form-control"
                     placeholder="Enter custom standard name, e.g. Nursery, LKG, UKG…"
                     oninput="syncCustomName()"
-                    style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--color-primary); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--color-primary); color: var(--text-primary);">
                 <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 6px;">
                     <i class="fa-solid fa-circle-info"></i> This will create a new standard.
                 </p>
@@ -257,13 +257,13 @@
         <div class="form-group" style="margin-bottom: 20px;">
             <label for="section" style="margin-bottom: 8px; display: block;">Section / Division</label>
             <input type="text" id="section" name="section" class="form-control" placeholder="e.g. A, B, C (Optional)"
-                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
         </div>
 
         <div class="form-group" style="margin-bottom: 25px;">
             <label for="branch_id" style="margin-bottom: 8px; display: block;">Select school *</label>
             <select id="branch_id" name="branch_id" class="custom-select" required
-                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                 {% if branches|length > 1 %}
                 <option value="">-- Choose Branch --</option>
                 {% endif %}
@@ -275,7 +275,7 @@
         <div class="form-group" style="margin-bottom: 25px;">
             <label for="medium" style="margin-bottom: 8px; display: block;">Select Medium *</label>
             <select id="medium" name="medium" class="custom-select" required
-                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                 {% if mediums|length > 1 %}
                 <option value="">-- Choose Medium --</option>
                 {% endif %}
@@ -348,4 +348,4 @@
         form.submit();
     }
 </script>
-{% endblock %}
+{% endblock %}
