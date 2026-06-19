@@ -1077,7 +1077,27 @@ h6 {
 }
 
 .th-filter-option.active {
-    background: rgba(4, 140, 127, 0.15);
+    background: var(--border-glow);
     color: var(--color-primary);
     font-weight: 600;
+}
+
+/* Select element styling to match theme color where browser supports */
+select {
+    accent-color: var(--color-primary);
+}
+
+select:focus {
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px var(--border-glow) !important;
+    outline: none;
+}
+
+select option:hover,
+select option:focus,
+select option:active,
+select option:checked {
+    background: linear-gradient(0deg, var(--color-primary) 0%, var(--color-primary) 100%) !important;
+    background-color: var(--color-primary) !important;
+    color: #ffffff !important;
 }
