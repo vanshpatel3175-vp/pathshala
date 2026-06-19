@@ -32,8 +32,8 @@
                     {% if mediums %}
                     {% for item in mediums %}
                     <tr>
-                        <td style="font-weight: 700; color: #ffffff;">{{ forloop.counter }}</td>
-                        <td style="font-weight: 600; color: #ffffff;">{{ item.name }}</td>
+                        <td style="font-weight: 700; color: var(--text-primary);">{{ forloop.counter }}</td>
+                        <td style="font-weight: 600; color: var(--text-primary);">{{ item.name }}</td>
                         <td style="text-align: right;">
                             <form method="POST" action="{% url 'school_mediums' %}"
                                 style="display: inline-block; margin-left: 5px;"
@@ -88,7 +88,7 @@
             </label>
 
             <select id="medium" name="medium" class="form-control" required
-                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
                 onchange="toggleCustomMedium()">
 
                 <option value="">Select Medium</option>
@@ -106,7 +106,7 @@
             </label>
             <input type="text" id="custom_medium" name="custom_medium" class="form-control"
                 placeholder="e.g. French Medium"
-                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
         </div>
 
         <script>

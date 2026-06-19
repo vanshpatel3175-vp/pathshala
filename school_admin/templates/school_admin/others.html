@@ -8,13 +8,14 @@
     <div class="page-title">
         <h1>Other Staff Personnel</h1>
         {% if branch_filter_id %}
-            {% for branch in branches %}
-                {% if branch_filter_id == branch.id|stringformat:"s" %}
-                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
-                {% endif %}
-            {% endfor %}
+        {% for branch in branches %}
+        {% if branch_filter_id == branch.id|stringformat:"s" %}
+        <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch:
+            <strong style="color: var(--text-primary);">{{ branch.name }}</strong></p>
+        {% endif %}
+        {% endfor %}
         {% else %}
-            <p>List, search, and register staff accounts across all branches (Student, Principal, Teacher)</p>
+        <p>List, search, and register staff accounts across all branches (Student, Principal, Teacher)</p>
         {% endif %}
     </div>
     <div>
@@ -36,7 +37,8 @@
         </div>
         <button type="submit" class="btn btn-secondary" style="padding: 11px 22px;">Search</button>
         {% if query %}
-        <a href="{% url 'school_others' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}" class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
+        <a href="{% url 'school_others' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}"
+            class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
         {% endif %}
     </div>
 </form>
@@ -56,18 +58,22 @@
         <div class="meeting-form-grid" style="display: flex; flex-direction: column; gap: 20px;">
             <div class="form-group">
                 <label for="name" style="margin-bottom: 8px; display: block;">Staff Name</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="Vansh Patel" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <input type="text" id="name" name="name" class="form-control" placeholder="Vansh Patel" required
+                    style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group">
                 <label for="email" style="margin-bottom: 8px; display: block;">Staff Email</label>
                 <input type="email" id="email" name="email" class="form-control" placeholder="vansh@gmail.com" required
-                    autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    autocomplete="email"
+                    style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group">
                 <label for="role" style="margin-bottom: 8px; display: block;">Assign Role</label>
-                <select id="role" name="role" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" required>
+                <select id="role" name="role" class="custom-select"
+                    style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                    required>
                     <option value="Student">Student</option>
                     <option value="Principal">Principal</option>
                     <option value="Teacher">Teacher</option>
@@ -79,10 +85,12 @@
 
             <div class="form-group">
                 <label for="branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
-                <select id="branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
+                <select id="branch_id" name="branch_id" class="custom-select"
+                    style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
                     required>
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
+                    <option value="{{ branch.id }}" {% if branch_filter_id==branch.id|stringformat:"s" %}selected{%
+                        endif %}>{{ branch.name }} ({{ branch.city }})</option>
                     {% empty %}
                     <option value="">-- Create a Branch First --</option>
                     {% endfor %}
@@ -91,7 +99,9 @@
 
             <div class="form-group">
                 <label for="medium" style="margin-bottom: 8px; display: block;">Assign Medium</label>
-                <select id="medium" name="medium" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" required>
+                <select id="medium" name="medium" class="custom-select"
+                    style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                    required>
                     {% for medium in mediums %}
                     {% if medium.id in selected_medium_ids %}
                     <option value="{{ medium.id }}" selected>{{ medium.name }}</option>
@@ -105,7 +115,8 @@
             </div>
         </div>
         <div style="margin-top: 25px; display: flex; justify-content: flex-end;">
-            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" {% if not branches %}disabled{% endif %}>
+            <button type="submit" class="btn btn-success" style="width: 100%; padding: 12px; font-size: 1rem;" {% if not
+                branches %}disabled{% endif %}>
                 <i class="fa-solid fa-circle-check"></i> Save Staff Member
             </button>
         </div>
@@ -121,7 +132,8 @@
     <!-- Active Filters & Count Display -->
     <div class="directory-filter-row" style="margin-bottom: 15px; justify-content: flex-end; padding: 0 10px;">
         <div style="font-size: 0.85rem; color: var(--text-secondary);">
-            Showing <span id="visible-count" style="font-weight: 700; color: #fff;">{{ others|length }}</span> of <span style="font-weight: 700; color: #fff;">{{ others|length }}</span> staff
+            Showing <span id="visible-count" style="font-weight: 700; color: #fff;">{{ others|length }}</span> of <span
+                style="font-weight: 700; color: #fff;">{{ others|length }}</span> staff
         </div>
     </div>
 
@@ -143,9 +155,13 @@
                                     <i class="fa-solid fa-filter"></i>
                                 </button>
                                 <div id="branch-filter-menu" class="th-filter-dropdown">
-                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">All Branches</div>
+                                    <div class="th-filter-option active" data-value=""
+                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">All
+                                        Branches</div>
                                     {% for b in branches %}
-                                    <div class="th-filter-option" data-value="{{ b.id }}" onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">{{ b.name }}</div>
+                                    <div class="th-filter-option" data-value="{{ b.id }}"
+                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">{{
+                                        b.name }}</div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -159,12 +175,22 @@
                                     <i class="fa-solid fa-filter"></i>
                                 </button>
                                 <div id="role-filter-menu" class="th-filter-dropdown">
-                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">All Roles</div>
-                                    <div class="th-filter-option" data-value="Student" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Student</div>
-                                    <div class="th-filter-option" data-value="Principal" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Principal</div>
-                                    <div class="th-filter-option" data-value="Teacher" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Teacher</div>
+                                    <div class="th-filter-option active" data-value=""
+                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">All Roles
+                                    </div>
+                                    <div class="th-filter-option" data-value="Student"
+                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Student
+                                    </div>
+                                    <div class="th-filter-option" data-value="Principal"
+                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Principal
+                                    </div>
+                                    <div class="th-filter-option" data-value="Teacher"
+                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">Teacher
+                                    </div>
                                     {% for cr in custom_roles %}
-                                    <div class="th-filter-option" data-value="{{ cr.name }}" onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">{{ cr.name }}</div>
+                                    <div class="th-filter-option" data-value="{{ cr.name }}"
+                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">{{
+                                        cr.name }}</div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -178,9 +204,15 @@
                                     <i class="fa-solid fa-filter"></i>
                                 </button>
                                 <div id="status-filter-menu" class="th-filter-dropdown">
-                                    <div class="th-filter-option active" data-value="" onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">All Statuses</div>
-                                    <div class="th-filter-option" data-value="active" onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">Active</div>
-                                    <div class="th-filter-option" data-value="inactive" onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">Inactive</div>
+                                    <div class="th-filter-option active" data-value=""
+                                        onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">All
+                                        Statuses</div>
+                                    <div class="th-filter-option" data-value="active"
+                                        onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">Active
+                                    </div>
+                                    <div class="th-filter-option" data-value="inactive"
+                                        onclick="selectHeaderFilter(this, 'filter-status', 'applyStaffFilters')">
+                                        Inactive</div>
                                 </div>
                             </div>
                         </div>
@@ -191,9 +223,7 @@
             <tbody>
                 {% if others %}
                 {% for staff in others %}
-                <tr class="person-row"
-                    data-branch="{{ staff.branch.id }}"
-                    data-role="{{ staff.role }}"
+                <tr class="person-row" data-branch="{{ staff.branch.id }}" data-role="{{ staff.role }}"
                     data-status="{{ staff.status }}">
                     <td class="custom-checkbox-col">
                         <div class="custom-checkbox-wrapper">
@@ -202,21 +232,25 @@
                     </td>
                     <td class="person-cell">
                         <div class="person-name-wrapper">
-                            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #d97706, #fbbf24); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                            <div
+                                style="width: 36px; height: 36px; background: linear-gradient(135deg, #d97706, #fbbf24); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
                                 {{ staff.name|first|upper }}
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">{{ staff.name }}</p>
-                                <p style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
+                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">{{ staff.name
+                                    }}</p>
+                                <p
+                                    style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
                                     {{ staff.email }}
                                 </p>
                             </div>
-                            
+
                             <!-- Hover Tooltip Card Popover -->
                             <div class="hover-card-popover">
                                 <div class="hover-card-banner bg-other">
                                     <div class="hover-card-avatar-wrapper">
-                                        <div class="hover-card-avatar" style="background: #d97706; border: 3px solid #0b1918;">
+                                        <div class="hover-card-avatar"
+                                            style="background: #d97706; border: 3px solid #0b1918;">
                                             {{ staff.name|first|upper }}
                                         </div>
                                     </div>
@@ -230,7 +264,8 @@
                                     <div class="hover-card-details">
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Staff ID</span>
-                                            <span class="hover-card-detail-value">#STF-{{ staff.id|stringformat:"04d" }}</span>
+                                            <span class="hover-card-detail-value">#STF-{{ staff.id|stringformat:"04d"
+                                                }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Email</span>
@@ -247,7 +282,9 @@
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Status</span>
                                             <span class="hover-card-detail-value">
-                                                <span class="badge badge-validated" style="font-size: 0.65rem; padding: 2px 8px;">{{ staff.status }}</span>
+                                                <span class="badge badge-validated"
+                                                    style="font-size: 0.65rem; padding: 2px 8px;">{{ staff.status
+                                                    }}</span>
                                             </span>
                                         </div>
                                     </div>
@@ -276,13 +313,14 @@
                 </tr>
                 {% endfor %}
                 {% endif %}
-                
+
                 <!-- Dynamic Placeholder when filters yield zero rows -->
                 <tr id="no-results-placeholder" style="{% if others %}display: none;{% endif %}">
                     <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
-                        No staff members found matching the selected filters.{% if query %} Try a different search.{% endif %}
+                        No staff members found matching the selected filters.{% if query %} Try a different search.{%
+                        endif %}
                     </td>
                 </tr>
             </tbody>
@@ -291,67 +329,73 @@
 </div>
 
 
-    <!-- Edit Staff Card -->
-    <div id="edit-staff-card" class="glass-panel side-drawer"
-        style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
-        <h3
-            style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
-            <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Staff Member</span>
-            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
-                onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
-        </h3>
+<!-- Edit Staff Card -->
+<div id="edit-staff-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
+    <h3
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Staff Member</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+    </h3>
 
-        <form method="POST" action="{% url 'school_others' %}">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="edit">
-            <input type="hidden" id="edit_staff_id" name="staff_id">
+    <form method="POST" action="{% url 'school_others' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" id="edit_staff_id" name="staff_id">
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_name" style="margin-bottom: 8px; display: block;">Staff Name</label>
-                <input type="text" id="edit_name" name="name" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_name" style="margin-bottom: 8px; display: block;">Staff Name</label>
+            <input type="text" id="edit_name" name="name" class="form-control" required
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+        </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_email" style="margin-bottom: 8px; display: block;">Staff Email</label>
-                <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_email" style="margin-bottom: 8px; display: block;">Staff Email</label>
+            <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email"
+                style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+        </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_role" style="margin-bottom: 8px; display: block;">Assign Role</label>
-                <select id="edit_role" name="role" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;" required>
-                    <option value="Student">Student</option>
-                    <option value="Principal">Principal</option>
-                    <option value="Teacher">Teacher</option>
-                    {% for cr in custom_roles %}
-                    <option value="{{ cr.name }}">{{ cr.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_role" style="margin-bottom: 8px; display: block;">Assign Role</label>
+            <select id="edit_role" name="role" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                required>
+                <option value="Student">Student</option>
+                <option value="Principal">Principal</option>
+                <option value="Teacher">Teacher</option>
+                {% for cr in custom_roles %}
+                <option value="{{ cr.name }}">{{ cr.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
-                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
-                    required>
-                    {% for branch in branches %}
-                    <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
-                    {% endfor %}
-                </select>
-            </div>
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign Branch</label>
+            <select id="edit_branch_id" name="branch_id" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                required>
+                {% for branch in branches %}
+                <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+                {% endfor %}
+            </select>
+        </div>
 
-            <div class="form-group" style="margin-bottom: 25px;">
-                <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
-                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"
-                    required>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
+            <select id="edit_status" name="status" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                required>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
-                <i class="fa-solid fa-save"></i> Save Changes
-            </button>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+            <i class="fa-solid fa-save"></i> Save Changes
+        </button>
+    </form>
+</div>
 
 <script>
     function openEditStaffCard(id, name, email, role, branchId, status) {
@@ -361,7 +405,7 @@
         document.getElementById('edit_branch_id').value = branchId;
         document.getElementById('edit_status').value = status;
         document.getElementById('edit_role').value = role;
-        
+
         openDrawer('edit-staff-card', 'edit_name');
     }
 
@@ -369,17 +413,17 @@
         const branchVal = document.getElementById('filter-branch').value;
         const roleVal = document.getElementById('filter-role').value;
         const statusVal = document.getElementById('filter-status').value;
-        
+
         const rows = document.querySelectorAll('.person-row');
         let visibleCount = 0;
-        
+
         rows.forEach(row => {
             const rowBranch = row.getAttribute('data-branch');
             const rowRole = row.getAttribute('data-role');
             const rowStatus = row.getAttribute('data-status');
-            
+
             let show = true;
-            
+
             if (branchVal && rowBranch !== branchVal) {
                 show = false;
             }
@@ -389,7 +433,7 @@
             if (statusVal && rowStatus !== statusVal) {
                 show = false;
             }
-            
+
             if (show) {
                 row.style.display = '';
                 visibleCount++;
@@ -397,9 +441,9 @@
                 row.style.display = 'none';
             }
         });
-        
+
         document.getElementById('visible-count').textContent = visibleCount;
-        
+
         const placeholder = document.getElementById('no-results-placeholder');
         if (visibleCount === 0) {
             if (placeholder) placeholder.style.display = '';
@@ -416,7 +460,7 @@
         } else {
             headerMock.innerHTML = '';
         }
-        
+
         document.querySelectorAll('td.custom-checkbox-col .custom-checkbox-mock').forEach(mock => {
             if (checked) {
                 mock.classList.add('checked');

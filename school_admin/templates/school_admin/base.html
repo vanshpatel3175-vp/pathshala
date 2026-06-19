@@ -47,7 +47,7 @@
             font-family: var(--font-heading);
             font-size: 1.75rem;
             font-weight: 800;
-            color: #ffffff;
+            color: var(--text-primary);
             margin-bottom: 4px;
         }
 
@@ -87,7 +87,7 @@
     </style>
 </head>
 
-<body>
+<body data-theme="{{ active_theme_code|default:'default' }}">
     {% if request.user.is_authenticated and not no_sidebar %}
     <div class="app-shell">
         <!-- Sidebar Navigation -->
@@ -229,6 +229,13 @@
                         </a>
                     </li> -->
                     {% endif %}
+                    <li>
+                        <a href="#" onclick="openThemeModal(); return false;"
+                            class="sidebar-link {% if current_tab == 'themes' %}active{% endif %}">
+                            <i class="fa-solid fa-palette"></i>
+                            Themes
+                        </a>
+                    </li>
                 </ul>
             </nav>
 
@@ -357,12 +364,12 @@
             const dropdown = document.getElementById(dropdownId);
             if (!dropdown) return;
             const wasShown = dropdown.classList.contains('show');
-            
+
             // Hide all other dropdowns
             document.querySelectorAll('.th-filter-dropdown.show').forEach(d => {
                 if (d.id !== dropdownId) d.classList.remove('show');
             });
-            
+
             if (wasShown) {
                 dropdown.classList.remove('show');
             } else {
@@ -376,7 +383,7 @@
             if (input) {
                 input.value = val;
             }
-            
+
             const dropdown = optionElement.closest('.th-filter-dropdown');
             if (dropdown) {
                 // Update active states
@@ -384,7 +391,7 @@
                     opt.classList.remove('active');
                 });
                 optionElement.classList.add('active');
-                
+
                 // Update filter button highlight state
                 const btn = dropdown.previousElementSibling;
                 if (btn) {
@@ -394,11 +401,11 @@
                         btn.classList.remove('active');
                     }
                 }
-                
+
                 // Hide dropdown
                 dropdown.classList.remove('show');
             }
-            
+
             // Execute the page's original filter callback
             if (callbackName && typeof window[callbackName] === 'function') {
                 window[callbackName]();
@@ -406,7 +413,7 @@
         }
 
         // Close dropdowns on outside click
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', function (e) {
             if (!e.target.closest('.th-filter-dropdown-wrapper')) {
                 document.querySelectorAll('.th-filter-dropdown.show').forEach(d => {
                     d.classList.remove('show');
@@ -415,6 +422,71 @@
         });
     </script>
 
+    <!-- Theme Selection Drawer -->
+    <div id="theme-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 2000; justify-content: flex-end;">
+        <div class="glass-panel"
+            style="width: 350px; height: 100vh; padding: 30px 25px; border-radius: 0; background: var(--bg-card); position: relative; box-shadow: -5px 0 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; animation: slideInRight 0.3s ease-out;">
+            <button onclick="closeThemeModal()"
+                style="position: absolute; right: 20px; top: 20px; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem; transition: color 0.2s;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h2
+                style="font-family: var(--font-heading); margin-bottom: 25px; color: var(--text-primary); font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
+                Theme Settings</h2>
+
+            <form method="POST" action="{% url 'theme_settings' %}"
+                style="display: flex; flex-direction: column; gap: 15px;">
+                {% csrf_token %}
+                <button type="submit" name="theme_code" value="default" class="btn"
+                    style="background: #26a69a; color: white; width: 100%; text-align: left; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: transform 0.2s;">
+                    <i class="fa-solid fa-moon" style="margin-right: 12px; width: 20px; text-align: center;"></i>
+                    Default Dark
+                </button>
+                <button type="submit" name="theme_code" value="ocean-cyan" class="btn"
+                    style="background: #00BCD4; color: white; width: 100%; text-align: left; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: transform 0.2s;">
+                    <i class="fa-solid fa-water" style="margin-right: 12px; width: 20px; text-align: center;"></i> Ocean
+                    Cyan
+                </button>
+                <button type="submit" name="theme_code" value="royal-blue" class="btn"
+                    style="background: #2563EB; color: white; width: 100%; text-align: left; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: transform 0.2s;">
+                    <i class="fa-solid fa-gem" style="margin-right: 12px; width: 20px; text-align: center;"></i> Royal
+                    Blue
+                </button>
+                <button type="submit" name="theme_code" value="premium-pink" class="btn"
+                    style="background: #EC4899; color: white; width: 100%; text-align: left; padding: 14px 20px; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; transition: transform 0.2s;">
+                    <i class="fa-solid fa-crown" style="margin-right: 12px; width: 20px; text-align: center;"></i>
+                    Premium Pink
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+    </style>
+
+    <script>
+        function openThemeModal() {
+            document.getElementById('theme-modal').style.display = 'flex';
+        }
+        function closeThemeModal() {
+            document.getElementById('theme-modal').style.display = 'none';
+        }
+        document.getElementById('theme-modal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeThemeModal();
+            }
+        });
+    </script>
 
 </body>
 

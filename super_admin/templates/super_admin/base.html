@@ -12,7 +12,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body>
+<body data-theme="{{ active_theme_code|default:'default' }}">
     {% if request.user.is_authenticated and not no_sidebar %}
     <div class="app-shell">
         <!-- Sidebar Navigation -->
@@ -120,6 +120,13 @@
             });
         }, 4000);
     </script>
+</body>
+
+</html> el.style.opacity = '0';
+setTimeout(() => el.remove(), 500);
+});
+}, 4000);
+</script>
 </body>
 
 </html>

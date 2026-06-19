@@ -20,12 +20,12 @@
         .sidebar-link.active {
             background: rgba(99, 102, 241, 0.12) !important;
             border-color: rgba(99, 102, 241, 0.3) !important;
-            color: #ffffff !important;
+            color: var(--text-primary) !important;
         }
 
         .btn-teacher {
             background: linear-gradient(135deg, var(--teacher-accent), var(--teacher-accent-hover));
-            color: #ffffff;
+            color: var(--text-primary);
             box-shadow: 0 4px 14px 0 var(--teacher-accent-glow);
         }
 
@@ -51,7 +51,7 @@
     </style>
 </head>
 
-<body>
+<body data-theme="{{ active_theme_code|default:'default' }}">
     {% if request.user.is_authenticated %}
     <div class="app-shell">
         <!-- Teacher Sidebar -->

@@ -13,7 +13,7 @@
 <div style="display: grid; grid-template-columns: 340px 1fr; gap: 28px; align-items: start;">
     <!-- Profile Card -->
     <div class="glass-panel" style="padding: 32px; text-align: center; border-top: 4px solid #0d9488;">
-        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #0d9488, #14b8a6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: #fff; margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(13,148,136,0.4);">
+        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #0d9488, #14b8a6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--text-primary); margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(13,148,136,0.4);">
             {% if school_user %}{{ school_user.first_name|first|upper }}{{ school_user.last_name|first|upper }}{% else %}{{ request.user.first_name|first|upper }}{% endif %}
         </div>
         <h2 style="font-size: 1.35rem; margin-bottom: 6px;">
@@ -52,19 +52,19 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">First Name</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.first_name }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.first_name }}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Last Name</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.last_name }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.last_name }}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Email Address</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.email }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.email }}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Date of Birth</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.dob|date:"d M Y"|default:"—" }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.dob|date:"d M Y"|default:"—" }}</p>
                 </div>
             </div>
             {% else %}
@@ -81,19 +81,19 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">City</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.city|default:"—" }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.city|default:"—" }}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">State</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.state|default:"—" }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.state|default:"—" }}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Pincode</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.pincode|default:"—" }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.pincode|default:"—" }}</p>
                 </div>
                 <div style="grid-column: span 2;">
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Full Address</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ school_user.address|default:"—" }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.address|default:"—" }}</p>
                 </div>
             </div>
         </div>
@@ -107,15 +107,15 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Institution</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ institution.name|default:"—" }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ institution.name|default:"—" }}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Branch</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500;">{{ branch.name|default:"—" }} {% if branch %}<span style="color: var(--text-muted); font-size: 0.85rem;">({{ branch.city }})</span>{% endif %}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ branch.name|default:"—" }} {% if branch %}<span style="color: var(--text-muted); font-size: 0.85rem;">({{ branch.city }})</span>{% endif %}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Student ID</p>
-                    <p style="font-size: 1rem; color: #fff; font-weight: 500; font-family: monospace;">#STD-{{ student.id|stringformat:"04d" }}</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500; font-family: monospace;">#STD-{{ student.id|stringformat:"04d" }}</p>
                 </div>
                 <div>
                     <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Account Status</p>
