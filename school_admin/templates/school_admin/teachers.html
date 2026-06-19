@@ -260,8 +260,8 @@
                                 {{ teacher.name|first|upper }}
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">{{
-                                    teacher.name }}</p>
+                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">
+                                    {{ teacher.name }}</p>
                                 <p
                                     style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
                                     {{ teacher.email }}
@@ -287,8 +287,8 @@
                                     <div class="hover-card-details">
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Teacher ID</span>
-                                            <span class="hover-card-detail-value">#TCH-{{ teacher.id|stringformat:"04d"
-                                                }}</span>
+                                            <span class="hover-card-detail-value">#TCH-
+                                                {{ teacher.id|stringformat:"04d" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Email</span>
@@ -306,13 +306,13 @@
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">DOB</span>
-                                            <span class="hover-card-detail-value">{{ teacher.school_user.dob|date:"d M
-                                                Y"|default:"—" }}</span>
+                                            <span class="hover-card-detail-value">
+                                                {{ teacher.school_user.dob|date:"d M Y"|default:"—" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Location</span>
-                                            <span class="hover-card-detail-value">{{
-                                                teacher.school_user.city|default:"—" }}</span>
+                                            <span class="hover-card-detail-value">
+                                                {{ teacher.school_user.city|default:"—" }}</span>
                                         </div>
                                         {% endif %}
                                         <div class="hover-card-detail-item">
@@ -352,7 +352,8 @@
                     <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
-                        No teachers found matching the selected filters.{% if query %} Try a different search.{% endif %}
+                        No teachers found matching the selected filters.{% if query %} Try a different search.
+                        {% endif %}
                     </td>
                 </tr>
             </tbody>
