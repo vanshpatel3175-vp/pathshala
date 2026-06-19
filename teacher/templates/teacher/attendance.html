@@ -9,12 +9,12 @@
         align-items: center;
         gap: 14px;
         padding: 14px 18px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--border-color);
         transition: background 0.2s;
     }
 
     .att-row:hover {
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--bg-secondary);
     }
 
     .att-row:last-child {
@@ -81,13 +81,13 @@
         cursor: pointer;
         font-weight: 600;
         border: 1px solid var(--border-color);
-        background: rgba(255, 255, 255, 0.04);
+        background: var(--bg-secondary);
         color: var(--text-primary);
         transition: all 0.2s;
     }
 
     .quick-btn:hover {
-        background: rgba(255, 255, 255, 0.08);
+        background: var(--bg-secondary);
     }
 
     /* Make calendar icon visible on dark background */
@@ -102,7 +102,7 @@
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-title">
-        <h1><i class="fa-solid fa-clipboard-check" style="color: #818cf8; margin-right: 10px;"></i>Take Attendance</h1>
+        <h1><i class="fa-solid fa-clipboard-check" style="color: var(--color-primary); margin-right: 10px;"></i>Take Attendance</h1>
         <p>Mark attendance for your assigned class</p>
     </div>
     <a href="{% url 'teacher_attendance_history' %}" class="btn btn-secondary" style="text-decoration: none;">
@@ -111,7 +111,7 @@
 </div>
 
 <!-- Class & Date Selector -->
-<div class="glass-panel" style="padding: 24px; margin-bottom: 24px; border-left: 4px solid #6366f1;">
+<div class="glass-panel" style="padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--color-primary);">
     <form method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
         <div style="flex: 1; min-width: 200px;">
             <label
@@ -159,13 +159,13 @@
     <input type="hidden" name="class_id" value="{{ selected_class.id }}">
     <input type="hidden" name="date" value="{{ selected_date }}">
 
-    <div class="glass-panel" style="padding: 0; overflow: hidden; border-left: 4px solid #6366f1;">
+    <div class="glass-panel" style="padding: 0; overflow: hidden; border-left: 4px solid var(--color-primary);">
         <!-- Header row -->
         <div
-            style="padding: 16px 22px; background: rgba(99,102,241,0.08); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            style="padding: 16px 22px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h3 style="font-size: 1.05rem; margin: 0; color: var(--text-primary);">
-                    <i class="fa-solid fa-chalkboard" style="color: #818cf8; margin-right: 8px;"></i>
+                    <i class="fa-solid fa-chalkboard" style="color: var(--color-primary); margin-right: 8px;"></i>
                     {{ selected_class.name }}{% if selected_class.section %} &mdash; {{ selected_class.section }}{% endif %}
                 </h3>
                 <p style="font-size: 0.8rem; color: var(--text-muted); margin: 3px 0 0;">
@@ -198,13 +198,13 @@
                 </thead>
                 <tbody>
                     {% for student in students %}
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <td style="padding: 14px 22px; font-weight: 700; color: #818cf8;">
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 14px 22px; font-weight: 700; color: var(--color-primary);">
                             {% if student.roll_number %}{{ student.roll_number }}{% else %}-{% endif %}
                         </td>
                         <td style="padding: 14px 22px;">
                             <div style="display: flex; align-items: center; gap: 14px;">
-                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--text-primary); flex-shrink: 0;">
+                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--text-primary); flex-shrink: 0;">
                                     {{ student.name|first|upper }}
                                 </div>
                                 <div>
@@ -234,7 +234,7 @@
                         <td style="padding: 14px 22px;">
                             <input type="text" name="note_{{ student.id }}" placeholder="Optional note..."
                                 class="att-note-input"
-                                style="width: 100%; height: 36px; border-radius: 6px; padding: 0 12px; background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); color: var(--text-primary); font-size: 0.8rem;">
+                                style="width: 100%; height: 36px; border-radius: 6px; padding: 0 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.8rem;">
                         </td>
                     </tr>
                     {% endfor %}
@@ -244,7 +244,7 @@
 
         <!-- Submit -->
         <div
-            style="padding: 20px 22px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: flex-end; gap: 12px;">
+            style="padding: 20px 22px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px;">
             <button type="submit" class="btn btn-teacher" style="padding: 12px 32px; font-size: 1rem;">
                 <i class="fa-solid fa-floppy-disk"></i> Save Attendance
             </button>

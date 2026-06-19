@@ -89,7 +89,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-secondary);
         border-radius: 50%;
         font-size: 1.2rem;
         color: var(--text-secondary);
@@ -170,15 +170,15 @@
 
     /* Detail Grid Cards styling */
     .detail-item-card {
-        background: rgba(255, 255, 255, 0.015);
-        border: 1px solid rgba(255, 255, 255, 0.03);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 16px 20px;
         transition: var(--transition-smooth);
     }
 
     .detail-item-card:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--bg-secondary);
         border-color: rgba(4, 140, 127, 0.2);
         transform: translateY(-2px);
     }
@@ -193,7 +193,7 @@
         letter-spacing: 0.05em !important;
         color: var(--text-secondary) !important;
         border-bottom: 1px solid var(--border-color) !important;
-        background: rgba(255, 255, 255, 0.015) !important;
+        background: var(--bg-secondary) !important;
     }
 
     .data-table td {
@@ -209,7 +209,7 @@
     }
 
     .data-table tr:hover {
-        background: rgba(255, 255, 255, 0.02) !important;
+        background: var(--bg-secondary) !important;
     }
 
     .data-table tr:last-child td {
@@ -226,8 +226,7 @@
         <h1
             style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Overview</h1>
-        <p style="color: var(--text-secondary); font-size: 0.95rem;">Administration panel for <strong>{{institution.name
-                }}</strong></p>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Administration panel for <strong>{{institution.name }}</strong></p>
     </div>
     <!-- 
     <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
@@ -332,7 +331,9 @@
             <i class="fa-solid fa-ban"></i>
         </div>
         <div>
-            <h4 style="font-family: var(--font-heading); margin-bottom: 2px; font-weight: 600; color: var(--text-primary);">Institution
+            <h4
+                style="font-family: var(--font-heading); margin-bottom: 2px; font-weight: 600; color: var(--text-primary);">
+                Institution
                 Disabled</h4>
             <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.4;">
                 {% if institution.activation_requested %}
@@ -397,7 +398,8 @@
             <i class="fa-solid fa-hourglass-half"></i>
         </div>
         <div style="flex: 1; min-width: 250px;">
-            <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 6px; color: var(--text-primary);">
+            <h2
+                style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 6px; color: var(--text-primary);">
                 Registration Pending Approval</h2>
             <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
                 Thank you for registering! Your application is currently in the validation queue.
@@ -481,7 +483,7 @@
                 style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; font-weight: 600;">
                 School Code</div>
             <div style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary);"><code
-                    style="background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; color: var(--color-primary);">{{ main_branch.branch_code }}</code>
+                    style="background: var(--bg-secondary); padding: 2px 6px; border-radius: 4px; color: var(--color-primary);">{{ main_branch.branch_code }}</code>
             </div>
         </div>
         <div class="detail-item-card">
@@ -523,7 +525,7 @@
                 style="width: auto; padding: 8px 16px; font-size: 0.9rem; border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color);"
                 onchange="document.getElementById('branchSelectorForm').submit();">
                 {% for br in branches %}
-                <option value="{{ br.id }}" {% if selected_branch and selected_branch.id == br.id %}selected{% endif %}>
+                <option value="{{ br.id }}" {% if selected_branch and selected_branch.id==br.id %}selected{% endif %}>
                     {{br.name }} ({{ br.branch_code }})</option>
                 {% endfor %}
             </select>
@@ -532,14 +534,13 @@
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
         <div class="glass-panel"
-            style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.03); padding: 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
+            style="background: var(--bg-secondary); border-color: rgba(255,255,255,0.03); padding: 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
             <div
                 style="width: 50px; height: 50px; border-radius: 12px; background: rgba(38, 166, 154, 0.1); color: var(--color-primary); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
                 <i class="fa-solid fa-user-graduate"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{
-                    branch_students_count }}</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_students_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
                     Branch Students</div>
@@ -547,14 +548,13 @@
         </div>
 
         <div class="glass-panel"
-            style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.03); padding: 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
+            style="background: var(--bg-secondary); border-color: rgba(255,255,255,0.03); padding: 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
             <div
                 style="width: 50px; height: 50px; border-radius: 12px; background: rgba(16, 185, 129, 0.1); color: var(--color-success); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
                 <i class="fa-solid fa-chalkboard-user"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{
-                    branch_teachers_count }}</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_teachers_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
                     Branch Teachers</div>
@@ -562,14 +562,13 @@
         </div>
 
         <div class="glass-panel"
-            style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.03); padding: 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
+            style="background: var(--bg-secondary); border-color: rgba(255,255,255,0.03); padding: 20px; display: flex; align-items: center; gap: 15px; border-radius: 12px;">
             <div
                 style="width: 50px; height: 50px; border-radius: 12px; background: rgba(6, 182, 212, 0.1); color: var(--color-info); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
                 <i class="fa-solid fa-school"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_classes_count
-                    }}</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_classes_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
                     Branch Classes</div>
@@ -599,10 +598,10 @@
     </div>
 
     <div class="table-container"
-        style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.2);">
+        style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: transparent;">
         <table class="data-table" style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
-                <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color);">
+                <tr style="background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
                     <th
                         style="padding: 15px 20px; font-family: var(--font-heading); color: var(--text-secondary); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em;">
                         Branch Code</th>
@@ -628,7 +627,8 @@
                 <tr
                     style="border-bottom: 1px solid var(--border-color); transition: var(--transition-smooth); {% if selected_branch.id == br.id %}background: rgba(38, 166, 154, 0.03); border-left: 3px solid var(--color-primary);{% endif %}">
                     <td style="padding: 15px 20px;"><code>{{ br.branch_code }}</code></td>
-                    <td style="padding: 15px 20px;"><strong style="color: var(--text-primary);">{{ br.name }}</strong></td>
+                    <td style="padding: 15px 20px;"><strong style="color: var(--text-primary);">{{ br.name }}</strong>
+                    </td>
                     <td style="padding: 15px 20px;">{{ br.city }}</td>
                     <td style="padding: 15px 20px; color: var(--text-secondary);">{{ br.address|default:"-" }}</td>
                     <td style="padding: 15px 20px;">

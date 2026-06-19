@@ -13,7 +13,7 @@
 <div style="display: grid; grid-template-columns: 340px 1fr; gap: 28px; align-items: start;">
     <!-- Profile Card -->
     <div class="glass-panel" style="padding: 32px; text-align: center; border-top: 4px solid #6366f1;">
-        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--text-primary); margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(99,102,241,0.4);">
+        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--text-primary); margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(99,102,241,0.4);">
             {% if school_user %}{{ school_user.first_name|first|upper }}{{ school_user.last_name|first|upper }}{% else %}{{ request.user.first_name|first|upper }}{% endif %}
         </div>
         <h2 style="font-size: 1.35rem; margin-bottom: 6px;">
@@ -23,8 +23,8 @@
 
         <div style="display: flex; flex-direction: column; gap: 10px;">
             {% if institution %}
-            <div style="padding: 10px 16px; background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.2); border-radius: 10px; font-size: 0.875rem; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-school" style="color: #818cf8;"></i>
+            <div style="padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.875rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-school" style="color: var(--color-primary);"></i>
                 <span>{{ institution.name }}</span>
             </div>
             {% endif %}
@@ -46,7 +46,7 @@
         <!-- Personal Information -->
         <div class="glass-panel" style="padding: 28px;">
             <h3 style="font-size: 1.1rem; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-user" style="color: #818cf8;"></i> Personal Information
+                <i class="fa-solid fa-user" style="color: var(--color-primary);"></i> Personal Information
             </h3>
             {% if school_user %}
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">

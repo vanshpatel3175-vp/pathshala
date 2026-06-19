@@ -60,7 +60,7 @@
 
         <!-- Step 1: Live Search Dropdown -->
         <div
-            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
             <p
                 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 10px;">
                 <i class="fa-solid fa-search" style="margin-right: 6px;"></i> Step 1 — Search User by Name or Email
@@ -96,14 +96,14 @@
                             style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
                             First Name</p>
                         <input type="text" id="display_first_name" class="form-control" readonly
-                            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
                     </div>
                     <div>
                         <p
                             style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
                             Last Name</p>
                         <input type="text" id="display_last_name" class="form-control" readonly
-                            style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
                     </div>
                 </div>
                 <div>
@@ -111,7 +111,7 @@
                         style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
                         Email</p>
                     <input type="text" id="display_email" class="form-control" readonly
-                        style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                        style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
                 </div>
             </div>
         </div>
@@ -195,8 +195,8 @@
     <!-- Active Filters & Count Display -->
     <div class="directory-filter-row" style="margin-bottom: 15px; justify-content: flex-end; padding: 0 10px;">
         <div style="font-size: 0.85rem; color: var(--text-secondary);">
-            Showing <span id="visible-count" style="font-weight: 700; color: #fff;">{{ students|length }}</span> of
-            <span style="font-weight: 700; color: #fff;">{{ students|length }}</span> students
+            Showing <span id="visible-count" style="font-weight: 700; color: var(--text-primary);">{{ students|length }}</span> of
+            <span style="font-weight: 700; color: var(--text-primary);">{{ students|length }}</span> students
         </div>
     </div>
 
@@ -223,8 +223,7 @@
                                         Branches</div>
                                     {% for b in branches %}
                                     <div class="th-filter-option" data-value="{{ b.id }}"
-                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStudentFilters')">{{
-                                        b.name }}</div>
+                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStudentFilters')">{{ b.name }}</div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -243,8 +242,7 @@
                                         Classes</div>
                                     {% for c in all_classes %}
                                     <div class="th-filter-option" data-value="{{ c.id }}"
-                                        onclick="selectHeaderFilter(this, 'filter-class', 'applyStudentFilters')">{{
-                                        c.name }}{% if c.section %} - {{ c.section }}{% endif %}</div>
+                                        onclick="selectHeaderFilter(this, 'filter-class', 'applyStudentFilters')">{{ c.name }}{% if c.section %} - {{ c.section }}{% endif %}</div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -288,12 +286,11 @@
                     <td class="person-cell">
                         <div class="person-name-wrapper">
                             <div
-                                style="width: 36px; height: 36px; background: linear-gradient(135deg, #0d9488, #14b8a6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                                style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
                                 {{ student.name|first|upper }}
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">{{
-                                    student.name }}</p>
+                                <p style="font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.2;">{{ student.name }}</p>
                                 <p
                                     style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
                                     {{ student.email }}
@@ -305,7 +302,7 @@
                                 <div class="hover-card-banner bg-student">
                                     <div class="hover-card-avatar-wrapper">
                                         <div class="hover-card-avatar"
-                                            style="background: #0d9488; border: 3px solid #0b1918;">
+                                            style="background: var(--color-primary); border: 3px solid #0b1918;">
                                             {{ student.name|first|upper }}
                                         </div>
                                     </div>
@@ -319,8 +316,7 @@
                                     <div class="hover-card-details">
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Student ID</span>
-                                            <span class="hover-card-detail-value">#STD-{{ student.id|stringformat:"04d"
-                                                }}</span>
+                                            <span class="hover-card-detail-value">#STD-{{ student.id|stringformat:"04d" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Email</span>
@@ -328,30 +324,24 @@
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Roll Number</span>
-                                            <span class="hover-card-detail-value">{{ student.roll_number|default:"—"
-                                                }}</span>
+                                            <span class="hover-card-detail-value">{{ student.roll_number|default:"—" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Class</span>
-                                            <span class="hover-card-detail-value">{% if student.school_class %}{{
-                                                student.school_class.name }}{% if student.school_class.section %} - {{
-                                                student.school_class.section }}{% endif %}{% else %}—{% endif %}</span>
+                                            <span class="hover-card-detail-value">{% if student.school_class %}{{ student.school_class.name }}{% if student.school_class.section %} - {{ student.school_class.section }}{% endif %}{% else %}—{% endif %}</span>
                                         </div>
                                         {% if student.school_user %}
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Mobile</span>
-                                            <span class="hover-card-detail-value">{{
-                                                student.school_user.mobile_number|default:"—" }}</span>
+                                            <span class="hover-card-detail-value">{{ student.school_user.mobile_number|default:"—" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">DOB</span>
-                                            <span class="hover-card-detail-value">{{ student.school_user.dob|date:"d M
-                                                Y"|default:"—" }}</span>
+                                            <span class="hover-card-detail-value">{{ student.school_user.dob|date:"d M Y"|default:"—" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Location</span>
-                                            <span class="hover-card-detail-value">{{
-                                                student.school_user.city|default:"—" }}</span>
+                                            <span class="hover-card-detail-value">{{ student.school_user.city|default:"—" }}</span>
                                         </div>
                                         {% endif %}
                                         <div class="hover-card-detail-item">
@@ -359,8 +349,7 @@
                                             <span class="hover-card-detail-value">
                                                 <span
                                                     class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
-                                                    style="font-size: 0.65rem; padding: 2px 8px;">{{
-                                                    student.status|title }}</span>
+                                                    style="font-size: 0.65rem; padding: 2px 8px;">{{ student.status|title }}</span>
                                             </span>
                                         </div>
                                     </div>
@@ -376,9 +365,8 @@
                     <td>
                         {% if student.school_class %}
                         <span class="badge"
-                            style="font-size: 0.7rem; background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; padding: 3px 10px; white-space: nowrap;">
-                            {{ student.school_class.name }}{% if student.school_class.section %} &mdash; {{
-                            student.school_class.section }}{% endif %}
+                            style="font-size: 0.7rem; background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color); border-radius: 20px; padding: 3px 10px; white-space: nowrap;">
+                            {{ student.school_class.name }}{% if student.school_class.section %} &mdash; {{ student.school_class.section }}{% endif %}
                         </span>
                         {% else %}
                         <span style="color: var(--text-muted); font-size: 0.78rem;">—</span>
@@ -404,8 +392,7 @@
                     <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
-                        No students found matching the selected filters.{% if query %} Try a different search.{% endif
-                        %}
+                        No students found matching the selected filters.{% if query %} Try a different search.{% endif %}
                     </td>
                 </tr>
             </tbody>
@@ -523,10 +510,10 @@
                     style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: ${alreadyStudent ? 'not-allowed' : 'pointer'};
                         opacity: ${alreadyStudent ? '0.5' : '1'};
                         transition: background 0.15s ease;
-                        border-bottom: 1px solid rgba(255,255,255,0.04);"
-                    onmouseover="if(!${alreadyStudent}) this.style.background='rgba(255,255,255,0.04)'"
+                        border-bottom: 1px solid var(--border-color);"
+                    onmouseover="if(!${alreadyStudent}) this.style.background='var(--bg-secondary)'"
                     onmouseout="this.style.background='transparent'">
-                    <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,#0d9488,#14b8a6);
+                    <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--color-primary), var(--color-secondary));
                         display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; color:var(--text-primary); flex-shrink:0;">
                         ${initials.toUpperCase()}
                     </div>

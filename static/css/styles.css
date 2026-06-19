@@ -1,7 +1,8 @@
 /* Import Modern Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
-:root, body[data-theme="default"] {
+:root,
+body[data-theme="default"] {
     --bg-primary: #0b1918;
     --bg-secondary: #122624;
     --bg-card: rgba(22, 49, 46, 0.7);
@@ -31,57 +32,57 @@
 }
 
 body[data-theme="ocean-cyan"] {
-    --bg-primary: #07171d;
-    --bg-secondary: #0f2732;
-    --bg-card: rgba(15, 39, 50, 0.7);
-    --sidebar-bg: #0f2732;
-    --header-bg: #07171d;
-    --border-color: rgba(255, 255, 255, 0.08);
+    --bg-primary: #F0FDFF;
+    --bg-secondary: #E0F7FA;
+    --bg-card: #FFFFFF;
+    --sidebar-bg: #FFFFFF;
+    --header-bg: #FFFFFF;
+    --border-color: rgba(0, 0, 0, 0.08);
     --border-glow: rgba(0, 188, 212, 0.2);
 
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
 
     --color-primary: #00BCD4;
     --color-primary-hover: #26C6DA;
-    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --card-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
 }
 
 body[data-theme="royal-blue"] {
-    --bg-primary: #0a0f1d;
-    --bg-secondary: #111a32;
-    --bg-card: rgba(17, 26, 50, 0.7);
-    --sidebar-bg: #111a32;
-    --header-bg: #0a0f1d;
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-glow: rgba(59, 130, 246, 0.2);
+    --bg-primary: #EFF6FF;
+    --bg-secondary: #DBEAFE;
+    --bg-card: #FFFFFF;
+    --sidebar-bg: #FFFFFF;
+    --header-bg: #FFFFFF;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-glow: rgba(37, 99, 235, 0.2);
 
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
+    --text-primary: #1E293B;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
 
-    --color-primary: #3B82F6;
-    --color-primary-hover: #60A5FA;
-    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --color-primary: #2563EB;
+    --color-primary-hover: #3B82F6;
+    --card-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
 }
 
 body[data-theme="premium-pink"] {
-    --bg-primary: #1d0a13;
-    --bg-secondary: #2b111e;
-    --bg-card: rgba(43, 17, 30, 0.7);
-    --sidebar-bg: #2b111e;
-    --header-bg: #1d0a13;
-    --border-color: rgba(255, 255, 255, 0.08);
+    --bg-primary: #FDF2F8;
+    --bg-secondary: #FCE7F3;
+    --bg-card: #FFFFFF;
+    --sidebar-bg: #FFFFFF;
+    --header-bg: #FFFFFF;
+    --border-color: rgba(0, 0, 0, 0.08);
     --border-glow: rgba(236, 72, 153, 0.2);
 
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
 
     --color-primary: #EC4899;
     --color-primary-hover: #F472B6;
-    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --card-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
 }
 
 
@@ -1051,7 +1052,8 @@ h6 {
     min-width: 160px;
     max-height: 250px;
     overflow-y: auto;
-    text-transform: none; /* Override standard uppercase header text */
+    text-transform: none;
+    /* Override standard uppercase header text */
     letter-spacing: normal;
 }
 

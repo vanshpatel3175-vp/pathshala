@@ -42,7 +42,7 @@
                         </td>
                         <td style="text-align: right;">
                             {% if item.role|lower == 'student' or item.role|lower == 'teacher' or item.role|lower == 'principal' or item.role|lower == 'principle' %}
-                            <span style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                            <span style="font-size: 0.75rem; color: var(--text-muted); font-style: italic; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
                                 <i class="fa-solid fa-lock" style="font-size: 0.7rem; color: var(--text-muted);"></i> System Default
                             </span>
                             {% else %}
@@ -124,7 +124,7 @@
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label style="margin-bottom: 8px; display: block;">Current Role Name</label>
                     <input type="text" id="old_role_name_display" class="form-control"
-                        style="width: 100%; border-radius: 8px; padding: 12px 14px; background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); color: var(--text-secondary);" disabled>
+                        style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary);" disabled>
                 </div>
 
                 <div class="form-group" style="margin-bottom: 25px;">

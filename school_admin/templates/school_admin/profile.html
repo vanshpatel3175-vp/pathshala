@@ -18,12 +18,11 @@
     <div class="glass-panel" style="padding: 30px; border-radius: 16px; border-top: 3px solid var(--color-primary);">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
             <div
-                style="width: 56px; height: 56px; border-radius: 16px; background: rgba(99,102,241,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: var(--color-primary);">
+                style="width: 56px; height: 56px; border-radius: 16px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: var(--color-primary);">
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
             <div>
-                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{ institution.name
-                    }}</h2>
+                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{ institution.name }}</h2>
                 <p style="color: var(--text-secondary); font-size: 0.85rem;">School Code:
                     <code>{{ institution.school_code|default:"N/A" }}</code></p>
             </div>
@@ -31,20 +30,19 @@
 
         <div style="display: grid; gap: 14px;">
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Plan</span>
-                <span style="color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">{{
-                    institution.plan|default:"Standard" }}</span>
+                <span style="color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">{{ institution.plan|default:"Standard" }}</span>
             </div>
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Status</span>
                 <span
                     class="badge {% if institution.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
                     style="font-size: 0.75rem;">{{ institution.status|title }}</span>
             </div>
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Contact</span>
                 <span style="color: var(--text-primary); font-size: 0.9rem;">{{ institution.contact_no }}</span>
             </div>
@@ -63,20 +61,19 @@
                 <i class="fa-solid fa-user-tie"></i>
             </div>
             <div>
-                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{
-                    profile.user.first_name }} {{ profile.user.last_name }}</h2>
+                <h2 style="font-family: var(--font-heading); font-size: 1.4rem; margin-bottom: 2px;">{{ profile.user.first_name }} {{ profile.user.last_name }}</h2>
                 <p style="color: var(--text-secondary); font-size: 0.85rem;">{{ profile.user.email }}</p>
             </div>
         </div>
 
         <div style="display: grid; gap: 14px;">
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Phone</span>
                 <span style="color: var(--text-primary); font-size: 0.9rem;">{{ profile.phone|default:"—" }}</span>
             </div>
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">City</span>
                 <span style="color: var(--text-primary); font-size: 0.9rem;">{{ profile.city|default:"—" }}</span>
             </div>
