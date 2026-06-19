@@ -57,7 +57,7 @@
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-secondary);
         border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 7px 14px;
@@ -68,7 +68,7 @@
     }
 
     .acc-back-btn:hover {
-        background: rgba(255, 255, 255, 0.09);
+        background: var(--bg-secondary);
         color: var(--text-primary);
     }
 
@@ -102,7 +102,7 @@
     .acc-tabs {
         display: flex;
         gap: 4px;
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--bg-secondary);
         border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 5px;
@@ -129,13 +129,13 @@
 
     .acc-tab:hover {
         color: var(--text-primary);
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-secondary);
     }
 
     .acc-tab.active {
-        background: rgba(38, 166, 154, 0.15);
+        background: var(--bg-secondary);
         color: var(--color-primary);
-        border: 1px solid rgba(38, 166, 154, 0.25);
+        border: 1px solid var(--color-primary);
     }
 
     /* Stat Cards */
@@ -226,9 +226,9 @@
 
     .quick-action-btn:hover {
         border-color: var(--border-glow);
-        background: rgba(38, 166, 154, 0.06);
+        background: var(--bg-secondary);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(38, 166, 154, 0.1);
+        box-shadow: 0 6px 20px var(--border-glow);
     }
 
     .quick-action-btn i {
@@ -303,7 +303,7 @@
         display: flex;
         align-items: center;
         padding: 12px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid var(--border-color);
         gap: 12px;
         font-size: 0.86rem;
         color: var(--text-primary);
@@ -315,7 +315,7 @@
     }
 
     .panel-row:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--bg-secondary);
     }
 
     .panel-empty {
@@ -429,7 +429,7 @@
                 </div>
                 <a href="{% url 'school_classes' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(99,102,241,0.1);color:var(--color-primary);border:1px solid rgba(99,102,241,0.2);border-radius:7px;">Add
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-primary);border:1px solid var(--border-color);border-radius:7px;">Add
                     +</a>
             </div>
             <div class="panel-card-body">
@@ -446,7 +446,7 @@
                 {% endfor %}
                 {% if total_classes > 5 %}
                 <a href="{% url 'school_classes' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
-                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-primary);border-top:1px solid rgba(255,255,255,0.04);">View
+                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-primary);border-top: 1px solid var(--border-color);">View
                     all {{ total_classes }} →</a>
                 {% endif %}
             </div>
@@ -467,12 +467,11 @@
                     <i class="fa-solid fa-user-graduate" style="color:var(--color-success);"></i>
                     <span style="font-family:var(--font-heading);font-weight:700;color:var(--text-primary);">Students</span>
                     <span
-                        style="background:rgba(16,185,129,0.12);color:var(--color-success);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
-                        total_students }}</span>
+                        style="background:rgba(16,185,129,0.12);color:var(--color-success);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_students }}</span>
                 </div>
                 <a href="{% url 'school_students' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(16,185,129,0.1);color:var(--color-success);border:1px solid rgba(16,185,129,0.2);border-radius:7px;">Manage
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-success);border:1px solid var(--border-color);border-radius:7px;">Manage
                     →</a>
             </div>
             <div class="panel-card-body">
@@ -499,12 +498,11 @@
                     <i class="fa-solid fa-chalkboard-user" style="color:var(--color-info);"></i>
                     <span style="font-family:var(--font-heading);font-weight:700;color:var(--text-primary);">Teachers</span>
                     <span
-                        style="background:rgba(6,182,212,0.12);color:var(--color-info);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
-                        total_teachers }}</span>
+                        style="background:rgba(6,182,212,0.12);color:var(--color-info);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_teachers }}</span>
                 </div>
                 <a href="{% url 'school_teachers' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(6,182,212,0.1);color:var(--color-info);border:1px solid rgba(6,182,212,0.2);border-radius:7px;">Manage
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-info);border:1px solid var(--border-color);border-radius:7px;">Manage
                     →</a>
             </div>
             <div class="panel-card-body">
@@ -531,12 +529,11 @@
                     <i class="fa-solid fa-id-badge" style="color:var(--color-warning);"></i>
                     <span style="font-family:var(--font-heading);font-weight:700;color:var(--text-primary);">Other Staff</span>
                     <span
-                        style="background:rgba(245,158,11,0.12);color:var(--color-warning);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
-                        total_staff }}</span>
+                        style="background:rgba(245,158,11,0.12);color:var(--color-warning);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_staff }}</span>
                 </div>
                 <a href="{% url 'school_others' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(245,158,11,0.1);color:var(--color-warning);border:1px solid rgba(245,158,11,0.2);border-radius:7px;">Manage
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-warning);border:1px solid var(--border-color);border-radius:7px;">Manage
                     →</a>
             </div>
             <div class="panel-card-body">
@@ -544,8 +541,7 @@
                 <div class="panel-row">
                     <i class="fa-solid fa-circle-user" style="color:var(--color-warning);font-size:0.9rem;"></i>
                     <span style="flex:1;">{{ s.name }} <span
-                            style="font-size:0.72rem; opacity:0.8; margin-left:6px; background:rgba(245,158,11,0.15); color:var(--color-warning); padding:2px 8px; border-radius:12px;">{{
-                            s.role }}</span></span>
+                            style="font-size:0.72rem; opacity:0.8; margin-left:6px; background:rgba(245,158,11,0.15); color:var(--color-warning); padding:2px 8px; border-radius:12px;">{{ s.role }}</span></span>
                     <span style="color:var(--text-muted);font-size:0.78rem;">{{ s.branch.name }}</span>
                 </div>
                 {% empty %}
@@ -555,7 +551,7 @@
                 {% endfor %}
                 {% if total_staff > 5 %}
                 <a href="{% url 'school_others' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
-                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-warning);border-top:1px solid rgba(255,255,255,0.04);">View
+                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-warning);border-top: 1px solid var(--border-color);">View
                     all {{ total_staff }} →</a>
                 {% endif %}
             </div>

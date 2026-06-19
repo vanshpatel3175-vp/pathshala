@@ -6,7 +6,7 @@
 {% block content %}
 <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
     <div class="page-title">
-        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Study Materials
         </h1>
         <p style="color: var(--text-secondary); font-size: 0.95rem;">Access materials and notes uploaded by your teachers.</p>
@@ -16,13 +16,13 @@
 <!-- Filters -->
 <div class="glass-panel" style="padding: 20px; margin-bottom: 25px; border-radius: 12px; border-left: 4px solid var(--student-accent);">
     <form method="GET" action="{% url 'student_study_materials' %}" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-        <select name="category" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 150px;">
+        <select name="category" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); min-width: 150px;">
             <option value="">All Categories</option>
             {% for key, val in category_choices %}
             <option value="{{ key }}" {% if key == category_filter %}selected{% endif %}>{{ val }}</option>
             {% endfor %}
         </select>
-        <button type="submit" class="btn" style="padding: 10px 20px; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+        <button type="submit" class="btn" style="padding: 10px 20px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary);">
             <i class="fa-solid fa-filter"></i> Filter
         </button>
         {% if category_filter %}
@@ -37,9 +37,9 @@
 <div class="glass-panel" style="padding: 25px; border-radius: 16px;">
     <div style="display: flex; flex-direction: column; gap: 15px;">
         {% for mat in materials %}
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
             <div>
-                <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                <h4 style="margin: 0 0 8px 0; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
                     {% if mat.file_extension == 'pdf' %}
                         <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
                     {% elif mat.file_extension in 'doc,docx' %}
@@ -50,11 +50,11 @@
                     {{ mat.title }}
                 </h4>
                 <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
-                    <span class="badge" style="background: rgba(38,166,154,0.1); color: var(--color-primary); border: 1px solid rgba(38,166,154,0.2);">
+                    <span class="badge" style="background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color);">
                         {{ mat.get_category_display }}
                     </span>
                     {% if mat.subject %}
-                    <span class="badge" style="background: rgba(255,255,255,0.05); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);">
+                    <span class="badge" style="background: var(--bg-secondary); color: #e2e8f0; border: 1px solid var(--border-color);">
                         {{ mat.subject }}
                     </span>
                     {% endif %}
@@ -63,7 +63,7 @@
                     Uploaded by: <strong>{{ mat.uploaded_by_label }}</strong> on {{ mat.uploaded_at|date:"M d, Y" }}
                 </p>
                 {% if mat.description %}
-                <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; padding-left: 12px; border-left: 2px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0; padding-left: 12px; border-left: 2px solid var(--border-color);">
                     {{ mat.description }}
                 </p>
                 {% endif %}

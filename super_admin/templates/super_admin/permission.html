@@ -46,7 +46,7 @@
 {% if selected_inst %}
 <div class="glass-panel" style="padding: 25px;">
     <h3
-        style="margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
+        style="margin-top: 0; margin-bottom: 20px; font-size: 1.2rem; color: var(--text-primary); border-bottom: 1px solid var(--border-color); padding-bottom: 15px;">
         <i class="fa-solid fa-sliders" style="color: var(--color-primary); margin-right: 10px;"></i>
         Module Access for {{ selected_inst.name }}
     </h3>
@@ -60,41 +60,41 @@
 
             <!-- Branches Group -->
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
-                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <summary style="padding: 12px 15px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-code-branch" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
                     <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Branches Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Branches</span>
                     <input type="checkbox" name="manage_branches" {% if features.manage_branches %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Add New Branch</span>
                     <input type="checkbox" name="add_new_branch" {% if features.add_new_branch %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
             </details>
             <!-- Users Group -->
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
-                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <summary style="padding: 12px 15px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-users" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
                     <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Users Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Students</span>
                     <input type="checkbox" name="manage_students" {% if features.manage_students %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Teachers</span>
                     <input type="checkbox" name="manage_teachers" {% if features.manage_teachers %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Manage Staff (Others)</span>
                     <input type="checkbox" name="manage_others" {% if features.manage_others %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
@@ -102,23 +102,23 @@
 
             <!-- Masters Group -->
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
-                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <summary style="padding: 12px 15px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-database" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
                     <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Masters Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Master Roles</span>
                     <input type="checkbox" name="manage_roles" {% if features.manage_roles %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Master Mediums</span>
                     <input type="checkbox" name="manage_mediums" {% if features.manage_mediums %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Master Classes</span>
                     <input type="checkbox" name="manage_classes" {% if features.manage_classes %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
@@ -126,23 +126,23 @@
 
             <!-- Operations Group -->
             <details style="background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;" open>
-                <summary style="padding: 12px 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <summary style="padding: 12px 15px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <i class="fa-solid fa-briefcase" style="color: var(--text-muted); width: 20px; text-align: center;"></i>
                     <span style="font-weight: 500; color: var(--text-primary); flex: 1;">Operations Module</span>
                     <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem; transition: transform 0.3s ease;"></i>
                 </summary>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Attendance System</span>
                     <input type="checkbox" name="attendance" {% if features.attendance %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid rgba(255,255,255,0.03);" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Study Materials</span>
                     <input type="checkbox" name="study_materials" {% if features.study_materials %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>
                 
-                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
                     <span style="font-weight: 400; color: #ddd; font-size: 0.9rem; padding-left: 30px;">Fees Management</span>
                     <input type="checkbox" name="fees" {% if features.fees %}checked{% endif %} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);">
                 </label>

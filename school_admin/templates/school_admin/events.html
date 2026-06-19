@@ -259,7 +259,7 @@
 
     .event-table td {
         padding: 13px 14px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid var(--border-color);
         font-size: 0.875rem;
         color: var(--text-primary);
         vertical-align: middle;
@@ -270,7 +270,7 @@
     }
 
     .event-table tr:hover td {
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--bg-secondary);
     }
 
     .event-name-cell {
@@ -284,7 +284,7 @@
         height: 36px;
         border-radius: 50%;
         background: rgba(38, 166, 154, 0.12);
-        border: 1px solid rgba(38, 166, 154, 0.25);
+        border: 1px solid var(--color-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -316,9 +316,9 @@
         border-radius: 12px;
         font-size: 0.68rem;
         font-weight: 700;
-        background: rgba(99, 102, 241, 0.12);
-        color: #818cf8;
-        border: 1px solid rgba(99, 102, 241, 0.2);
+        background: var(--bg-secondary);
+        color: var(--color-primary);
+        border: 1px solid var(--border-color);
         letter-spacing: 0.05em;
         text-transform: uppercase;
     }
@@ -522,8 +522,7 @@
                     </td>
                     <td>
                         {% if event.branch %}
-                        <span class="badge-branch-name"><i class="fa-solid fa-building"></i> {{ event.branch.name
-                            }}</span>
+                        <span class="badge-branch-name"><i class="fa-solid fa-building"></i> {{ event.branch.name }}</span>
                         {% else %}
                         <span class="badge-branch-all"><i class="fa-solid fa-building-columns"></i> All Branches</span>
                         {% endif %}

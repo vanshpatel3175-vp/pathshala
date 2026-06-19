@@ -78,10 +78,10 @@
         <i class="fa-solid fa-chalkboard" style="color: var(--color-primary);"></i> Class Registry
     </h3>
     <div
-        style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.15);">
+        style="border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; background: transparent;">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
-                <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border-color);">
+                <tr style="background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);">
                     <th
                         style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
                         #</th>
@@ -104,14 +104,14 @@
             </thead>
             <tbody>
                 {% for cls in classes %}
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.2s;">
+                <tr style="border-bottom: 1px solid var(--border-color); transition: background 0.2s;">
                     <td style="padding: 14px 18px; color: var(--text-muted); font-size: 0.85rem;">{{ forloop.counter }}
                     </td>
                     <td style="padding: 14px 18px;"><strong style="color: var(--text-primary);">{{ cls.name }}</strong></td>
                     <td style="padding: 14px 18px;">
                         {% if cls.section %}
                         <span
-                            style="background: rgba(99,102,241,0.12); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                            style="background: var(--bg-secondary); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
                             {{cls.section }}</span>
                         {% else %}
                         <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">—</span>
@@ -121,7 +121,7 @@
                         {{ cls.branch.name}}</td>
                     <td style="padding: 14px 18px;">
                         {% if cls.teacher %}
-                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(99,102,241,0.1); color: #818cf8; border: 1px solid rgba(99,102,241,0.25); border-radius: 20px; font-size: 0.78rem; font-weight: 600;">
+                        <span style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.78rem; font-weight: 600;">
                             <i class="fa-solid fa-chalkboard-user"></i> {{ cls.teacher.name }}
                         </span>
                         {% else %}
@@ -131,7 +131,7 @@
                     <td style="padding: 14px 18px; text-align: right; display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
                         <button type="button"
                             onclick="openAssignTeacherDrawer('{{ cls.id }}', '{{ cls.teacher.id|default:'' }}')"
-                            style="padding: 5px 12px; font-size: 0.8rem; background: rgba(99,102,241,0.08); color: #818cf8; border: 1px solid rgba(99,102,241,0.2); border-radius: 6px; cursor: pointer;">
+                            style="padding: 5px 12px; font-size: 0.8rem; background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color); border-radius: 6px; cursor: pointer;">
                             <i class="fa-solid fa-chalkboard-user"></i> Assign
                         </button>
                         <form method="POST" action="{% url 'school_classes' %}" style="display: inline;"
@@ -140,7 +140,7 @@
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="class_id" value="{{ cls.id }}">
                             <button type="submit" class="btn"
-                                style="padding: 5px 12px; font-size: 0.8rem; background: rgba(239,68,68,0.08); color: var(--color-danger); border: 1px solid rgba(239,68,68,0.15); border-radius: 6px;">
+                                style="padding: 5px 12px; font-size: 0.8rem; background: var(--bg-secondary); color: var(--color-danger); border: 1px solid var(--color-danger); border-radius: 6px;">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </form>
@@ -162,9 +162,9 @@
 
 <!-- Assign Teacher Drawer -->
 <div id="assign-teacher-drawer" class="glass-panel side-drawer"
-    style="padding: 30px; border-top: none; border-left: 4px solid #6366f1;">
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
     <h3 style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
-        <span><i class="fa-solid fa-chalkboard-user" style="color: #818cf8;"></i> Assign Teacher to Class</span>
+        <span><i class="fa-solid fa-chalkboard-user" style="color: var(--color-primary);"></i> Assign Teacher to Class</span>
         <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
             onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
     </h3>

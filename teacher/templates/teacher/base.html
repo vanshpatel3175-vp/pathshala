@@ -39,9 +39,9 @@
             align-items: center;
             gap: 6px;
             padding: 4px 12px;
-            background: rgba(99, 102, 241, 0.15);
-            color: #818cf8;
-            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: var(--bg-secondary);
+            color: var(--color-primary);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
             font-size: 0.7rem;
             font-weight: 700;
@@ -134,15 +134,14 @@
 
             <!-- Teacher Info Footer -->
             <div
-                style="padding: 16px; background: rgba(99,102,241,0.06); border-radius: 12px; border: 1px solid rgba(99,102,241,0.15); margin-bottom: 16px;">
+                style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                     <div
-                        style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--teacher-accent), var(--teacher-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: #fff;">
+                        style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--teacher-accent), var(--teacher-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">
                         {{ request.user.first_name|first|upper }}
                     </div>
                     <div>
-                        <p style="font-weight: 600; font-size: 0.875rem; color: #fff; margin: 0;">{{
-                            request.user.first_name }}</p>
+                        <p style="font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin: 0;">{{ request.user.first_name }}</p>
                         <span class="teacher-badge"><i class="fa-solid fa-chalkboard-user"></i> Teacher</span>
                     </div>
                 </div>
@@ -150,7 +149,7 @@
 
             <div class="sidebar-footer">
                 <a href="{% url 'teacher_logout' %}" class="sidebar-link"
-                    style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15);">
+                    style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid var(--color-danger);">
                     <i class="fa-solid fa-right-from-bracket"></i>
                     Log Out
                 </a>

@@ -14,7 +14,7 @@
 <div class="search-row" style="margin-bottom: 25px;">
     <div style="flex: 1; display: flex; align-items: center; gap: 15px;">
         <label for="statusFilter" style="color: var(--text-secondary); font-weight: 500;">Filter by Status:</label>
-        <select id="statusFilter" class="custom-select" style="max-width: 250px; height: 42px; border-radius: 8px; padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary);" onchange="filterAttendance()">
+        <select id="statusFilter" class="custom-select" style="max-width: 250px; height: 42px; border-radius: 8px; padding: 10px 14px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary);" onchange="filterAttendance()">
             <option value="all">All Records</option>
             <option value="present">Present</option>
             <option value="absent">Absent</option>
@@ -22,7 +22,7 @@
         </select>
         
         <label for="monthFilter" style="color: var(--text-secondary); font-weight: 500; margin-left: 20px;">Filter by Month:</label>
-        <select id="monthFilter" class="custom-select" style="max-width: 250px; height: 42px; border-radius: 8px; padding: 10px 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); color: var(--text-primary);" onchange="filterAttendance()">
+        <select id="monthFilter" class="custom-select" style="max-width: 250px; height: 42px; border-radius: 8px; padding: 10px 14px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary);" onchange="filterAttendance()">
             <option value="all">All Months</option>
         </select>
     </div>
@@ -42,7 +42,7 @@
             </thead>
             <tbody>
                 {% for record in attendance_records %}
-                <tr class="attendance-row" data-status="{{ record.status }}" data-month-val="{{ record.date|date:'Y-m' }}" data-month-name="{{ record.date|date:'F Y' }}" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <tr class="attendance-row" data-status="{{ record.status }}" data-month-val="{{ record.date|date:'Y-m' }}" data-month-name="{{ record.date|date:'F Y' }}" style="border-bottom: 1px solid var(--border-color);">
                     <td style="padding: 16px 12px;">{{ record.date|date:"M d, Y" }}</td>
                     <td style="padding: 16px 12px;">
                         {% if record.status == 'present' %}

@@ -6,7 +6,7 @@
 {% block content %}
 <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 20px;">
     <div class="page-title">
-        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Study Materials
         </h1>
         <p style="color: var(--text-secondary); font-size: 0.95rem;">Upload and manage materials for your assigned classes.</p>
@@ -21,19 +21,19 @@
 <!-- Filters -->
 <div class="glass-panel" style="padding: 20px; margin-bottom: 25px; border-radius: 12px; border-left: 4px solid var(--teacher-accent);">
     <form method="GET" action="{% url 'teacher_study_materials' %}" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-        <select name="class_id" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 180px;">
+        <select name="class_id" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); min-width: 180px;">
             <option value="">All My Classes</option>
             {% for cls in assigned_classes %}
             <option value="{{ cls.id }}" {% if cls.id|stringformat:"s" == class_filter_id %}selected{% endif %}>{{ cls.name }} {{ cls.section|default:"" }}</option>
             {% endfor %}
         </select>
-        <select name="category" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff; min-width: 150px;">
+        <select name="category" class="form-input" style="padding: 10px 16px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); min-width: 150px;">
             <option value="">All Categories</option>
             {% for key, val in category_choices %}
             <option value="{{ key }}" {% if key == category_filter %}selected{% endif %}>{{ val }}</option>
             {% endfor %}
         </select>
-        <button type="submit" class="btn" style="padding: 10px 20px; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff;">
+        <button type="submit" class="btn" style="padding: 10px 20px; border-radius: 8px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary);">
             <i class="fa-solid fa-filter"></i> Filter
         </button>
         {% if class_filter_id or category_filter %}
@@ -48,9 +48,9 @@
 <div class="glass-panel" style="padding: 25px; border-radius: 16px;">
     <div style="display: flex; flex-direction: column; gap: 15px;">
         {% for mat in materials %}
-        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+        <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
             <div>
-                <h4 style="margin: 0 0 8px 0; color: #fff; font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
+                <h4 style="margin: 0 0 8px 0; color: var(--text-primary); font-size: 1.1rem; display: flex; align-items: center; gap: 10px;">
                     {% if mat.file_extension == 'pdf' %}
                         <i class="fa-solid fa-file-pdf" style="color: #ef4444;"></i>
                     {% elif mat.file_extension in 'doc,docx' %}
@@ -61,20 +61,20 @@
                     {{ mat.title }}
                 </h4>
                 <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
-                    <span class="badge" style="background: rgba(38,166,154,0.1); color: var(--color-primary); border: 1px solid rgba(38,166,154,0.2);">
+                    <span class="badge" style="background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color);">
                         {{ mat.get_category_display }}
                     </span>
                     {% if mat.subject %}
-                    <span class="badge" style="background: rgba(255,255,255,0.05); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);">
+                    <span class="badge" style="background: var(--bg-secondary); color: #e2e8f0; border: 1px solid var(--border-color);">
                         {{ mat.subject }}
                     </span>
                     {% endif %}
                     {% if mat.school_class %}
-                    <span class="badge" style="background: rgba(99,102,241,0.1); color: #818cf8; border: 1px solid rgba(99,102,241,0.2);">
+                    <span class="badge" style="background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color);">
                         Class: {{ mat.school_class.name }} {{ mat.school_class.section|default:"" }}
                     </span>
                     {% else %}
-                    <span class="badge" style="background: rgba(148,163,184,0.1); color: #cbd5e1; border: 1px solid rgba(148,163,184,0.2);">
+                    <span class="badge" style="background: var(--bg-secondary); color: var(--text-secondary); border: 1px solid var(--border-color);">
                         All Classes
                     </span>
                     {% endif %}
@@ -83,19 +83,19 @@
                     Uploaded by: <strong>{{ mat.uploaded_by_label }}</strong> on {{ mat.uploaded_at|date:"M d, Y" }}
                 </p>
                 {% if mat.description %}
-                <p style="color: #cbd5e1; font-size: 0.9rem; margin: 0; padding-left: 12px; border-left: 2px solid rgba(255,255,255,0.1);">
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0; padding-left: 12px; border-left: 2px solid var(--border-color);">
                     {{ mat.description }}
                 </p>
                 {% endif %}
             </div>
             <div style="display: flex; gap: 10px;">
-                <a href="{{ mat.file.url }}" target="_blank" class="btn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2);">
+                <a href="{{ mat.file.url }}" target="_blank" class="btn" style="padding: 8px 16px; font-size: 0.85rem; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color);">
                     <i class="fa-solid fa-download"></i> Download
                 </a>
                 {% if mat.uploaded_by_teacher == teacher %}
                 <form method="POST" action="{% url 'teacher_delete_material' mat.id %}" onsubmit="return confirm('Delete this material?')">
                     {% csrf_token %}
-                    <button type="submit" class="btn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2);">
+                    <button type="submit" class="btn" style="padding: 8px 16px; font-size: 0.85rem; background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid var(--color-danger);">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </form>
@@ -115,19 +115,19 @@
 <div id="upload-material-card" class="glass-panel side-drawer" style="padding: 30px; border-top: none; border-left: 4px solid var(--teacher-accent);">
     <h3 style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
         <span><i class="fa-solid fa-cloud-arrow-up" style="color: var(--teacher-accent);"></i> Upload Material</span>
-        <button class="btn" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%; background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff;" onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+        <button class="btn" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary);" onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
     </h3>
 
     <form method="POST" action="{% url 'teacher_study_materials' %}" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="margin-bottom: 8px; display: block;">Title *</label>
-            <input type="text" name="title" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            <input type="text" name="title" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="margin-bottom: 8px; display: block;">Target Class (Optional)</label>
-            <select name="class_id" class="custom-select" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+            <select name="class_id" class="custom-select" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                 <option value="">All My Classes (General)</option>
                 {% for cls in assigned_classes %}
                 <option value="{{ cls.id }}">{{ cls.name }} {{ cls.section|default:"" }}</option>
@@ -138,7 +138,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
             <div class="form-group">
                 <label style="margin-bottom: 8px; display: block;">Category</label>
-                <select name="category" class="custom-select" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <select name="category" class="custom-select" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                     {% for key, val in category_choices %}
                     <option value="{{ key }}">{{ val }}</option>
                     {% endfor %}
@@ -146,21 +146,21 @@
             </div>
             <div class="form-group">
                 <label style="margin-bottom: 8px; display: block;">Subject (Optional)</label>
-                <input type="text" name="subject" class="form-control" placeholder="e.g. Science" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                <input type="text" name="subject" class="form-control" placeholder="e.g. Science" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
         </div>
 
         <div class="form-group" style="margin-bottom: 20px;">
             <label style="margin-bottom: 8px; display: block;">Description (Optional)</label>
-            <textarea name="description" class="form-control" rows="3" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;"></textarea>
+            <textarea name="description" class="form-control" rows="3" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"></textarea>
         </div>
 
         <div class="form-group" style="margin-bottom: 25px;">
             <label style="margin-bottom: 8px; display: block;">File Attachment *</label>
-            <div style="position: relative; border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 30px; text-align: center; background: rgba(0,0,0,0.2); transition: all 0.3s ease;">
+            <div style="position: relative; border: 2px dashed var(--border-color); border-radius: 12px; padding: 30px; text-align: center; background: transparent; transition: all 0.3s ease;">
                 <input type="file" name="file" required onchange="const fName = this.files.length > 0 ? this.files[0].name : 'Drag & drop file here'; this.parentElement.querySelector('.file-name').innerText = fName; this.parentElement.querySelector('.file-name-sub').innerText = this.files.length > 0 ? 'Selected' : 'or click to browse'; this.parentElement.style.borderColor = this.files.length > 0 ? 'var(--color-primary)' : 'rgba(255,255,255,0.2)';" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
                 <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2.5rem; color: var(--text-muted); margin-bottom: 10px;"></i>
-                <p class="file-name" style="margin: 0; color: #fff; font-weight: 600;">Drag & drop file here</p>
+                <p class="file-name" style="margin: 0; color: var(--text-primary); font-weight: 600;">Drag & drop file here</p>
                 <p class="file-name-sub" style="margin: 5px 0 0 0; font-size: 0.8rem; color: var(--text-muted);">or click to browse</p>
             </div>
         </div>

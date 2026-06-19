@@ -123,8 +123,9 @@
     <!-- Active Filters & Count Display -->
     <div class="directory-filter-row" style="margin-bottom: 15px; justify-content: flex-end; padding: 0 10px;">
         <div style="font-size: 0.85rem; color: var(--text-secondary);">
-            Showing <span id="visible-count" style="font-weight: 700; color: #fff;">{{ school_users|length }}</span> of
-            <span style="font-weight: 700; color: #fff;">{{ school_users|length }}</span> users
+            Showing <span id="visible-count" style="font-weight: 700; color: var(--text-primary);">{{
+                school_users|length }}</span> of
+            <span style="font-weight: 700; color: var(--text-primary);">{{ school_users|length }}</span> users
         </div>
     </div>
 
@@ -193,12 +194,12 @@
                     <td class="person-cell">
                         <div class="person-name-wrapper">
                             <div
-                                style="width: 36px; height: 36px; background: linear-gradient(135deg, #6366f1, #818cf8); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                                style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
                                 {{ su.first_name|first|upper }}{{ su.last_name|first|upper }}
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: #ffffff; margin: 0; line-height: 1.2;">
-                                    {{ su.first_name }} {{ su.last_name }}</p>
+                                <p style="font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.2;">{{
+                                    su.first_name }} {{ su.last_name }}</p>
                                 <p
                                     style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
                                     {{ su.mobile_number|default:"—" }}
@@ -210,7 +211,7 @@
                                 <div class="hover-card-banner bg-user">
                                     <div class="hover-card-avatar-wrapper">
                                         <div class="hover-card-avatar"
-                                            style="background: #4f46e5; border: 3px solid #0b1918;">
+                                            style="background: var(--color-primary); border: 3px solid #0b1918;">
                                             {{ su.first_name|first|upper }}{{ su.last_name|first|upper }}
                                         </div>
                                     </div>
@@ -278,7 +279,7 @@
                         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                             {% if su.teacher_role %}
                             <span class="badge"
-                                style="background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); font-size: 0.7rem;">
+                                style="background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color); font-size: 0.7rem;">
                                 <i class="fa-solid fa-chalkboard-user"></i> Teacher
                             </span>
                             {% endif %}
