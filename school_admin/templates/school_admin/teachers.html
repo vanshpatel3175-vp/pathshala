@@ -247,7 +247,7 @@
                     <td class="person-cell">
                         <div class="person-name-wrapper">
                             <div
-                                style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                                style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
                                 {{ teacher.name|first|upper }}
                             </div>
                             <div>
@@ -263,7 +263,7 @@
                                 <div class="hover-card-banner bg-teacher">
                                     <div class="hover-card-avatar-wrapper">
                                         <div class="hover-card-avatar"
-                                            style="background: var(--color-primary); border: 3px solid #0b1918;">
+                                            style="background: var(--color-primary); border: 3px solid var(--bg-card);">
                                             {{ teacher.name|first|upper }}
                                         </div>
                                     </div>
@@ -457,7 +457,7 @@
                         border-bottom: 1px solid var(--border-color);"
                     onmouseover="if(!${alreadyTeacher}) this.style.background='var(--bg-secondary)'"
                     onmouseout="this.style.background='transparent'">
-                    <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+                    <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
                         display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; color:var(--text-primary); flex-shrink:0;">
                         ${initials.toUpperCase()}
                     </div>
