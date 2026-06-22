@@ -65,7 +65,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'role', 'city', 'state', 'phone_number', 'school_name']
+        fields = ['id', 'email', 'first_name', 'last_name', 'role', 'city', 'state', 'phone_number', 'school_name']
 
     def get_city(self, obj):
         if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
