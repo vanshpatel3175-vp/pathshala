@@ -821,16 +821,21 @@ def school_others_view(request):
                 )
             
             from django.contrib.auth.hashers import make_password as hash_pw
-            StaffMember.objects.create(
-                branch=branch,
-                school_user=school_user,
-                name=school_user.full_name,
-                email=school_user.email,
-                password=hash_pw(password),
-                role=role,
-                status='active'
-            )
-            messages.success(request, f"Staff member '{school_user.full_name}' registered successfully!")
+            from django.db import IntegrityError
+            try:
+                StaffMember.objects.create(
+                    branch=branch,
+                    school_user=school_user,
+                    name=school_user.full_name,
+                    email=school_user.email,
+                    password=hash_pw(password),
+                    role=role,
+                    status='active'
+                )
+                messages.success(request, f"Staff member '{school_user.full_name}' registered successfully!")
+            except IntegrityError:
+                messages.error(request, f"'{school_user.full_name}' is already registered as a staff member.")
+                
             return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
     selected_branch_ids = []
