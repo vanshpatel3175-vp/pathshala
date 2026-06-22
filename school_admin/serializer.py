@@ -1,3 +1,4 @@
+
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -65,10 +66,11 @@ class UserResponseSerializer(serializers.ModelSerializer):
     date_of_birth = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
     pincode = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name','date_of_birth', 'role', 'city', 'state','pincode', 'phone_number', 'school_name']
+        fields = ['id', 'email', 'first_name', 'last_name','date_of_birth', 'role','address' ,'city', 'state','pincode', 'phone_number', 'school_name']
 
     def get_date_of_birth(self, obj):
         if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
@@ -101,6 +103,23 @@ class UserResponseSerializer(serializers.ModelSerializer):
         school_user = SchoolUser.objects.filter(email=obj.email).first()
         if school_user:
             return getattr(school_user, 'pincode', "")
+            
+        return ""
+
+    def get_address(self, obj):
+        if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
+            return ""
+        if hasattr(obj, 'school_profile'):
+            return getattr(obj.school_profile, 'address', "")
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.school_user:
+            return getattr(obj.teacher_profile.school_user, 'address', "")
+        if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
+            return getattr(obj.student_profile.school_user, 'address', "")
+            
+        from .models import SchoolUser
+        school_user = SchoolUser.objects.filter(email=obj.email).first()
+        if school_user:
+            return getattr(school_user, 'address', "")
             
         return ""
 
@@ -178,3 +197,9 @@ class UserResponseSerializer(serializers.ModelSerializer):
             if staff_member and staff_member.role:
                 return staff_member.role
         return obj.role
+
+class themeserializer(serializers.Serializer):
+    code = serializers.CharField(max_length=50)
+    name = serializers.CharField(max_length=50)
+    is_active = serializers.BooleanField()
+    color = serializers.CharField(max_length=50, required=False)

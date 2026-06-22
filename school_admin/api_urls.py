@@ -8,4 +8,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('login/', api.SchoolLoginAPIView.as_view(), name='api_school_login'),
     path('logout/', api.SchoolLogoutAPIView.as_view(), name='api_school_logout'),
+    path('theme/', api.ThemeAPIView.as_view(), name='api_theme'),
 ]
