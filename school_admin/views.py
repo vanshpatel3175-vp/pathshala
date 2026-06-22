@@ -1214,7 +1214,7 @@ def school_users_view(request):
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
             email = request.POST.get('email', '').strip()
-            dob = request.POST.get('dob', '').strip() or None
+            dob = request.POST.get('dob', '').strip() 
             city = request.POST.get('city', '').strip()
             state = request.POST.get('state', '').strip()
             address = request.POST.get('address', '').strip()

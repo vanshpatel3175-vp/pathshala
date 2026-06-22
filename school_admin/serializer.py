@@ -62,10 +62,14 @@ class UserResponseSerializer(serializers.ModelSerializer):
     state = serializers.SerializerMethodField()
     phone_number = serializers.SerializerMethodField()
     school_name = serializers.SerializerMethodField()
+    date_of_birth = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'role', 'city', 'state', 'phone_number', 'school_name']
+        fields = ['id', 'email', 'first_name', 'last_name','date_of_birth', 'role', 'city', 'state', 'phone_number', 'school_name']
+
+    def get_date_of_birth(self, obj):
+        return obj.date_of_birth if hasattr(obj, "date_of_birth") else ""
 
     def get_city(self, obj):
         if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
