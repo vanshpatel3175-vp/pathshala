@@ -170,6 +170,9 @@
                                     <div class="th-filter-option" data-value="student"
                                         onclick="selectHeaderFilter(this, 'filter-role', 'applyUserFilters')">Student
                                     </div>
+                                    <div class="th-filter-option" data-value="staff"
+                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyUserFilters')">Staff
+                                    </div>
                                     <div class="th-filter-option" data-value="user"
                                         onclick="selectHeaderFilter(this, 'filter-role', 'applyUserFilters')">Plain User
                                         (Unassigned)</div>
@@ -186,8 +189,8 @@
                 {% if school_users %}
                 {% for su in school_users %}
                 <tr class="person-row"
-                    data-branch="{% if su.teacher_role %}{{ su.teacher_role.branch.id }}{% elif su.student_role %}{{ su.student_role.branch.id }}{% endif %}"
-                    data-role="{% if su.teacher_role %}teacher{% elif su.student_role %}student{% else %}user{% endif %}">
+                    data-branch="{% if su.teacher_role %}{{ su.teacher_role.branch.id }}{% elif su.student_role %}{{ su.student_role.branch.id }}{% elif su.staff_role %}{{ su.staff_role.branch.id }}{% endif %}"
+                    data-role="{% if su.teacher_role %}teacher{% elif su.student_role %}student{% elif su.staff_role %}staff{% else %}user{% endif %}">
 
                     <td class="person-cell">
                         <div class="person-name-wrapper">
@@ -221,6 +224,8 @@
                                         Teacher Profile
                                         {% elif su.student_role %}
                                         Student Profile
+                                        {% elif su.staff_role %}
+                                        Staff Profile ({{ su.staff_role.role }})
                                         {% else %}
                                         Pre-registered User
                                         {% endif %}
@@ -264,6 +269,10 @@
                         <span class="badge badge-pending" style="font-size: 0.7rem; white-space: nowrap;">
                             {{ su.student_role.branch.name }}
                         </span>
+                        {% elif su.staff_role %}
+                        <span class="badge badge-pending" style="font-size: 0.7rem; white-space: nowrap;">
+                            {{ su.staff_role.branch.name }}
+                        </span>
                         {% else %}
                         <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
                         {% endif %}
@@ -282,7 +291,13 @@
                                 <i class="fa-solid fa-graduation-cap"></i> Student
                             </span>
                             {% endif %}
-                            {% if not su.teacher_role and not su.student_role %}
+                            {% if su.staff_role %}
+                            <span class="badge"
+                                style="background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.7rem;">
+                                <i class="fa-solid fa-user-tie"></i> {{ su.staff_role.role|upper }}
+                            </span>
+                            {% endif %}
+                            {% if not su.teacher_role and not su.student_role and not su.staff_role %}
                             <span class="badge badge-pending" style="font-size: 0.7rem;">User</span>
                             {% endif %}
                         </div>

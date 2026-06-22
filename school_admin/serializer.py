@@ -64,13 +64,45 @@ class UserResponseSerializer(serializers.ModelSerializer):
     school_name = serializers.SerializerMethodField()
     date_of_birth = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
+    pincode = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'first_name', 'last_name','date_of_birth', 'role', 'city', 'state', 'phone_number', 'school_name']
+        fields = ['id', 'email', 'first_name', 'last_name','date_of_birth', 'role', 'city', 'state','pincode', 'phone_number', 'school_name']
 
     def get_date_of_birth(self, obj):
-        return obj.date_of_birth if hasattr(obj, "date_of_birth") else ""
+        if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
+            return ""
+        if hasattr(obj, 'school_profile'):
+            return getattr(obj.school_profile, 'dob', "")
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.school_user:
+            return getattr(obj.teacher_profile.school_user, 'dob', "")
+        if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
+            return getattr(obj.student_profile.school_user, 'dob', "")
+            
+        from .models import SchoolUser
+        school_user = SchoolUser.objects.filter(email=obj.email).first()
+        if school_user:
+            return getattr(school_user, 'dob', "")
+            
+        return ""
+
+    def get_pincode(self, obj):
+        if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
+            return ""
+        if hasattr(obj, 'school_profile'):
+            return getattr(obj.school_profile, 'pincode', "")
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.school_user:
+            return getattr(obj.teacher_profile.school_user, 'pincode', "")
+        if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
+            return getattr(obj.student_profile.school_user, 'pincode', "")
+            
+        from .models import SchoolUser
+        school_user = SchoolUser.objects.filter(email=obj.email).first()
+        if school_user:
+            return getattr(school_user, 'pincode', "")
+            
+        return ""
 
     def get_city(self, obj):
         if getattr(obj, 'is_superuser', False) or getattr(obj, 'role', '') == 'SUPER ADMIN':
