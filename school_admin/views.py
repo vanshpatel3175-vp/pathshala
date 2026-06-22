@@ -734,40 +734,104 @@ def school_others_view(request):
             name = request.POST.get('name', '').strip()
             email = request.POST.get('email', '').strip()
             role = request.POST.get('role', '').strip()
+            password = request.POST.get('password', '').strip()
             if role == 'custom':
                 role = request.POST.get('custom_role', '').strip()
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
             
-            if name and email and role and branch_id:
+            if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                staff.name = name
-                staff.email = email
-                staff.role = role
                 staff.branch = branch
                 staff.status = status
+                staff.role = role
+                if staff.school_user:
+                    staff.name = staff.school_user.full_name
+                    staff.email = staff.school_user.email
+                else:
+                    if name:
+                        staff.name = name
+                    if email:
+                        staff.email = email
+                if password:
+                    from django.contrib.auth.hashers import make_password as hash_pw
+                    staff.password = hash_pw(password)
+                    user_obj = User.objects.filter(email=staff.email).first()
+                    if user_obj:
+                        user_obj.set_password(password)
+                        user_obj.save()
                 staff.save()
-                messages.success(request, f"Staff member '{name}' updated successfully.")
+                messages.success(request, f"Staff member '{staff.name}' updated successfully.")
             return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
         else:
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
+            school_user_id = request.POST.get('school_user_id', '').strip()
+            password = request.POST.get('password', '').strip()
+            branch_id = request.POST.get('branch_id', '').strip()
             role = request.POST.get('role', '').strip()
             if role == 'custom':
                 role = request.POST.get('custom_role', '').strip()
-            branch_id = request.POST.get('branch_id')
             
-            if name and email and role and branch_id:
-                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                StaffMember.objects.create(
-                    branch=branch,
-                    name=name,
-                    email=email,
-                    role=role,
-                    status='active'
-                )
-                messages.success(request, f"Staff member '{name}' added successfully.")
+            if not school_user_id:
+                messages.error(request, "Please search and select a user by email first.")
                 return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            
+            if not password:
+                messages.error(request, "Password is required.")
+                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            
+            if not branch_id:
+                messages.error(request, "Please assign a school (branch).")
+                return redirect(reverse('school_others'))
+            
+            school_user = get_object_or_404(SchoolUser, id=school_user_id, institution=inst)
+            branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+            
+            # Enforce unique staff (prevent registering the same SchoolUser twice)
+            if StaffMember.objects.filter(school_user=school_user).exists():
+                messages.error(request, f"'{school_user.full_name}' is already registered as a staff member.")
+                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            
+            # Find or create User
+            user = None
+            existing_user = User.objects.filter(email=school_user.email, first_name=school_user.first_name, last_name=school_user.last_name).first()
+            if existing_user:
+                user = existing_user
+                if password:
+                    user.set_password(password)
+                    user.save()
+            else:
+                base_username = school_user.email
+                username = base_username
+                if User.objects.filter(username=username).exists():
+                    username = f"{base_username.split('@')[0]}_{school_user.id}@{base_username.split('@')[1]}" if '@' in base_username else f"{base_username}_{school_user.id}"
+                
+                user_role = 'SCHOOL STAFF'
+                if role.upper() == 'TEACHER':
+                    user_role = 'TEACHER'
+                elif role.upper() == 'STUDENT':
+                    user_role = 'STUDENT'
+                    
+                user = User.objects.create_user(
+                    username=username,
+                    email=school_user.email,
+                    password=password,
+                    first_name=school_user.first_name,
+                    last_name=school_user.last_name,
+                    role=user_role
+                )
+            
+            from django.contrib.auth.hashers import make_password as hash_pw
+            StaffMember.objects.create(
+                branch=branch,
+                school_user=school_user,
+                name=school_user.full_name,
+                email=school_user.email,
+                password=hash_pw(password),
+                role=role,
+                status='active'
+            )
+            messages.success(request, f"Staff member '{school_user.full_name}' registered successfully!")
+            return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
     selected_branch_ids = []
     if branch_filter_id:
@@ -1276,6 +1340,9 @@ def school_user_lookup_api(request):
     existing_student_user_ids = set(
         Student.objects.filter(branch__institution=inst, school_user__isnull=False).values_list('school_user_id', flat=True)
     )
+    existing_staff_user_ids = set(
+        StaffMember.objects.filter(branch__institution=inst, school_user__isnull=False).values_list('school_user_id', flat=True)
+    )
 
     qs = SchoolUser.objects.filter(institution=inst).filter(
         db_models.Q(first_name__icontains=q) |
@@ -1293,6 +1360,7 @@ def school_user_lookup_api(request):
             'email': su.email,
             'is_teacher': su.id in existing_teacher_user_ids,
             'is_student': su.id in existing_student_user_ids,
+            'is_staff': su.id in existing_staff_user_ids,
         })
 
     return JsonResponse({'results': results})

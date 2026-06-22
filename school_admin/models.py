@@ -101,8 +101,10 @@ class StaffMember(models.Model):
         ('inactive', 'Inactive'),
     ]
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='staff_members')
+    school_user = models.OneToOneField(SchoolUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='staff_role')
     name = models.CharField(max_length=255)
     email = models.EmailField()
+    password = models.CharField(max_length=255, blank=True, null=True)
     role = models.CharField(max_length=100) # e.g. "Student", "Principal", "Teacher"
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
 
