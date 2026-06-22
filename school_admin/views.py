@@ -1177,6 +1177,9 @@ def school_users_view(request):
             mobile_number = request.POST.get('mobile_number', '').strip()
 
             if first_name and last_name:
+                old_first_name = su.first_name
+                old_last_name = su.last_name
+
                 su.first_name = first_name
                 su.last_name = last_name
                 su.dob = dob
@@ -1201,8 +1204,28 @@ def school_users_view(request):
                     user_needs_sync = True
                     
                 if user_needs_sync:
-                    user = User.objects.filter(email=su.email).first()
-                    if user:
+                    users_to_sync = []
+                    if hasattr(su, 'teacher_role') and su.teacher_role:
+                        try:
+                            if hasattr(su.teacher_role, 'profile') and su.teacher_role.profile and su.teacher_role.profile.user:
+                                users_to_sync.append(su.teacher_role.profile.user)
+                        except Exception:
+                            pass
+                    if hasattr(su, 'student_role') and su.student_role:
+                        try:
+                            if hasattr(su.student_role, 'profile') and su.student_role.profile and su.student_role.profile.user:
+                                users_to_sync.append(su.student_role.profile.user)
+                        except Exception:
+                            pass
+
+                    if not users_to_sync:
+                        users_to_sync = list(User.objects.filter(
+                            email=su.email,
+                            first_name=old_first_name,
+                            last_name=old_last_name
+                        ))
+
+                    for user in users_to_sync:
                         user.first_name = first_name
                         user.last_name = last_name
                         user.save()
