@@ -369,11 +369,21 @@
                             class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
                             style="font-size: 0.7rem;">{{ student.status|title }}</span>
                     </td>
-                    <td style="text-align: right;">
-                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                            onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}')">
-                            <i class="fa-solid fa-user-pen"></i> edit
-                        </button>
+                    <td style="text-align: right; vertical-align: middle;">
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}')">
+                                <i class="fa-solid fa-user-pen"></i> edit
+                            </button>
+                            <form method="POST" style="margin: 0; display: flex; align-items: center;" onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #ff6b6b; border-color: rgba(255,107,107,0.2); background-color: rgba(255,107,107,0.05); height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <i class="fa-solid fa-trash"></i> delete
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}

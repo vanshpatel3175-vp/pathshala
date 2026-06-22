@@ -484,6 +484,13 @@ def school_students_view(request):
                 student.save()
                 messages.success(request, f"Student '{student.name}' updated successfully.")
             return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+        elif action == 'delete':
+            student_id = request.POST.get('student_id')
+            student = get_object_or_404(Student, id=student_id, branch__in=branches)
+            student_name = student.name
+            student.delete()
+            messages.success(request, f"Student '{student_name}' deleted successfully.")
+            return redirect(f"{reverse('school_students')}?branch_id={branch_filter_id}")
         else:  # add action
             school_user_id = request.POST.get('school_user_id', '').strip()
             password = request.POST.get('password', '').strip()
@@ -617,6 +624,13 @@ def school_teachers_view(request):
                     
                 messages.success(request, f"Teacher '{teacher.name}' updated successfully.")
             return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
+        elif action == 'delete':
+            teacher_id = request.POST.get('teacher_id')
+            teacher = get_object_or_404(Teacher, id=teacher_id, branch__in=branches)
+            teacher_name = teacher.name
+            teacher.delete()
+            messages.success(request, f"Teacher '{teacher_name}' deleted successfully.")
+            return redirect(f"{reverse('school_teachers')}?branch_id={branch_filter_id}")
 
         else:  # add action
             school_user_id = request.POST.get('school_user_id', '').strip()
