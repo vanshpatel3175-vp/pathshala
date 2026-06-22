@@ -433,6 +433,7 @@ class LegacyLoginUserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
     city = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
+    address = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -445,6 +446,7 @@ class LegacyLoginUserSerializer(serializers.ModelSerializer):
             'role',
             'city',
             'state',
+            'address',
             'phone_number',
             'school_name'
         ]
@@ -504,4 +506,13 @@ class LegacyLoginUserSerializer(serializers.ModelSerializer):
             return obj.teacher_profile.school_user.state
         if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
             return obj.student_profile.school_user.state
-        return ""
+        return ""
+    
+    def get_address(self, obj):
+        if hasattr(obj, 'school_profile'):
+            return obj.school_profile.address
+        if hasattr(obj, 'teacher_profile') and obj.teacher_profile.school_user:
+            return obj.teacher_profile.school_user.address
+        if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
+            return obj.student_profile.school_user.address
+        return ""
