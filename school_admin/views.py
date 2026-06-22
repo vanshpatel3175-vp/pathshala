@@ -762,7 +762,14 @@ def school_others_view(request):
                         user_obj.save()
                 staff.save()
                 messages.success(request, f"Staff member '{staff.name}' updated successfully.")
-            return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            return redirect(f"{reverse('school_others')}?branch_id={branch_filter_id}")
+        elif action == 'delete':
+            staff_id = request.POST.get('staff_id')
+            staff = get_object_or_404(StaffMember, id=staff_id, branch__in=branches)
+            staff_name = staff.name
+            staff.delete()
+            messages.success(request, f"Staff member '{staff_name}' deleted successfully.")
+            return redirect(f"{reverse('school_others')}?branch_id={branch_filter_id}")
         else:
             school_user_id = request.POST.get('school_user_id', '').strip()
             password = request.POST.get('password', '').strip()

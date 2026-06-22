@@ -201,8 +201,7 @@
     <!-- Active Filters & Count Display -->
     <div class="directory-filter-row" style="margin-bottom: 15px; justify-content: flex-end; padding: 0 10px;">
         <div style="font-size: 0.85rem; color: var(--text-secondary);">
-            Showing <span id="visible-count" style="font-weight: 700; color: var(--text-primary);">{{ others|length
-                }}</span> of <span style="font-weight: 700; color: var(--text-primary);">{{ others|length }}</span>
+            Showing <span id="visible-count" style="font-weight: 700; color: var(--text-primary);">{{ others|length         }}</span> of <span style="font-weight: 700; color: var(--text-primary);">{{ others|length }}</span>
             staff
         </div>
     </div>
@@ -226,8 +225,7 @@
                                         Branches</div>
                                     {% for b in branches %}
                                     <div class="th-filter-option" data-value="{{ b.id }}"
-                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">{{
-                                        b.name }}</div>
+                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStaffFilters')">{{                     b.name }}</div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -255,8 +253,7 @@
                                     </div>
                                     {% for cr in custom_roles %}
                                     <div class="th-filter-option" data-value="{{ cr.name }}"
-                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">{{
-                                        cr.name }}</div>
+                                        onclick="selectHeaderFilter(this, 'filter-role', 'applyStaffFilters')">{{                     cr.name }}</div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -299,8 +296,7 @@
                                 {{ staff.name|first|upper }}
                             </div>
                             <div>
-                                <p style="font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.2;">{{
-                                    staff.name }}</p>
+                                <p style="font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.2;">{{                   staff.name }}</p>
                                 <p
                                     style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
                                     {{ staff.email }}
@@ -326,8 +322,7 @@
                                     <div class="hover-card-details">
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Staff ID</span>
-                                            <span class="hover-card-detail-value">#STF-{{ staff.id|stringformat:"04d"
-                                                }}</span>
+                                            <span class="hover-card-detail-value">#STF-{{ staff.id|stringformat:"04d"                         }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Email</span>
@@ -345,8 +340,7 @@
                                             <span class="hover-card-detail-label">Status</span>
                                             <span class="hover-card-detail-value">
                                                 <span class="badge badge-validated"
-                                                    style="font-size: 0.65rem; padding: 2px 8px;">{{ staff.status
-                                                    }}</span>
+                                                    style="font-size: 0.65rem; padding: 2px 8px;">{{ staff.status                           }}</span>
                                             </span>
                                         </div>
                                     </div>
@@ -366,11 +360,21 @@
                     <td>
                         <span class="badge badge-validated" style="font-size: 0.7rem;">{{ staff.status }}</span>
                     </td>
-                    <td style="text-align: right;">
-                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                            onclick="openEditStaffCard('{{ staff.id }}', '{{ staff.name|escapejs }}', '{{ staff.email|escapejs }}', '{{ staff.role|escapejs }}', '{{ staff.branch.id }}', '{{ staff.status }}')">
-                            <i class="fa-solid fa-user-pen"></i> edit
-                        </button>
+                    <td style="text-align: right; vertical-align: middle;">
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+                                onclick="openEditStaffCard('{{ staff.id }}', '{{ staff.name|escapejs }}', '{{ staff.email|escapejs }}', '{{ staff.role|escapejs }}', '{{ staff.branch.id }}', '{{ staff.status }}')">
+                                <i class="fa-solid fa-user-pen"></i> edit
+                            </button>
+                            <form method="POST" style="margin: 0; display: flex; align-items: center;" onsubmit="return confirm('Are you sure you want to delete this staff member?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="staff_id" value="{{ staff.id }}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #ff6b6b; border-color: rgba(255,107,107,0.2); background-color: rgba(255,107,107,0.05); height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <i class="fa-solid fa-trash"></i> delete
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
