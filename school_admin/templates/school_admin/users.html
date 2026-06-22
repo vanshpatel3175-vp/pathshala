@@ -310,7 +310,7 @@
                         <div style="display: flex; flex-direction: column; gap: 6px; align-items: stretch;">
                             <button class="btn btn-secondary"
                                 style="width: 100%; padding: 4px 8px; font-size: 0.7rem; display: flex; justify-content: center;"
-                                onclick="openEditUserCard('{{ su.id }}', '{{ su.first_name|escapejs }}', '{{ su.last_name|escapejs }}', '{{ su.dob|default:'' }}', '{{ su.city|escapejs }}', '{{ su.state|escapejs }}', '{{ su.address|escapejs }}', '{{ su.pincode|escapejs }}', '{{ su.mobile_number|default:'' }}')">
+                                onclick="openEditUserCard('{{ su.id }}', '{{ su.first_name|escapejs }}', '{{ su.last_name|escapejs }}', '{{ su.email|escapejs }}', '{{ su.dob|default:'' }}', '{{ su.city|escapejs }}', '{{ su.state|escapejs }}', '{{ su.address|escapejs }}', '{{ su.pincode|escapejs }}', '{{ su.mobile_number|default:'' }}')">
                                 <span><i class="fa-solid fa-user-pen"></i> Edit</span>
                             </button>
                             <form method="POST" action="{% url 'school_users' %}"
@@ -371,6 +371,11 @@
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
+                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Email Address *</label>
+                <input type="email" id="edit_email" name="email" class="form-control" required
+                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Date of Birth</label>
                 <input type="date" id="edit_dob" name="dob" class="form-control"
                     style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
@@ -413,10 +418,11 @@
 </div>
 
 <script>
-    function openEditUserCard(id, firstName, lastName, dob, city, state, address, pincode, mobileNumber) {
+    function openEditUserCard(id, firstName, lastName, email, dob, city, state, address, pincode, mobileNumber) {
         document.getElementById('edit_user_id').value = id;
         document.getElementById('edit_first_name').value = firstName;
         document.getElementById('edit_last_name').value = lastName;
+        document.getElementById('edit_email').value = email;
         document.getElementById('edit_dob').value = dob;
         document.getElementById('edit_city').value = city;
         document.getElementById('edit_state').value = state;

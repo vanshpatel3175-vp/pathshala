@@ -476,11 +476,23 @@ def school_students_view(request):
             student = get_object_or_404(Student, id=student_id, branch__in=branches)
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
+            class_id = request.POST.get('school_class_id', '').strip()
             
             if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
                 student.branch = branch
                 student.status = status
+                
+                # Update school class
+                if class_id:
+                    try:
+                        school_class_obj = SchoolClass.objects.get(id=class_id, branch=branch)
+                        student.school_class = school_class_obj
+                    except SchoolClass.DoesNotExist:
+                        student.school_class = None
+                else:
+                    student.school_class = None
+                    
                 student.save()
                 messages.success(request, f"Student '{student.name}' updated successfully.")
             return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
@@ -1259,6 +1271,7 @@ def school_users_view(request):
             su = get_object_or_404(SchoolUser, id=user_id, institution=inst)
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
+            email = request.POST.get('email', '').strip()
             dob = request.POST.get('dob', '').strip() or None
             city = request.POST.get('city', '').strip()
             state = request.POST.get('state', '').strip()
@@ -1266,9 +1279,15 @@ def school_users_view(request):
             pincode = request.POST.get('pincode', '').strip()
             mobile_number = request.POST.get('mobile_number', '').strip()
 
-            if first_name and last_name:
+            if first_name and last_name and email:
+                if email != su.email and SchoolUser.objects.filter(email=email).exclude(id=su.id).exists():
+                    messages.error(request, "A user with this email already exists.")
+                    return redirect('school_users')
+                    
+                old_email = su.email
                 su.first_name = first_name
                 su.last_name = last_name
+                su.email = email
                 su.dob = dob
                 su.city = city
                 su.state = state
@@ -1277,25 +1296,35 @@ def school_users_view(request):
                 su.mobile_number = mobile_number
                 su.save()
 
-                # Sync name changes to Teacher, Student, and User if the user is registered
+                # Sync name and email changes to Teacher, Student, and User if the user is registered
                 user_needs_sync = False
                 if hasattr(su, 'teacher_role') and su.teacher_role:
                     teacher = su.teacher_role
                     teacher.name = su.full_name
+                    teacher.email = su.email
                     teacher.save()
                     user_needs_sync = True
                 if hasattr(su, 'student_role') and su.student_role:
                     student = su.student_role
                     student.name = su.full_name
+                    student.email = su.email
                     student.save()
                     user_needs_sync = True
+                if hasattr(su, 'staff_role') and su.staff_role:
+                    staff = su.staff_role
+                    staff.name = su.full_name
+                    staff.email = su.email
+                    staff.save()
+                    user_needs_sync = True
                     
-                if user_needs_sync:
-                    user = User.objects.filter(email=su.email).first()
-                    if user:
-                        user.first_name = first_name
-                        user.last_name = last_name
-                        user.save()
+                user = User.objects.filter(email=old_email).first()
+                if user:
+                    user.first_name = first_name
+                    user.last_name = last_name
+                    user.email = email
+                    if user.username == old_email:
+                        user.username = email
+                    user.save()
 
                 messages.success(request, f"User '{su.full_name}' updated successfully.")
             return redirect('school_users')
