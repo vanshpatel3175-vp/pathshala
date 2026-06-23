@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    email = models.EmailField(primary_key=True)
+    email = models.EmailField(unique=True)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     mobile_no = models.CharField(max_length=15, blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
@@ -17,10 +17,6 @@ class User(AbstractUser):
 
     class Meta:
         db_table = 'auth_user'
-
-    @property
-    def id(self):
-        return self.email
 
     @property
     def role(self):
