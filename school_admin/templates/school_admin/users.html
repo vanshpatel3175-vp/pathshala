@@ -43,17 +43,21 @@
     <form method="POST" action="{% url 'school_users' %}">
         {% csrf_token %}
         <div style="display: flex; flex-direction: column; gap: 16px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">First Name *</label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="Vansh"
-                        required
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                    <input type="text" id="first_name" name="first_name" class="form-control" placeholder="First Name" required
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Middle Name</label>
+                    <input type="text" name="middle_name" class="form-control" placeholder="Middle Name"
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Last Name *</label>
-                    <input type="text" name="last_name" class="form-control" placeholder="Patel" required
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                    <input type="text" name="last_name" class="form-control" placeholder="Last Name" required
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
                 </div>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
@@ -61,50 +65,18 @@
                         style="color: var(--text-muted); font-size: 0.75rem;">(must be unique)</span></label>
                 <input type="email" name="email" class="form-control" placeholder="vansh@gmail.com" required
                     autocomplete="off"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Date of Birth</label>
-                <input type="date" name="dob" class="form-control"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Gender</label>
-                <select name="gender" class="form-control"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); appearance: none; cursor: pointer;">
-                    <option value="" disabled selected>Select Gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                    <option value="O">Other</option>
-                </select>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">City</label>
-                    <input type="text" name="city" class="form-control" placeholder="Navsari"
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">State</label>
-                    <input type="text" name="state" class="form-control" placeholder="Gujarat"
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Address</label>
-                <textarea name="address" class="form-control" placeholder="Full address..." rows="2"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); resize: vertical;"></textarea>
+                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Mobile Number</label>
-                <input type="number" name="mobile_number" class="form-control" placeholder="9999999999" style=""
-                    required>
+                <input type="number" name="mobile_number" class="form-control" placeholder="9999999999" required
+                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
             </div>
-
             <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Pincode</label>
-                <input type="text" name="pincode" class="form-control" placeholder="396445" maxlength="10"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Password *</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required
+                    autocomplete="new-password"
+                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
             </div>
         </div>
         <div style="margin-top: 22px;">
@@ -302,7 +274,7 @@
                         <div style="display: flex; flex-direction: column; gap: 6px; align-items: stretch;">
                             <button class="btn btn-secondary"
                                 style="width: 100%; padding: 4px 8px; font-size: 0.7rem; display: flex; justify-content: center;"
-                                onclick="openEditUserCard('{{ su.id }}', '{{ su.first_name|escapejs }}', '{{ su.last_name|escapejs }}', '{{ su.dob|default:'' }}', '{{ su.city|escapejs }}', '{{ su.state|escapejs }}', '{{ su.address|escapejs }}', '{{ su.pincode|escapejs }}', '{{ su.mobile_number|default:'' }}')">
+                                onclick="openEditUserCard('{{ su.id }}', '{{ su.first_name|escapejs }}', '{{ su.middle_name|default:''|escapejs }}', '{{ su.last_name|escapejs }}', '{{ su.mobile_number|default:'' }}')">
                                 <span><i class="fa-solid fa-user-pen"></i> Edit</span>
                             </button>
                             <form method="POST" action="{% url 'school_users' %}"
@@ -350,50 +322,28 @@
         <input type="hidden" name="action" value="edit">
         <input type="hidden" id="edit_user_id" name="user_id">
         <div style="display: flex; flex-direction: column; gap: 16px;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;">
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">First Name *</label>
                     <input type="text" id="edit_first_name" name="first_name" class="form-control" required
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Middle Name</label>
+                    <input type="text" id="edit_middle_name" name="middle_name" class="form-control"
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
                     <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Last Name *</label>
                     <input type="text" id="edit_last_name" name="last_name" class="form-control" required
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
                 </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Date of Birth</label>
-                <input type="date" id="edit_dob" name="dob" class="form-control"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">City</label>
-                    <input type="text" id="edit_city" name="city" class="form-control"
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">State</label>
-                    <input type="text" id="edit_state" name="state" class="form-control"
-                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                </div>
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Address</label>
-                <textarea id="edit_address" name="address" class="form-control" rows="2"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); resize: vertical;"></textarea>
             </div>
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Mobile Number</label>
                 <input type="number" id="edit_mobile_number" name="mobile_number" class="form-control"
                     placeholder="9999999999" required
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-            </div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.8rem;">Pincode</label>
-                <input type="text" id="edit_pincode" name="pincode" class="form-control" maxlength="10"
-                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                    style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
             </div>
         </div>
         <div style="margin-top: 22px;">
@@ -405,15 +355,11 @@
 </div>
 
 <script>
-    function openEditUserCard(id, firstName, lastName, dob, city, state, address, pincode, mobileNumber) {
+    function openEditUserCard(id, firstName, middleName, lastName, mobileNumber) {
         document.getElementById('edit_user_id').value = id;
         document.getElementById('edit_first_name').value = firstName;
+        document.getElementById('edit_middle_name').value = middleName;
         document.getElementById('edit_last_name').value = lastName;
-        document.getElementById('edit_dob').value = dob;
-        document.getElementById('edit_city').value = city;
-        document.getElementById('edit_state').value = state;
-        document.getElementById('edit_address').value = address;
-        document.getElementById('edit_pincode').value = pincode;
         document.getElementById('edit_mobile_number').value = mobileNumber;
         openDrawer('edit-user-card', 'edit_first_name');
     }

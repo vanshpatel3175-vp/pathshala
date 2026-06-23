@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from super_admin.models import Institution
-from school_admin.models import Branch, Teacher, Student, SchoolUser
+from school_admin.models import Branch, Teacher, Student
 from teacher.models import TeacherProfile
 from student.models import StudentProfile
 
@@ -24,29 +24,25 @@ class StudentPortalTests(TestCase):
             city="Navsari",
             status="active"
         )
-        # Create SchoolUser for Student
-        self.su_student = SchoolUser.objects.create(
-            institution=self.institution,
-            first_name="Jane",
-            last_name="Doe",
-            email="jane.doe@testschool.com"
-        )
-        # Create Student Directory Record
-        self.student_record = Student.objects.create(
-            branch=self.branch,
-            school_user=self.su_student,
-            name=self.su_student.full_name,
-            email=self.su_student.email,
-            status="active"
-        )
         # Create auth User for Student
         self.student_user = User.objects.create_user(
-            username=self.su_student.email,
-            email=self.su_student.email,
+            username="jane.doe@testschool.com",
+            email="jane.doe@testschool.com",
             password="studentpassword",
-            first_name=self.su_student.first_name,
-            last_name=self.su_student.last_name,
-            role="STUDENT"
+            first_name="Jane",
+            last_name="Doe"
+        )
+        from super_admin.models import Role, SchoolRole
+        role_obj, _ = Role.objects.get_or_create(role_name='STUDENT')
+        school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=self.institution)
+        # Create Student Directory Record
+        self.student_record = Student.objects.create(
+            user=self.student_user,
+            school_role=school_role,
+            branch=self.branch,
+            name="Jane Doe",
+            email="jane.doe@testschool.com",
+            status="active"
         )
         # Create StudentProfile
         self.student_profile = StudentProfile.objects.create(
@@ -111,27 +107,26 @@ class DualRolePortalTests(TestCase):
             city="Navsari",
             status="active"
         )
-        self.su_dual = SchoolUser.objects.create(
-            institution=self.institution,
-            first_name="Dual",
-            last_name="User",
-            email="dual@testschool.com"
-        )
         # Create auth User
         self.user = User.objects.create_user(
-            username=self.su_dual.email,
-            email=self.su_dual.email,
+            username="dual@testschool.com",
+            email="dual@testschool.com",
             password="dualpassword",
-            first_name=self.su_dual.first_name,
-            last_name=self.su_dual.last_name,
-            role="TEACHER" # Primary field doesn't restrict dual-profiles
+            first_name="Dual",
+            last_name="User"
         )
+        from super_admin.models import Role, SchoolRole
+        teacher_role_obj, _ = Role.objects.get_or_create(role_name='TEACHER')
+        teacher_school_role, _ = SchoolRole.objects.get_or_create(role=teacher_role_obj, school=self.institution)
+        student_role_obj, _ = Role.objects.get_or_create(role_name='STUDENT')
+        student_school_role, _ = SchoolRole.objects.get_or_create(role=student_role_obj, school=self.institution)
         # Create Teacher Record and Profile
         self.teacher_record = Teacher.objects.create(
+            user=self.user,
+            school_role=teacher_school_role,
             branch=self.branch,
-            school_user=self.su_dual,
-            name=self.su_dual.full_name,
-            email=self.su_dual.email,
+            name="Dual User",
+            email="dual@testschool.com",
             status="active"
         )
         self.teacher_profile = TeacherProfile.objects.create(
@@ -140,10 +135,11 @@ class DualRolePortalTests(TestCase):
         )
         # Create Student Record and Profile
         self.student_record = Student.objects.create(
+            user=self.user,
+            school_role=student_school_role,
             branch=self.branch,
-            school_user=self.su_dual,
-            name=self.su_dual.full_name,
-            email=self.su_dual.email,
+            name="Dual User",
+            email="dual@testschool.com",
             status="active"
         )
         self.student_profile = StudentProfile.objects.create(

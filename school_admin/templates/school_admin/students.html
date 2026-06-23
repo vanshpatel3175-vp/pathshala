@@ -90,53 +90,144 @@
             </p>
             <div
                 style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
                     <div>
                         <p
                             style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
                             First Name</p>
-                        <input type="text" id="display_first_name" class="form-control" readonly
-                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                        <input type="text" id="display_first_name" name="first_name" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;">
+                    </div>
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Middle Name</p>
+                        <input type="text" id="display_middle_name" name="middle_name" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;">
                     </div>
                     <div>
                         <p
                             style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
                             Last Name</p>
-                        <input type="text" id="display_last_name" class="form-control" readonly
-                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                        <input type="text" id="display_last_name" name="last_name" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;">
                     </div>
                 </div>
-                <div>
-                    <p
-                        style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
-                        Email</p>
-                    <input type="text" id="display_email" class="form-control" readonly
-                        style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Email</p>
+                        <input type="text" id="display_email" class="form-control" readonly
+                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                    </div>
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Mobile Number *</p>
+                        <input type="text" id="register_mobile_no" name="mobile_no" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;" required>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Password -->
-        <div id="student-password-section" style="display: none; margin-bottom: 18px;">
+
+
+        <!-- Step 4: Additional Details -->
+        <div id="student-additional-section" style="display: none; margin-bottom: 18px;">
             <p
                 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
-                <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Step 3 — Set Login Password
+                <i class="fa-solid fa-address-card" style="margin-right: 6px;"></i> Step 4 — Student Profile Details
             </p>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Password <span
-                        style="color: var(--color-danger);">*</span></label>
-                <input type="password" id="student_password" name="password" class="form-control" placeholder="••••••••"
-                    autocomplete="new-password"
-                    style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">Student will use this password
-                    to login.</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Date of Birth</label>
+                        <input type="date" name="date_of_birth" class="form-control"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Pincode</label>
+                        <input type="text" name="pincode" class="form-control" placeholder="396445" maxlength="10"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">UID No</label>
+                        <input type="text" name="uid_no" class="form-control" placeholder="UID No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Roll No</label>
+                        <input type="text" name="roll_no" class="form-control" placeholder="Roll No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">GRNO</label>
+                        <input type="text" name="grno" class="form-control" placeholder="GRNO"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">City</label>
+                        <input type="text" name="city" class="form-control" placeholder="Navsari"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">State</label>
+                        <input type="text" name="state" class="form-control" value="Gujarat" placeholder="Gujarat"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div>
+                    <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Address</label>
+                    <textarea name="address" class="form-control" placeholder="Full address..." rows="2"
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); resize: vertical; width: 100%;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Parent & Guardian Details -->
+        <div id="student-parents-section" style="display: none; margin-bottom: 18px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-people-roof" style="margin-right: 6px;"></i> Step 5 — Parent &amp; Guardian Details
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Parent Full Name</label>
+                        <input type="text" name="parent_full_name" class="form-control" placeholder="Parent Name"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Parent Mobile No</label>
+                        <input type="text" id="register_parent_mobile_no" name="parent_mobile_no" class="form-control" placeholder="Parent Mobile No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Guardian Name</label>
+                        <input type="text" name="gardian_name" class="form-control" placeholder="Guardian Name"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Guardian Mobile No</label>
+                        <input type="text" id="register_gardian_mobile_no" name="gardian_mobile_no" class="form-control" placeholder="Guardian Mobile No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="student-school-section" style="display: none; margin-bottom: 18px;">
             <p
                 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
-                <i class="fa-solid fa-school" style="margin-right: 6px;"></i> Step 4 — Assign School (Branch)
+                <i class="fa-solid fa-school" style="margin-right: 6px;"></i> Step 6 — Assign School (Branch)
             </p>
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Assign School (Branch) <span
@@ -157,11 +248,11 @@
             </div>
         </div>
 
-        <!-- Step 5: Class & Section -->
+        <!-- Step 7: Class & Section -->
         <div id="student-class-section" style="display: none; margin-bottom: 18px;">
             <p
                 style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
-                <i class="fa-solid fa-chalkboard" style="margin-right: 6px;"></i> Step 5 — Assign Class &amp; Section
+                <i class="fa-solid fa-chalkboard" style="margin-right: 6px;"></i> Step 7 — Assign Class &amp; Section
             </p>
             <div class="form-group" style="margin-bottom: 0;">
                 <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Class &amp; Section <span
@@ -323,6 +414,14 @@
                                             <span class="hover-card-detail-label">Roll Number</span>
                                             <span class="hover-card-detail-value">{{ student.roll_number|default:"—"
                                                 }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">UID Number</span>
+                                            <span class="hover-card-detail-value">{{ student.uid_no|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">GR Number</span>
+                                            <span class="hover-card-detail-value">{{ student.grno|default:"—" }}</span>
                                         </div>
                                         <div class="hover-card-detail-item">
                                             <span class="hover-card-detail-label">Class</span>
@@ -511,7 +610,7 @@
             const alreadyStudent = u.is_student;
             return `
                 <div class="user-dropdown-item"
-                    onclick="${alreadyStudent ? 'void(0)' : `selectUser(${u.id}, '${escapeJs(u.first_name)}', '${escapeJs(u.last_name)}', '${escapeJs(u.email)}')`}"
+                    onclick="${alreadyStudent ? 'void(0)' : `selectUser(${u.id}, '${escapeJs(u.first_name)}', '${escapeJs(u.middle_name)}', '${escapeJs(u.last_name)}', '${escapeJs(u.email)}', '${escapeJs(u.mobile_no)}')`}"
                     style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: ${alreadyStudent ? 'not-allowed' : 'pointer'};
                         opacity: ${alreadyStudent ? '0.5' : '1'};
                         transition: background 0.15s ease;
@@ -541,14 +640,16 @@
         dropdown.style.display = 'none';
     }
 
-    function selectUser(id, firstName, lastName, email) {
+    function selectUser(id, firstName, middleName, lastName, email, mobileNo) {
         document.getElementById('school_user_id').value = id;
         searchInput.value = `${firstName} ${lastName} (${email})`;
         searchInput.style.borderColor = 'var(--color-success)';
         hideDropdown();
         document.getElementById('display_first_name').value = firstName;
+        document.getElementById('display_middle_name').value = middleName;
         document.getElementById('display_last_name').value = lastName;
         document.getElementById('display_email').value = email;
+        document.getElementById('register_mobile_no').value = mobileNo;
         showStudentForm();
         // Trigger class loading for currently selected branch
         const branchSel = document.getElementById('register_branch_id');
@@ -570,7 +671,8 @@
 
     function showStudentForm() {
         document.getElementById('student-info-section').style.display = 'block';
-        document.getElementById('student-password-section').style.display = 'block';
+        document.getElementById('student-additional-section').style.display = 'block';
+        document.getElementById('student-parents-section').style.display = 'block';
         document.getElementById('student-school-section').style.display = 'block';
         document.getElementById('student-class-section').style.display = 'block';
         document.getElementById('student-submit-section').style.display = 'block';
@@ -581,11 +683,29 @@
         document.getElementById('school_user_id').value = '';
         searchInput.style.borderColor = '';
         document.getElementById('student-info-section').style.display = 'none';
-        document.getElementById('student-password-section').style.display = 'none';
+        document.getElementById('student-additional-section').style.display = 'none';
+        document.getElementById('student-parents-section').style.display = 'none';
         document.getElementById('student-school-section').style.display = 'none';
         document.getElementById('student-class-section').style.display = 'none';
         document.getElementById('student-submit-section').style.display = 'none';
         statusEl.style.display = 'none';
+    }
+
+    // Add submit validation for mobile numbers
+    const registerStudentForm = document.getElementById('registerStudentForm');
+    if (registerStudentForm) {
+        registerStudentForm.addEventListener('submit', function (e) {
+            const mobileNo = document.getElementById('register_mobile_no').value.trim();
+            const parentMobileNo = document.getElementById('register_parent_mobile_no').value.trim();
+            const guardianMobileNo = document.getElementById('register_gardian_mobile_no').value.trim();
+
+            if (guardianMobileNo) {
+                if (guardianMobileNo === mobileNo || guardianMobileNo === parentMobileNo) {
+                    e.preventDefault();
+                    alert("Guardian mobile number must be different from both student mobile number and parent mobile number.");
+                }
+            }
+        });
     }
 
     function openEditStudentCard(id, branchId, status) {

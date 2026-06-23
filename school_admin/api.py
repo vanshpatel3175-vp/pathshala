@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework import status
 from .serializer import (
-    SchoolSignupSerializer, SchoolLoginAPISerializer, LegacyLoginUserSerializer
+    SchoolSignupSerializer, SchoolLoginAPISerializer, LegacyLoginUserSerializer,
+    LoginSerializer, VerifyProfileSerializer
 )
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -129,3 +130,144 @@ class SchoolLogoutAPIView(APIView):
                     "message": str(e)
                 }
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class LoginAPIView(APIView):
+    """
+    POST /api/login/
+    Body: { "email": "...", "password": "..." }
+    Response: { email, all_roles, access_token, refresh_token }
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        if not serializer.is_valid():
+            errors = serializer.errors
+            message = "Invalid email or password."
+            if 'non_field_errors' in errors:
+                message = errors['non_field_errors'][0]
+            elif 'email' in errors:
+                message = errors['email'][0]
+            elif 'password' in errors:
+                message = errors['password'][0]
+
+            http_status = status.HTTP_400_BAD_REQUEST
+            if "Invalid email or password" in str(message):
+                http_status = status.HTTP_401_UNAUTHORIZED
+            elif "inactive" in str(message).lower():
+                http_status = status.HTTP_403_FORBIDDEN
+
+            return Response({
+                "success_key": 0,
+                "message": message
+            }, status=http_status)
+
+        user = serializer.validated_data['user']
+
+        # Collect all roles from role_profiles
+        all_roles = []
+        for rp in user.role_profiles.select_related('role', 'institution', 'branch').all():
+            all_roles.append(rp.role_name)
+
+        # Also include SCHOOL_ADMIN if user has a school_profile
+        try:
+            sp = user.school_profile
+            if sp:
+                all_roles.append('SCHOOL_ADMIN')
+        except Exception:
+            pass
+
+        # Include SUPER_ADMIN if superuser
+        if user.is_superuser:
+            all_roles.append('SUPER_ADMIN')
+
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_roles = []
+        for r in all_roles:
+            if r not in seen:
+                seen.add(r)
+                unique_roles.append(r)
+
+        # Generate JWT tokens
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "success_key": 1,
+            "message": "Login successful.",
+            "email": user.email,
+            "all_roles": unique_roles,
+            "access_token": str(refresh.access_token),
+            "refresh_token": str(refresh),
+        }, status=status.HTTP_200_OK)
+
+
+class VerifyProfileAPIView(APIView):
+    """
+    GET /api/verify/
+    Header: Authorization: Bearer <access_token>
+    Returns full profile details for every role the authenticated user holds.
+    """
+
+    def get(self, request):
+        user = request.user
+        if not user or not user.is_authenticated:
+            return Response({
+                "success_key": 0,
+                "message": "Authentication credentials were not provided or are invalid."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        profiles_data = []
+
+        # SCHOOL_ADMIN profile
+        try:
+            sp = user.school_profile
+            if sp:
+                profiles_data.append({
+                    "role": "SCHOOL_ADMIN",
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "middle_name": getattr(user, 'middle_name', "") or "",
+                    "email": user.email,
+                    "mobile_no": sp.phone or "",
+                    "institution": {"id": sp.institution.id, "name": sp.institution.name} if sp.institution else None,
+                    "branch": None,
+                    "address": None,
+                    "city": sp.city or "",
+                    "state": sp.state or "",
+                    "date_of_birth": None,
+                })
+        except Exception:
+            pass
+
+        # SUPER_ADMIN profile
+        if user.is_superuser:
+            profiles_data.append({
+                "role": "SUPER_ADMIN",
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "middle_name": getattr(user, 'middle_name', "") or "",
+                "email": user.email,
+                "mobile_no": getattr(user, 'mobile_no', "") or "",
+                "institution": None,
+                "branch": None,
+                "address": None,
+                "date_of_birth": None,
+            })
+
+        # Role-based profiles (TEACHER, STUDENT, etc.) from RoleProfile
+        role_profiles = user.role_profiles.select_related(
+            'role', 'institution', 'branch', 'address_record'
+        ).all()
+        for rp in role_profiles:
+            serialized = VerifyProfileSerializer(rp).data
+            profiles_data.append(serialized)
+
+        return Response({
+            "success_key": 1,
+            "email": user.email,
+            "user_id": user.id,
+            "profiles": profiles_data,
+        }, status=status.HTTP_200_OK)

@@ -218,13 +218,14 @@
 
         <div class="cards-grid">
             {% for tp in teacher_profiles %}
-            <div class="profile-card card-teacher" onclick="document.getElementById('form-teacher-{{ tp.user.id }}').submit()">
+            <div class="profile-card card-teacher"
+                onclick="document.getElementById('form-teacher-{{ tp.user.id }}').submit()">
                 <div class="icon-wrapper teacher-icon-wrapper">
                     <i class="fa-solid fa-chalkboard-user" style="font-size: 2.2rem;"></i>
                 </div>
                 <h3>{{ tp.teacher.name|default:"Teacher Portal" }}</h3>
-                <p class="role-subtitle teacher-role-subtitle">Registered Teacher</p>
-                
+                <p class="role-subtitle teacher-role-subtitle">Teacher Portal</p>
+
                 <div class="info-box">
                     <div class="info-item">
                         <i class="fa-solid fa-school"></i>
@@ -248,12 +249,13 @@
             {% endfor %}
 
             {% for sp in student_profiles %}
-            <div class="profile-card card-student" onclick="document.getElementById('form-student-{{ sp.user.id }}').submit()">
+            <div class="profile-card card-student"
+                onclick="document.getElementById('form-student-{{ sp.user.id }}').submit()">
                 <div class="icon-wrapper student-icon-wrapper">
                     <i class="fa-solid fa-graduation-cap" style="font-size: 2.2rem;"></i>
                 </div>
                 <h3>{{ sp.student.name|default:"Student Portal" }}</h3>
-                <p class="role-subtitle student-role-subtitle">Registered Student</p>
+                <p class="role-subtitle student-role-subtitle">Student Portal</p>
 
                 <div class="info-box">
                     <div class="info-item">
@@ -269,7 +271,8 @@
                     {% if sp.student.school_class %}
                     <div class="info-item">
                         <i class="fa-solid fa-users-viewfinder"></i>
-                        <span>Class: {{ sp.student.school_class.name }} {{ sp.student.school_class.section|default:"" }}</span>
+                        <span>Class: {{ sp.student.school_class.name }} {{ sp.student.school_class.section|default:""
+                            }}</span>
                     </div>
                     {% endif %}
                 </div>
@@ -284,7 +287,8 @@
             {% endfor %}
         </div>
 
-        <a href="{% url 'logout' %}" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+        <a href="{% url 'logout' %}"
+            style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-right-from-bracket"></i> Log out of account
         </a>
     </div>

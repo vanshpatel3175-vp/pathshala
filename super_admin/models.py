@@ -2,21 +2,79 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    ROLE_CHOICES = [
-        ('SUPER ADMIN', 'Super Admin'),
-        ('SCHOOL STAFF', 'School Staff'),
-        ('TEACHER', 'Teacher'),
-        ('STUDENT', 'Student'),
-    ]
-    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='SCHOOL STAFF')
+    email = models.EmailField(primary_key=True)
+    middle_name = models.CharField(max_length=100, blank=True, null=True)
+    mobile_no = models.CharField(max_length=15, blank=True, null=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def save(self, *args, **kwargs):
-        if self.is_superuser:
-            self.role = 'SUPER ADMIN'
+        if self.email:
+            self.username = self.email
         super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'auth_user'
+
+    @property
+    def id(self):
+        return self.email
+
+    @property
+    def role(self):
+        if self.is_superuser:
+            return 'SUPER ADMIN'
+        if hasattr(self, 'school_profile') and self.school_profile:
+            return 'SCHOOL STAFF'
+        if self.role_profiles.filter(role__role_name='TEACHER').exists():
+            return 'TEACHER'
+        if self.role_profiles.filter(role__role_name='STUDENT').exists():
+            return 'STUDENT'
+        return 'SCHOOL STAFF'
+
+    @role.setter
+    def role(self, value):
+        pass
+
+    @property
+    def school_profile(self):
+        return self.role_profiles.filter(role__role_name='SCHOOL_ADMIN').first()
+
+    @property
+    def student_profile(self):
+        role_profile = self.role_profiles.filter(role__role_name='STUDENT').first()
+        if role_profile and hasattr(role_profile, 'user_profile'):
+            return role_profile.user_profile
+        from student.models import StudentProfile
+        class StudentProfileDoesNotExist(AttributeError, StudentProfile.DoesNotExist):
+            pass
+        raise StudentProfileDoesNotExist("User has no student_profile")
+
+    @property
+    def teacher_profile(self):
+        role_profile = self.role_profiles.filter(role__role_name='TEACHER').first()
+        if role_profile and hasattr(role_profile, 'user_profile'):
+            return role_profile.user_profile
+        from teacher.models import TeacherProfile
+        class TeacherProfileDoesNotExist(AttributeError, TeacherProfile.DoesNotExist):
+            pass
+        raise TeacherProfileDoesNotExist("User has no teacher_profile")
+
+class Address(models.Model):
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    addressline1 = models.TextField()
+    addressline2 = models.TextField(blank=True, null=True)
+    pincode = models.CharField(max_length=10)
+
+    class Meta:
+        db_table = 'address'
+
+    def __str__(self):
+        return f"{self.addressline1}, {self.city}, {self.state} - {self.pincode}"
+
 
 class SchoolApplication(models.Model):
     STATUS_CHOICES = [
@@ -98,6 +156,23 @@ class Institution(models.Model):
     def total_staff(self):
         from school_admin.models import StaffMember
         return StaffMember.objects.filter(branch__institution=self).count()
+
+class Role(models.Model):
+    role_id = models.AutoField(primary_key=True)
+    role_name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.role_name
+
+class SchoolRole(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='school_roles')
+    school = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='school_roles')
+
+    class Meta:
+        unique_together = ('role', 'school')
+
+    def __str__(self):
+        return f"{self.school.name} - {self.role.role_name}"
 
 class PlatformUser(models.Model):
     ROLE_CHOICES = [

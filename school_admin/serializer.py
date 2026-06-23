@@ -332,34 +332,45 @@ class SchoolLoginAPISerializer(serializers.Serializer):
         users = User.objects.filter(email=email, is_active=True)
         roles = []
         for u in users:
-            if u.role == 'SCHOOL STAFF' and hasattr(u, 'school_profile') and u.school_profile:
+            if hasattr(u, 'school_profile') and u.school_profile:
                 inst = u.school_profile.institution
                 roles.append({
                     "role": "SCHOOL_ADMIN",
                     "institution_id": inst.id if inst else None,
                     "institution_name": inst.name if inst else "Pending Approval"
                 })
-            elif u.role == 'TEACHER' and hasattr(u, 'teacher_profile') and u.teacher_profile:
-                inst = u.teacher_profile.institution
-                roles.append({
-                    "role": "TEACHER",
-                    "institution_id": inst.id if inst else None,
-                    "institution_name": inst.name if inst else "Pending Approval"
-                })
-            elif u.role == 'STUDENT' and hasattr(u, 'student_profile') and u.student_profile:
-                inst = u.student_profile.institution
-                roles.append({
-                    "role": "STUDENT",
-                    "institution_id": inst.id if inst else None,
-                    "institution_name": inst.name if inst else "Pending Approval"
-                })
-            elif u.role == 'SUPER ADMIN':
+            
+            for rp in u.role_profiles.all():
+                role_name = rp.role_name
+                inst = rp.institution
+                if role_name == 'TEACHER':
+                    roles.append({
+                        "role": "TEACHER",
+                        "institution_id": inst.id,
+                        "institution_name": inst.name
+                    })
+                elif role_name == 'STUDENT':
+                    roles.append({
+                        "role": "STUDENT",
+                        "institution_id": inst.id,
+                        "institution_name": inst.name
+                    })
+
+            if u.is_superuser:
                 roles.append({
                     "role": "SUPER_ADMIN",
                     "institution_id": None,
                     "institution_name": "Super Admin Portal"
                 })
-        return roles
+        # Remove duplicate role-institution entries if any
+        unique_roles = []
+        seen = set()
+        for r in roles:
+            key = (r['role'], r['institution_id'])
+            if key not in seen:
+                seen.add(key)
+                unique_roles.append(r)
+        return unique_roles
 
 class RoleSelectionSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(required=True)
@@ -516,3 +527,173 @@ class LegacyLoginUserSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
             return obj.student_profile.school_user.address
         return ""
+
+
+# ---------------------------------------------------------------------------
+# New Login & Verify Serializers
+# ---------------------------------------------------------------------------
+
+class LoginSerializer(serializers.Serializer):
+    """
+    Minimal serializer for the new LoginAPIView.
+    Accepts email + password, returns authenticated user + all_roles list.
+    """
+    email = serializers.EmailField(
+        required=True,
+        error_messages={'required': 'Email is required.', 'blank': 'Email is required.'}
+    )
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        error_messages={'required': 'Password is required.', 'blank': 'Password is required.'}
+    )
+
+    def validate(self, attrs):
+        email = attrs.get('email', '').strip()
+        password = attrs.get('password', '').strip()
+
+        # Look up users by email (or username fallback)
+        users = list(User.objects.filter(email=email))
+        if not users:
+            user_by_username = User.objects.filter(username=email).first()
+            if user_by_username:
+                users = [user_by_username]
+
+        if not users:
+            raise serializers.ValidationError("Invalid email or password.")
+
+        active_users = [u for u in users if u.is_active]
+        if not active_users:
+            raise serializers.ValidationError("This account is inactive.")
+
+        # Authenticate against password
+        authenticated_user = None
+        for u in active_users:
+            auth_user = authenticate(username=u.username, password=password)
+            if auth_user:
+                authenticated_user = auth_user
+                break
+
+        if not authenticated_user:
+            raise serializers.ValidationError("Invalid email or password.")
+
+        attrs['user'] = authenticated_user
+        return attrs
+
+
+class VerifyProfileSerializer(serializers.ModelSerializer):
+    """
+    Returns full profile details for the authenticated user.
+    Pulls data from User, RoleProfile, UserProfile and related tables.
+    """
+    first_name   = serializers.CharField(source='user.first_name', read_only=True)
+    last_name    = serializers.CharField(source='user.last_name', read_only=True)
+    middle_name  = serializers.SerializerMethodField()
+    mobile_no    = serializers.CharField(source='mobile_no', read_only=True)
+    email        = serializers.CharField(source='email_id', read_only=True)
+    role_name    = serializers.CharField(read_only=True)
+    institution  = serializers.SerializerMethodField()
+    branch       = serializers.SerializerMethodField()
+    address      = serializers.SerializerMethodField()
+
+    # Student-specific fields (null for other roles)
+    roll_no      = serializers.SerializerMethodField()
+    uid_no       = serializers.SerializerMethodField()
+    grno         = serializers.SerializerMethodField()
+    school_class = serializers.SerializerMethodField()
+    parent_full_name   = serializers.SerializerMethodField()
+    parent_mobile_no   = serializers.SerializerMethodField()
+    gardian_name       = serializers.SerializerMethodField()
+    gardian_mobile_no  = serializers.SerializerMethodField()
+    date_of_birth      = serializers.SerializerMethodField()
+
+    # Teacher-specific fields (null for other roles)
+    teacher_qualification = serializers.SerializerMethodField()
+
+    class Meta:
+        from school_admin.models import RoleProfile
+        model = RoleProfile
+        fields = [
+            'id', 'email', 'first_name', 'last_name', 'middle_name',
+            'mobile_no', 'role_name',
+            'institution', 'branch', 'address',
+            'date_of_birth',
+            # Student
+            'roll_no', 'uid_no', 'grno', 'school_class',
+            'parent_full_name', 'parent_mobile_no',
+            'gardian_name', 'gardian_mobile_no',
+            # Teacher
+            'teacher_qualification',
+        ]
+
+    def get_middle_name(self, obj):
+        return getattr(obj.user, 'middle_name', None) or ""
+
+    def get_institution(self, obj):
+        if obj.institution:
+            return {'id': obj.institution.id, 'name': obj.institution.name}
+        return None
+
+    def get_branch(self, obj):
+        if obj.branch:
+            return {'id': obj.branch.id, 'name': obj.branch.name}
+        return None
+
+    def get_address(self, obj):
+        if obj.address_record:
+            return {
+                'addressline1': obj.address_record.addressline1 or "",
+                'addressline2': obj.address_record.addressline2 or "",
+                'city':         obj.address_record.city or "",
+                'state':        obj.address_record.state or "",
+                'pincode':      obj.address_record.pincode or "",
+            }
+        return None
+
+    def _get_user_profile(self, obj):
+        """Return the linked UserProfile if exists, else None."""
+        return getattr(obj, 'user_profile', None)
+
+    def get_date_of_birth(self, obj):
+        dob = getattr(obj.user, 'date_of_birth', None)
+        return dob.strftime('%Y-%m-%d') if dob else None
+
+    # --- Student fields ---
+    def get_roll_no(self, obj):
+        up = self._get_user_profile(obj)
+        return up.roll_no if up else None
+
+    def get_uid_no(self, obj):
+        up = self._get_user_profile(obj)
+        return up.uid_no if up else None
+
+    def get_grno(self, obj):
+        up = self._get_user_profile(obj)
+        return up.grno if up else None
+
+    def get_school_class(self, obj):
+        up = self._get_user_profile(obj)
+        if up and up.school_class:
+            return {'id': up.school_class.id, 'name': up.school_class.name}
+        return None
+
+    def get_parent_full_name(self, obj):
+        up = self._get_user_profile(obj)
+        return up.parent_full_name if up else None
+
+    def get_parent_mobile_no(self, obj):
+        up = self._get_user_profile(obj)
+        return up.parent_mobile_no if up else None
+
+    def get_gardian_name(self, obj):
+        up = self._get_user_profile(obj)
+        return up.gardian_name if up else None
+
+    def get_gardian_mobile_no(self, obj):
+        up = self._get_user_profile(obj)
+        return up.gardian_mobile_no if up else None
+
+    # --- Teacher fields ---
+    def get_teacher_qualification(self, obj):
+        # Reserved for teacher qualification field if added later
+        return None
