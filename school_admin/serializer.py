@@ -619,7 +619,7 @@ class VerifyProfileSerializer(serializers.ModelSerializer):
     first_name   = serializers.CharField(source='user.first_name', read_only=True)
     last_name    = serializers.CharField(source='user.last_name', read_only=True)
     middle_name  = serializers.SerializerMethodField()
-    mobile_no    = serializers.CharField(source='mobile_no', read_only=True)
+    mobile_no    = serializers.CharField(read_only=True)
     email        = serializers.CharField(source='email_id', read_only=True)
     role_name    = serializers.CharField(read_only=True)
     institution  = serializers.SerializerMethodField()
