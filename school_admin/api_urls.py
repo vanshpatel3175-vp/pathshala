@@ -11,5 +11,7 @@ urlpatterns = [
     path('theme/', api.ThemeAPIView.as_view(), name='api_theme'),
     # New clean login & verify endpoints
     path('auth/login/', api.LoginAPIView.as_view(), name='api_login'),
+    path('auth/login', api.LoginAPIView.as_view()),
     path('auth/verify/', api.VerifyProfileAPIView.as_view(), name='api_verify_profile'),
+    path('auth/verify', api.VerifyProfileAPIView.as_view()),
 ]

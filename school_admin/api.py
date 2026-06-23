@@ -253,7 +253,8 @@ class LoginAPIView(APIView):
         # Collect all roles from role_profiles
         all_roles = []
         for rp in user.role_profiles.select_related('role', 'institution', 'branch').all():
-            all_roles.append(rp.role_name)
+            if rp.role_name and rp.role_name.upper() != 'USER':
+                all_roles.append(rp.role_name)
 
         # Also include SCHOOL_ADMIN if user has a school_profile
         try:
@@ -290,17 +291,41 @@ class LoginAPIView(APIView):
 
 class VerifyProfileAPIView(APIView):
     """
-    GET /api/verify/
-    Header: Authorization: Bearer <access_token>
-    Returns full profile details for every role the authenticated user holds.
+    POST /api/auth/verify/
+    Body: { "access": "...", "refresh": "..." }
+    Returns full profile details for every role the authenticated user holds,
+    along with access and refresh tokens.
     """
+    authentication_classes = []
+    permission_classes = []
 
-    def get(self, request):
-        user = request.user
-        if not user or not user.is_authenticated:
+    def post(self, request):
+        access_token = request.data.get('access') or request.data.get('access_token')
+        refresh_token = request.data.get('refresh') or request.data.get('refresh_token')
+
+        if not access_token:
+            return Response({
+                "success_key": 0,
+                "message": "Access token is required."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        from rest_framework_simplejwt.authentication import JWTAuthentication
+        from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+
+        authenticator = JWTAuthentication()
+        try:
+            validated_token = authenticator.get_validated_token(access_token)
+            user = authenticator.get_user(validated_token)
+        except (InvalidToken, TokenError):
             return Response({
                 "success_key": 0,
                 "message": "Authentication credentials were not provided or are invalid."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        if not user or not user.is_active:
+            return Response({
+                "success_key": 0,
+                "message": "User is inactive or deleted."
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         profiles_data = []
@@ -346,12 +371,15 @@ class VerifyProfileAPIView(APIView):
             'role', 'institution', 'branch', 'address_record'
         ).all()
         for rp in role_profiles:
-            serialized = VerifyProfileSerializer(rp).data
-            profiles_data.append(serialized)
+            if rp.role_name and rp.role_name.upper() != 'USER':
+                serialized = VerifyProfileSerializer(rp).data
+                profiles_data.append(serialized)
 
         return Response({
             "success_key": 1,
             "email": user.email,
             "user_id": user.id,
+            "access_token": access_token,
+            "refresh_token": refresh_token,
             "profiles": profiles_data,
         }, status=status.HTTP_200_OK)
