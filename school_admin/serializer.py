@@ -622,8 +622,8 @@ class VerifyProfileSerializer(serializers.ModelSerializer):
     mobile_no    = serializers.CharField(read_only=True)
     email        = serializers.CharField(source='email_id', read_only=True)
     role_name    = serializers.CharField(read_only=True)
-    institution  = serializers.SerializerMethodField()
-    branch       = serializers.SerializerMethodField()
+    institution_name  = serializers.CharField(source='institution.name', read_only=True)
+    branch_name       = serializers.CharField(source='branch.name', read_only=True)
     address      = serializers.SerializerMethodField()
 
     # Student-specific fields (null for other roles)
@@ -646,7 +646,7 @@ class VerifyProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'email', 'first_name', 'last_name', 'middle_name',
             'mobile_no', 'role_name',
-            'institution', 'branch', 'address',
+            'institution_name', 'branch_name', 'address',
             'date_of_birth',
             # Student
             'roll_no', 'uid_no', 'grno', 'school_class',
@@ -659,15 +659,15 @@ class VerifyProfileSerializer(serializers.ModelSerializer):
     def get_middle_name(self, obj):
         return getattr(obj.user, 'middle_name', None) or ""
 
-    def get_institution(self, obj):
+    def get_institution_name(self, obj):
         if obj.institution:
-            return {'id': obj.institution.id, 'name': obj.institution.name}
-        return None
+            return obj.institution.name
+        return ""
 
-    def get_branch(self, obj):
+    def get_branch_name(self, obj):
         if obj.branch:
-            return {'id': obj.branch.id, 'name': obj.branch.name}
-        return None
+            return obj.branch.name
+        return ""
 
     def get_address(self, obj):
         if obj.address_record:
@@ -682,10 +682,13 @@ class VerifyProfileSerializer(serializers.ModelSerializer):
 
     def _get_user_profile(self, obj):
         """Return the linked UserProfile if exists, else None."""
+        if hasattr(obj, 'user') and obj.user:
+            return getattr(obj.user, 'user_profile', None)
         return getattr(obj, 'user_profile', None)
 
     def get_date_of_birth(self, obj):
-        dob = getattr(obj.user, 'date_of_birth', None)
+        up = self._get_user_profile(obj)
+        dob = up.date_of_birth if up else None
         return dob.strftime('%Y-%m-%d') if dob else None
 
     # --- Student fields ---

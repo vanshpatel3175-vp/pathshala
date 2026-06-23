@@ -111,6 +111,13 @@ class RoleProfile(models.Model):
 
         super().save(*args, **kwargs)
 
+        if hasattr(self, '_temp_date_of_birth'):
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=self.user)
+            profile.date_of_birth = self._temp_date_of_birth
+            profile.save()
+            del self._temp_date_of_birth
+
         # Sync to UserRole
         UserRole.objects.get_or_create(
             user=self.user,
@@ -118,6 +125,20 @@ class RoleProfile(models.Model):
             institution=self.institution,
             branch=self.branch
         )
+
+    @property
+    def user_profile(self):
+        if self.user:
+            try:
+                return self.user.user_profile
+            except Exception:
+                pass
+        return None
+
+    def _get_or_create_user_profile(self):
+        from student.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=self.user)
+        return profile
 
     @property
     def student(self):
@@ -329,8 +350,7 @@ class RoleProfile(models.Model):
     @school_class.setter
     def school_class(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.school_class = value
             profile.save()
 
@@ -347,8 +367,7 @@ class RoleProfile(models.Model):
     @roll_no.setter
     def roll_no(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.roll_no = value
             profile.save()
 
@@ -369,8 +388,7 @@ class RoleProfile(models.Model):
     @uid_no.setter
     def uid_no(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.uid_no = value
             profile.save()
 
@@ -383,8 +401,7 @@ class RoleProfile(models.Model):
     @grno.setter
     def grno(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.grno = value
             profile.save()
 
@@ -397,8 +414,7 @@ class RoleProfile(models.Model):
     @parent_full_name.setter
     def parent_full_name(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.parent_full_name = value
             profile.save()
 
@@ -411,8 +427,7 @@ class RoleProfile(models.Model):
     @parent_mobile_no.setter
     def parent_mobile_no(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.parent_mobile_no = value
             profile.save()
 
@@ -425,8 +440,7 @@ class RoleProfile(models.Model):
     @gardian_name.setter
     def gardian_name(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.gardian_name = value
             profile.save()
 
@@ -439,20 +453,31 @@ class RoleProfile(models.Model):
     @gardian_mobile_no.setter
     def gardian_mobile_no(self, value):
         if self.role_name == 'STUDENT':
-            from student.models import UserProfile
-            profile, _ = UserProfile.objects.get_or_create(role_profile=self, defaults={'user': self.user})
+            profile = self._get_or_create_user_profile()
             profile.gardian_mobile_no = value
             profile.save()
 
     @property
     def date_of_birth(self):
-        return self.user.date_of_birth if self.user else None
+        if hasattr(self, '_temp_date_of_birth'):
+            return self._temp_date_of_birth
+        if self.user:
+            return self.user.date_of_birth
+        if hasattr(self, 'user_profile') and self.user_profile:
+            return self.user_profile.date_of_birth
+        return None
 
     @date_of_birth.setter
     def date_of_birth(self, value):
-        if self.user:
-            self.user.date_of_birth = value
-            self.user.save()
+        if not self.pk:
+            self._temp_date_of_birth = value
+        else:
+            if self.user:
+                self.user.date_of_birth = value
+            else:
+                profile = self._get_or_create_user_profile()
+                profile.date_of_birth = value
+                profile.save()
 
     @property
     def dob(self):

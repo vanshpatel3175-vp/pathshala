@@ -634,19 +634,21 @@ def school_students_view(request):
             )
             
             from student.models import StudentProfile
+            student_profile_defaults = {
+                'school_class': school_class_obj,
+                'parent_full_name': parent_full_name,
+                'parent_mobile_no': parent_mobile_no,
+                'gardian_name': gardian_name,
+                'gardian_mobile_no': gardian_mobile_no,
+                'uid_no': uid_no,
+                'roll_no': roll_no,
+                'grno': grno,
+            }
+            if dob is not None:
+                student_profile_defaults['date_of_birth'] = dob
             StudentProfile.objects.update_or_create(
                 user=user,
-                defaults={
-                    'student': student_obj,
-                    'school_class': school_class_obj,
-                    'parent_full_name': parent_full_name,
-                    'parent_mobile_no': parent_mobile_no,
-                    'gardian_name': gardian_name,
-                    'gardian_mobile_no': gardian_mobile_no,
-                    'uid_no': uid_no,
-                    'roll_no': roll_no,
-                    'grno': grno,
-                }
+                defaults=student_profile_defaults,
             )
             
             messages.success(request, f"Student '{user.first_name} {user.last_name}' registered successfully!")
@@ -788,7 +790,10 @@ def school_teachers_view(request):
             )
             
             from teacher.models import TeacherProfile
-            TeacherProfile.objects.update_or_create(user=user, defaults={'teacher': teacher_obj})
+            teacher_profile_defaults = {}
+            if dob is not None:
+                teacher_profile_defaults['date_of_birth'] = dob
+            TeacherProfile.objects.update_or_create(user=user, defaults=teacher_profile_defaults)
             
             messages.success(request, f"Teacher '{user.first_name} {user.last_name}' registered successfully!")
             return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
@@ -1470,6 +1475,7 @@ def school_user_lookup_api(request):
             'full_name': su.name,
             'email': su.email,
             'mobile_no': su.mobile_no or '',
+            'date_of_birth': su.date_of_birth.strftime('%Y-%m-%d') if su.date_of_birth else '',
             'is_teacher': is_teacher,
             'is_student': is_student,
         })
