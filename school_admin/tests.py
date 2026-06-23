@@ -566,4 +566,84 @@ class EventTests(TestCase):
         self.assertEqual(Event.objects.filter(id=event.id).count(), 0)
 
 
+class UserProfileDateOfBirthSyncTests(TestCase):
+    def setUp(self):
+        from django.contrib.auth import get_user_model
+        from super_admin.models import Institution, Role, SchoolRole
+        from school_admin.models import Branch
+        from datetime import datetime, timedelta
+        
+        self.User = get_user_model()
+        self.institution = Institution.objects.create(
+            name="Sync Test School",
+            contact_no="1234567890",
+            email="sync@school.com",
+            expired_date=datetime.now() + timedelta(days=365)
+        )
+        self.branch = Branch.objects.create(
+            institution=self.institution,
+            name="Main Branch",
+            city="Navsari",
+            status="active"
+        )
+        self.user = self.User.objects.create_user(
+            username="dualrole@test.com",
+            email="dualrole@test.com",
+            password="password123"
+        )
+        
+        self.student_role, _ = Role.objects.get_or_create(role_name='STUDENT')
+        self.student_school_role, _ = SchoolRole.objects.get_or_create(role=self.student_role, school=self.institution)
+        
+        self.teacher_role, _ = Role.objects.get_or_create(role_name='TEACHER')
+        self.teacher_school_role, _ = SchoolRole.objects.get_or_create(role=self.teacher_role, school=self.institution)
+
+    def test_date_of_birth_syncs_across_profiles(self):
+        from school_admin.models import Student, Teacher
+        from student.models import StudentProfile
+        from teacher.models import TeacherProfile
+        
+        # Create student profile
+        student = Student.objects.create(
+            user=self.user,
+            role=self.student_school_role.role,
+            institution=self.institution,
+            branch=self.branch,
+            name="Dual Role User",
+            email=self.user.email
+        )
+        student_profile = StudentProfile.objects.create(
+            user=self.user,
+            student=student,
+            date_of_birth="2005-05-15"
+        )
+        
+        self.assertEqual(str(student_profile.date_of_birth), "2005-05-15")
+        
+        # Create teacher profile for the same user
+        teacher = Teacher.objects.create(
+            user=self.user,
+            role=self.teacher_school_role.role,
+            institution=self.institution,
+            branch=self.branch,
+            name="Dual Role User",
+            email=self.user.email
+        )
+        teacher_profile = TeacherProfile.objects.create(
+            user=self.user,
+            teacher=teacher
+        )
+        
+        # The teacher profile should automatically inherit the user's DOB
+        self.assertEqual(str(teacher_profile.date_of_birth), "2005-05-15")
+        
+        # Update DOB on teacher profile
+        teacher_profile.date_of_birth = "2005-05-20"
+        teacher_profile.save()
+        
+        # Verify student profile DOB updated as well
+        student_profile.refresh_from_db()
+        self.assertEqual(str(student_profile.date_of_birth), "2005-05-20")
+
+
 

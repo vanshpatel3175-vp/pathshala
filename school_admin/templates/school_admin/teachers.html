@@ -145,7 +145,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     <div>
                         <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Date of Birth</label>
-                        <input type="date" name="date_of_birth" class="form-control"
+                        <input type="date" name="date_of_birth" id="register_date_of_birth" class="form-control"
                             style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
                     </div>
                     <div>
@@ -499,7 +499,7 @@
             const alreadyTeacher = u.is_teacher;
             return `
                 <div class="user-dropdown-item"
-                    onclick="${alreadyTeacher ? 'void(0)' : `selectUser(${u.id}, '${escapeJs(u.first_name)}', '${escapeJs(u.middle_name || '')}', '${escapeJs(u.last_name)}', '${escapeJs(u.email)}', '${escapeJs(u.mobile_no || '')}')`}"
+                    onclick="${alreadyTeacher ? 'void(0)' : `selectUser(${u.id}, '${escapeJs(u.first_name)}', '${escapeJs(u.middle_name || '')}', '${escapeJs(u.last_name)}', '${escapeJs(u.email)}', '${escapeJs(u.mobile_no || '')}', '${escapeJs(u.date_of_birth)}')`}"
                     style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: ${alreadyTeacher ? 'not-allowed' : 'pointer'};
                         opacity: ${alreadyTeacher ? '0.5' : '1'};
                         transition: background 0.15s ease;
@@ -529,7 +529,7 @@
         dropdown.style.display = 'none';
     }
 
-    function selectUser(id, firstName, middleName, lastName, email, mobileNo) {
+    function selectUser(id, firstName, middleName, lastName, email, mobileNo, dateOfBirth) {
         // Fill hidden field
         document.getElementById('school_user_id').value = id;
         // Update search box to show selected user
@@ -543,6 +543,20 @@
         document.getElementById('display_last_name').value = lastName;
         document.getElementById('display_email').value = email;
         document.getElementById('register_mobile_no').value = mobileNo;
+        
+        const dobInput = document.getElementById('register_date_of_birth');
+        if (dobInput) {
+            dobInput.value = dateOfBirth;
+            if (dateOfBirth) {
+                dobInput.readOnly = true;
+                dobInput.style.backgroundColor = 'var(--bg-secondary)';
+                dobInput.style.opacity = '0.7';
+            } else {
+                dobInput.readOnly = false;
+                dobInput.style.backgroundColor = 'var(--bg-primary)';
+                dobInput.style.opacity = '1';
+            }
+        }
         // Show rest of form
         showTeacherForm();
         showLookupStatus('success', `<i class="fa-solid fa-circle-check"></i> User selected: <strong>${fullName}</strong>`);
@@ -573,6 +587,14 @@
         document.getElementById('teacher-school-section').style.display = 'none';
         document.getElementById('teacher-submit-section').style.display = 'none';
         statusEl.style.display = 'none';
+
+        const dobInput = document.getElementById('register_date_of_birth');
+        if (dobInput) {
+            dobInput.value = '';
+            dobInput.readOnly = false;
+            dobInput.style.backgroundColor = 'var(--bg-primary)';
+            dobInput.style.opacity = '1';
+        }
     }
 
     function openEditTeacherCard(id, branchId, status) {

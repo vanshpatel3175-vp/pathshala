@@ -5,7 +5,6 @@ class User(AbstractUser):
     email = models.EmailField(primary_key=True)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     mobile_no = models.CharField(max_length=15, blank=True, null=True)
-    date_of_birth = models.DateField(null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -21,6 +20,17 @@ class User(AbstractUser):
     @property
     def id(self):
         return self.email
+
+    @property
+    def date_of_birth(self):
+        return self.user_profile.date_of_birth if hasattr(self, 'user_profile') else None
+
+    @date_of_birth.setter
+    def date_of_birth(self, value):
+        from student.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=self)
+        profile.date_of_birth = value
+        profile.save()
 
     @property
     def role(self):
@@ -44,9 +54,8 @@ class User(AbstractUser):
 
     @property
     def student_profile(self):
-        role_profile = self.role_profiles.filter(role__role_name='STUDENT').first()
-        if role_profile and hasattr(role_profile, 'user_profile'):
-            return role_profile.user_profile
+        if self.role_profiles.filter(role__role_name='STUDENT').exists():
+            return getattr(self, 'user_profile', None)
         from student.models import StudentProfile
         class StudentProfileDoesNotExist(AttributeError, StudentProfile.DoesNotExist):
             pass
@@ -54,9 +63,8 @@ class User(AbstractUser):
 
     @property
     def teacher_profile(self):
-        role_profile = self.role_profiles.filter(role__role_name='TEACHER').first()
-        if role_profile and hasattr(role_profile, 'user_profile'):
-            return role_profile.user_profile
+        if self.role_profiles.filter(role__role_name='TEACHER').exists():
+            return getattr(self, 'user_profile', None)
         from teacher.models import TeacherProfile
         class TeacherProfileDoesNotExist(AttributeError, TeacherProfile.DoesNotExist):
             pass
