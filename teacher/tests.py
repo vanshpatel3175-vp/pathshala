@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from super_admin.models import Institution
-from school_admin.models import SchoolAdminProfile, Branch, Teacher, SchoolUser
+from school_admin.models import SchoolAdminProfile, Branch, Teacher
 from teacher.models import TeacherProfile
 
 User = get_user_model()
@@ -23,29 +23,25 @@ class TeacherAppTests(TestCase):
             city="Navsari",
             status="active"
         )
-        # Create SchoolUser
-        self.school_user = SchoolUser.objects.create(
-            institution=self.institution,
-            first_name="John",
-            last_name="Doe",
-            email="john.doe@testschool.com"
-        )
-        # Create Teacher Record
-        self.teacher_record = Teacher.objects.create(
-            branch=self.branch,
-            school_user=self.school_user,
-            name=self.school_user.full_name,
-            email=self.school_user.email,
-            status="active"
-        )
         # Create Django User (TEACHER role)
         self.teacher_user = User.objects.create_user(
-            username=self.school_user.email,
-            email=self.school_user.email,
+            username="john.doe@testschool.com",
+            email="john.doe@testschool.com",
             password="teacherpassword",
-            first_name=self.school_user.first_name,
-            last_name=self.school_user.last_name,
-            role="TEACHER"
+            first_name="John",
+            last_name="Doe"
+        )
+        from super_admin.models import Role, SchoolRole
+        role_obj, _ = Role.objects.get_or_create(role_name='TEACHER')
+        school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=self.institution)
+        # Create Teacher Record
+        self.teacher_record = Teacher.objects.create(
+            user=self.teacher_user,
+            school_role=school_role,
+            branch=self.branch,
+            name="John Doe",
+            email="john.doe@testschool.com",
+            status="active"
         )
         # Create TeacherProfile
         self.teacher_profile = TeacherProfile.objects.create(

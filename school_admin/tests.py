@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from super_admin.models import Institution
-from school_admin.models import SchoolAdminProfile, Branch, Teacher, SchoolUser, Student, Holiday, Event
+from school_admin.models import SchoolAdminProfile, Branch, Teacher, Student, Holiday, Event, RoleProfile
 
 User = get_user_model()
 
@@ -39,12 +39,22 @@ class TeacherRegistrationAndLoginTest(TestCase):
 
     def test_register_teacher_creates_user_and_profile(self):
         # Pre-register the user first in the Users Directory
-        school_user = SchoolUser.objects.create(
-            institution=self.institution,
-            first_name='Teacher',
-            last_name='John',
+        user = User.objects.create_user(
+            username='john@testschool.com',
             email='john@testschool.com',
-            dob='1990-01-01',
+            password='password123',
+            first_name='Teacher',
+            last_name='John'
+        )
+        from super_admin.models import Role, SchoolRole
+        user_role_obj, _ = Role.objects.get_or_create(role_name='USER')
+        school_role_obj, _ = SchoolRole.objects.get_or_create(role=user_role_obj, school=self.institution)
+        school_user = RoleProfile.objects.create(
+            user=user,
+            school_role=school_role_obj,
+            name='Teacher John',
+            email='john@testschool.com',
+            date_of_birth='1990-01-01',
             city='Navsari'
         )
 
@@ -60,7 +70,7 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertEqual(response.status_code, 302)
         
         # Verify Teacher model record exists
-        teacher = Teacher.objects.filter(email='john@testschool.com').first()
+        teacher = Teacher.objects.filter(email_id='john@testschool.com').first()
         self.assertIsNotNone(teacher)
         self.assertEqual(teacher.name, 'Teacher John')
         self.assertEqual(teacher.branch, self.branch)
@@ -80,12 +90,22 @@ class TeacherRegistrationAndLoginTest(TestCase):
 
     def test_edit_school_user_syncs_with_teacher_and_user(self):
         # Pre-register the user
-        school_user = SchoolUser.objects.create(
-            institution=self.institution,
-            first_name='Teacher',
-            last_name='John',
+        user = User.objects.create_user(
+            username='john@testschool.com',
             email='john@testschool.com',
-            dob='1990-01-01',
+            password='password123',
+            first_name='Teacher',
+            last_name='John'
+        )
+        from super_admin.models import Role, SchoolRole
+        user_role_obj, _ = Role.objects.get_or_create(role_name='USER')
+        school_role_obj, _ = SchoolRole.objects.get_or_create(role=user_role_obj, school=self.institution)
+        school_user = RoleProfile.objects.create(
+            user=user,
+            school_role=school_role_obj,
+            name='Teacher John',
+            email='john@testschool.com',
+            date_of_birth='1990-01-01',
             city='Navsari'
         )
 
@@ -97,7 +117,7 @@ class TeacherRegistrationAndLoginTest(TestCase):
             'medium_id': ''
         })
         
-        teacher = Teacher.objects.get(email='john@testschool.com')
+        teacher = Teacher.objects.get(email_id='john@testschool.com')
         
         # Edit user details via Users Directory
         response = self.client.post(reverse('school_users'), {
@@ -126,35 +146,77 @@ class TeacherRegistrationAndLoginTest(TestCase):
 
     def test_register_student_creates_user_and_profile(self):
         # Pre-register the user first in the Users Directory
-        school_user = SchoolUser.objects.create(
-            institution=self.institution,
-            first_name='Student',
-            last_name='Jane',
+        user = User.objects.create_user(
+            username='jane@testschool.com',
             email='jane@testschool.com',
-            dob='2005-05-05',
+            password='password123',
+            first_name='Student',
+            last_name='Jane'
+        )
+        from super_admin.models import Role, SchoolRole
+        user_role_obj, _ = Role.objects.get_or_create(role_name='USER')
+        school_role_obj, _ = SchoolRole.objects.get_or_create(role=user_role_obj, school=self.institution)
+        school_user = RoleProfile.objects.create(
+            user=user,
+            school_role=school_role_obj,
+            name='Student Jane',
+            email='jane@testschool.com',
+            date_of_birth='2005-05-05',
             city='Navsari'
+        )
+
+        from school_admin.models import SchoolClass
+        school_class = SchoolClass.objects.create(
+            branch=self.branch,
+            name="10th",
+            section="A"
         )
 
         # Register that user as a student
         response = self.client.post(reverse('school_students'), {
             'school_user_id': school_user.id,
             'password': 'studentpassword',
-            'branch_id': self.branch.id
+            'branch_id': self.branch.id,
+            'school_class_id': school_class.id,
+            'parent_full_name': 'Jane Parent',
+            'parent_mobile_no': '9876543210',
+            'gardian_name': 'Jane Guardian',
+            'gardian_mobile_no': '9876543211',
+            'uid_no': 'UID12345',
+            'roll_no': 'R10',
+            'grno': 'GR999'
         })
         
         # Verify redirect
         self.assertEqual(response.status_code, 302)
         
         # Verify Student model record exists
-        student = Student.objects.filter(email='jane@testschool.com').first()
+        student = Student.objects.filter(email_id='jane@testschool.com').first()
         self.assertIsNotNone(student)
         self.assertEqual(student.name, 'Student Jane')
         self.assertEqual(student.branch, self.branch)
+        self.assertEqual(student.uid_no, 'UID12345')
+        self.assertEqual(student.roll_no, 'R10')
+        self.assertEqual(student.roll_number, 'R10')
+        self.assertEqual(student.grno, 'GR999')
         
         # Verify User model record exists
         user = User.objects.filter(email='jane@testschool.com').first()
         self.assertIsNotNone(user)
         self.assertEqual(user.role, 'STUDENT')
+        
+        # Verify StudentProfile model record exists with the form data
+        from student.models import StudentProfile
+        student_profile = StudentProfile.objects.filter(user=user).first()
+        self.assertIsNotNone(student_profile)
+        self.assertEqual(student_profile.school_class, school_class)
+        self.assertEqual(student_profile.parent_full_name, 'Jane Parent')
+        self.assertEqual(student_profile.parent_mobile_no, '9876543210')
+        self.assertEqual(student_profile.gardian_name, 'Jane Guardian')
+        self.assertEqual(student_profile.gardian_mobile_no, '9876543211')
+        self.assertEqual(student_profile.uid_no, 'UID12345')
+        self.assertEqual(student_profile.roll_no, 'R10')
+        self.assertEqual(student_profile.grno, 'GR999')
         
         # Verify the student can log in
         login_client = Client()
@@ -163,10 +225,20 @@ class TeacherRegistrationAndLoginTest(TestCase):
 
     def test_edit_school_user_syncs_with_student_and_user(self):
         # Pre-register the user
-        school_user = SchoolUser.objects.create(
-            institution=self.institution,
+        user = User.objects.create_user(
+            username='jane@testschool.com',
+            email='jane@testschool.com',
+            password='password123',
             first_name='Student',
-            last_name='Jane',
+            last_name='Jane'
+        )
+        from super_admin.models import Role, SchoolRole
+        user_role_obj, _ = Role.objects.get_or_create(role_name='USER')
+        school_role_obj, _ = SchoolRole.objects.get_or_create(role=user_role_obj, school=self.institution)
+        school_user = RoleProfile.objects.create(
+            user=user,
+            school_role=school_role_obj,
+            name='Student Jane',
             email='jane@testschool.com'
         )
 
@@ -177,7 +249,7 @@ class TeacherRegistrationAndLoginTest(TestCase):
             'branch_id': self.branch.id
         })
         
-        student = Student.objects.get(email='jane@testschool.com')
+        student = Student.objects.get(email_id='jane@testschool.com')
         
         # Edit user details via Users Directory
         self.client.post(reverse('school_users'), {
@@ -201,10 +273,20 @@ class TeacherRegistrationAndLoginTest(TestCase):
 
     def test_register_dual_role_user(self):
         # Pre-register user in directory
-        school_user = SchoolUser.objects.create(
-            institution=self.institution,
+        user = User.objects.create_user(
+            username='dual@testschool.com',
+            email='dual@testschool.com',
+            password='password123',
             first_name='Dual',
-            last_name='User',
+            last_name='User'
+        )
+        from super_admin.models import Role, SchoolRole
+        user_role_obj, _ = Role.objects.get_or_create(role_name='USER')
+        school_role_obj, _ = SchoolRole.objects.get_or_create(role=user_role_obj, school=self.institution)
+        school_user = RoleProfile.objects.create(
+            user=user,
+            school_role=school_role_obj,
+            name='Dual User',
             email='dual@testschool.com'
         )
 
@@ -226,8 +308,8 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertEqual(resp2.status_code, 302)
 
         # Verify both Teacher and Student records exist linked to same user
-        teacher = Teacher.objects.filter(email='dual@testschool.com').first()
-        student = Student.objects.filter(email='dual@testschool.com').first()
+        teacher = Teacher.objects.filter(email_id='dual@testschool.com').first()
+        student = Student.objects.filter(email_id='dual@testschool.com').first()
         self.assertIsNotNone(teacher)
         self.assertIsNotNone(student)
 

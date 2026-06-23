@@ -5,13 +5,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from django.http import JsonResponse
 User = get_user_model()
+from django.http import JsonResponse
+
 from django.utils import timezone
 from datetime import date
-from super_admin.models import SchoolApplication, Institution
+from super_admin.models import SchoolApplication, Institution, Role, SchoolRole
 
-from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, SchoolUser, Medium, Attendance, Holiday, Event
+from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, Medium, Attendance, Holiday, Event, RoleProfile
 
 def school_signup_view(request):
     if request.user.is_authenticated:
@@ -38,6 +39,7 @@ def school_signup_view(request):
             password=password,
             first_name=first_name,
             last_name=last_name,
+            mobile_no=mobile_number,
             is_active=True
         )
         
@@ -50,8 +52,23 @@ def school_signup_view(request):
             email=email,
             expired_date=timezone.now() + timezone.timedelta(days=365),
             status='pending',
-            school_code=f"SCH-{user.id:04d}",
+            school_code="",
             plan='Premium'
+        )
+        inst.school_code = f"SCH-{inst.id:04d}"
+        inst.save()
+
+        # 2.5 Create SchoolRole and RoleProfile for SCHOOL_ADMIN role
+        role_obj, _ = Role.objects.get_or_create(role_name='SCHOOL_ADMIN')
+        school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=inst)
+        RoleProfile.objects.create(
+            user=user,
+            role=school_role.role,
+            institution=inst,
+            role_name=school_role.role.role_name,
+            email_id=email,
+            mobile_no=mobile_number,
+            status='active'
         )
 
         # 3. Create Profile
@@ -82,7 +99,7 @@ def school_signup_view(request):
             contact_number=mobile_number,
             board="Gujarat State Board",
             medium="English Medium",
-            registration_code=f"SCH-{user.id:04d}",
+            registration_code=inst.school_code,
             date_applied=timezone.now().date(),
             status="Awaiting Review",
             video_url="https://www.w3schools.com/html/mov_bbb.mp4",
@@ -463,9 +480,12 @@ def school_students_view(request):
     
     q = request.GET.get('q', '').strip()
     branch_filter_id = request.GET.get('branch_id', '').strip()
-    students = Student.objects.filter(branch__in=branches)
+    students = Student.objects.filter(branch__in=branches).select_related('user', 'branch')
     if q:
-        students = students.filter(name__icontains=q)
+        students = students.filter(
+            db_models.Q(user__first_name__icontains=q) |
+            db_models.Q(user__last_name__icontains=q)
+        )
     if branch_filter_id:
         students = students.filter(branch_id=branch_filter_id)
         
@@ -507,54 +527,80 @@ def school_students_view(request):
             school_user_id = request.POST.get('school_user_id', '').strip()
             password = request.POST.get('password', '').strip()
             branch_id = request.POST.get('branch_id', '').strip()
+            first_name_val = request.POST.get('first_name', '').strip()
+            middle_name_val = request.POST.get('middle_name', '').strip()
+            last_name_val = request.POST.get('last_name', '').strip()
+            
+            # Fetch all extra student fields
+            mobile_no = request.POST.get('mobile_no', '').strip()
+            parent_full_name = request.POST.get('parent_full_name', '').strip()
+            parent_mobile_no = request.POST.get('parent_mobile_no', '').strip()
+            dob_str = request.POST.get('date_of_birth', '').strip()
+            city = request.POST.get('city', '').strip()
+            state = request.POST.get('state', '').strip() or 'Gujarat'
+            address = request.POST.get('address', '').strip()
+            pincode = request.POST.get('pincode', '').strip()
+            gardian_name = request.POST.get('gardian_name', '').strip()
+            gardian_mobile_no = request.POST.get('gardian_mobile_no', '').strip()
+            uid_no = request.POST.get('uid_no', '').strip()
+            roll_no = request.POST.get('roll_no', '').strip()
+            grno = request.POST.get('grno', '').strip()
             
             if not school_user_id:
                 messages.error(request, "Please search and select a user by email first.")
-                return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
-            
-            if not password:
-                messages.error(request, "Password is required.")
                 return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
             if not branch_id:
                 messages.error(request, "Please assign a school (branch).")
                 return redirect(reverse('school_students'))
             
-            school_user = get_object_or_404(SchoolUser, id=school_user_id, institution=inst)
+            # Validation for guardian mobile number
+            if gardian_mobile_no:
+                if gardian_mobile_no == mobile_no or gardian_mobile_no == parent_mobile_no:
+                    messages.error(request, "Guardian mobile number must be different from both student mobile number and parent mobile number.")
+                    return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+
+            dob = None
+            if dob_str:
+                try:
+                    from django.utils.dateparse import parse_date
+                    dob = parse_date(dob_str)
+                except Exception:
+                    pass
+
+            su = get_object_or_404(RoleProfile, id=school_user_id, institution=inst)
+            user = su.user
             branch = get_object_or_404(Branch, id=branch_id, institution=inst)
             
-            # Enforce unique student (prevent registering the same SchoolUser twice)
-            if Student.objects.filter(school_user=school_user).exists():
-                messages.error(request, f"'{school_user.full_name}' is already registered as a student.")
+            student_role_obj, _ = Role.objects.get_or_create(role_name='STUDENT')
+            student_school_role, _ = SchoolRole.objects.get_or_create(role=student_role_obj, school=inst)
+            
+            if RoleProfile.objects.filter(user=user, role=student_school_role.role, institution=inst).exists():
+                messages.error(request, f"'{user.first_name} {user.last_name}' is already registered as a student.")
                 return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
-            # Find an existing user for this exact person (e.g. they are already a teacher)
-            user = None
-            existing_user = User.objects.filter(email=school_user.email, first_name=school_user.first_name, last_name=school_user.last_name).first()
+            if first_name_val:
+                user.first_name = first_name_val
+            user.middle_name = middle_name_val
+            if last_name_val:
+                user.last_name = last_name_val
+            if password:
+                user.set_password(password)
+            if mobile_no:
+                user.mobile_no = mobile_no
+            user.save()
+
+            # Keep looking-up profile (USER role profile) details synced as well
+            su.name = f"{user.first_name} {user.last_name}"
+            su.middle_name = user.middle_name
+            if mobile_no:
+                su.mobile_no = mobile_no
+            su.city = city
+            su.state = state
+            su.address = address
+            su.pincode = pincode
+            su.save()
             
-            if existing_user:
-                user = existing_user
-                if password:
-                    user.set_password(password)
-                    user.save()
-            else:
-                # Create Django User with STUDENT role. Ensure username is unique.
-                base_username = school_user.email
-                username = base_username
-                if User.objects.filter(username=username).exists():
-                    username = f"{base_username.split('@')[0]}_{school_user.id}@{base_username.split('@')[1]}" if '@' in base_username else f"{base_username}_{school_user.id}"
-                
-                user = User.objects.create_user(
-                    username=username,
-                    email=school_user.email,
-                    password=password,
-                    first_name=school_user.first_name,
-                    last_name=school_user.last_name,
-                    role='STUDENT'
-                )
-            
-            # Create Student record
-            from django.contrib.auth.hashers import make_password as hash_pw
             class_id = request.POST.get('school_class_id', '').strip()
             school_class_obj = None
             if class_id:
@@ -562,21 +608,48 @@ def school_students_view(request):
                     school_class_obj = SchoolClass.objects.get(id=class_id, branch=branch)
                 except SchoolClass.DoesNotExist:
                     pass
+
+            from django.contrib.auth.hashers import make_password as hash_pw
             student_obj = Student.objects.create(
+                user=user,
+                role=student_school_role.role,
+                institution=inst,
                 branch=branch,
                 school_class=school_class_obj,
-                school_user=school_user,
-                name=school_user.full_name,
-                email=school_user.email,
-                password=hash_pw(password),
-                status='active'
+                name=f"{user.first_name} {user.last_name}",
+                middle_name=user.middle_name,
+                email=user.email,
+                password=hash_pw(password) if password else user.password,
+                status='active',
+                parent_full_name=parent_full_name,
+                parent_mobile_no=parent_mobile_no,
+                date_of_birth=dob,
+                city=city,
+                state=state,
+                address=address,
+                pincode=pincode,
+                mobile_no=mobile_no,
+                gardian_name=gardian_name,
+                gardian_mobile_no=gardian_mobile_no
             )
             
-            # Create StudentProfile (links User ↔ Student)
             from student.models import StudentProfile
-            StudentProfile.objects.create(user=user, student=student_obj)
+            StudentProfile.objects.update_or_create(
+                user=user,
+                defaults={
+                    'student': student_obj,
+                    'school_class': school_class_obj,
+                    'parent_full_name': parent_full_name,
+                    'parent_mobile_no': parent_mobile_no,
+                    'gardian_name': gardian_name,
+                    'gardian_mobile_no': gardian_mobile_no,
+                    'uid_no': uid_no,
+                    'roll_no': roll_no,
+                    'grno': grno,
+                }
+            )
             
-            messages.success(request, f"Student '{school_user.full_name}' registered successfully!")
+            messages.success(request, f"Student '{user.first_name} {user.last_name}' registered successfully!")
             return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
     selected_branch_ids = []
@@ -614,9 +687,12 @@ def school_teachers_view(request):
     
     q = request.GET.get('q', '').strip()
     branch_filter_id = request.GET.get('branch_id', '').strip()
-    teachers = Teacher.objects.filter(branch__in=branches).select_related('school_user', 'branch')
+    teachers = Teacher.objects.filter(branch__in=branches).select_related('user', 'branch')
     if q:
-        teachers = teachers.filter(name__icontains=q)
+        teachers = teachers.filter(
+            db_models.Q(user__first_name__icontains=q) |
+            db_models.Q(user__last_name__icontains=q)
+        )
     if branch_filter_id:
         teachers = teachers.filter(branch_id=branch_filter_id)
         
@@ -633,84 +709,88 @@ def school_teachers_view(request):
                 teacher.branch = branch
                 teacher.status = status
                 teacher.save()
-                    
                 messages.success(request, f"Teacher '{teacher.name}' updated successfully.")
             return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
-        elif action == 'delete':
-            teacher_id = request.POST.get('teacher_id')
-            teacher = get_object_or_404(Teacher, id=teacher_id, branch__in=branches)
-            teacher_name = teacher.name
-            teacher.delete()
-            messages.success(request, f"Teacher '{teacher_name}' deleted successfully.")
-            return redirect(f"{reverse('school_teachers')}?branch_id={branch_filter_id}")
-
         else:  # add action
             school_user_id = request.POST.get('school_user_id', '').strip()
             password = request.POST.get('password', '').strip()
             branch_id = request.POST.get('branch_id', '').strip()
-            medium_id = request.POST.get('medium_id', '').strip()
+            
+            # Additional teacher fields
+            mobile_no = request.POST.get('mobile_no', '').strip()
+            dob_str = request.POST.get('date_of_birth', '').strip()
+            city = request.POST.get('city', '').strip()
+            state = request.POST.get('state', '').strip() or 'Gujarat'
+            address = request.POST.get('address', '').strip()
+            pincode = request.POST.get('pincode', '').strip()
             
             if not school_user_id:
                 messages.error(request, "Please search and select a user by email first.")
-                return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
-            
-            if not password:
-                messages.error(request, "Password is required.")
                 return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
             if not branch_id:
                 messages.error(request, "Please assign a school (branch).")
                 return redirect(reverse('school_teachers'))
             
-            school_user = get_object_or_404(SchoolUser, id=school_user_id, institution=inst)
+            dob = None
+            if dob_str:
+                try:
+                    from django.utils.dateparse import parse_date
+                    dob = parse_date(dob_str)
+                except Exception:
+                    pass
+
+            su = get_object_or_404(RoleProfile, id=school_user_id, institution=inst)
+            user = su.user
             branch = get_object_or_404(Branch, id=branch_id, institution=inst)
             
-            # Enforce unique teacher (prevent registering the same SchoolUser twice)
-            if Teacher.objects.filter(school_user=school_user).exists():
-                messages.error(request, f"'{school_user.full_name}' is already registered as a teacher.")
+            teacher_role_obj, _ = Role.objects.get_or_create(role_name='TEACHER')
+            teacher_school_role, _ = SchoolRole.objects.get_or_create(role=teacher_role_obj, school=inst)
+            
+            if RoleProfile.objects.filter(user=user, role=teacher_school_role.role, institution=inst).exists():
+                messages.error(request, f"'{user.first_name} {user.last_name}' is already registered as a teacher.")
                 return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
-            # Find an existing user for this exact person (e.g. they are already a student)
-            user = None
-            existing_user = User.objects.filter(email=school_user.email, first_name=school_user.first_name, last_name=school_user.last_name).first()
+            if password:
+                user.set_password(password)
+            if mobile_no:
+                user.mobile_no = mobile_no
+            user.save()
             
-            if existing_user:
-                user = existing_user
-                if password:
-                    user.set_password(password)
-                    user.save()
-            else:
-                # Create Django User with TEACHER role. Ensure username is unique.
-                base_username = school_user.email
-                username = base_username
-                if User.objects.filter(username=username).exists():
-                    username = f"{base_username.split('@')[0]}_{school_user.id}@{base_username.split('@')[1]}" if '@' in base_username else f"{base_username}_{school_user.id}"
-                
-                user = User.objects.create_user(
-                    username=username,
-                    email=school_user.email,
-                    password=password,
-                    first_name=school_user.first_name,
-                    last_name=school_user.last_name,
-                    role='TEACHER'
-                )
+            # Keep looking-up profile (USER role profile) details synced as well
+            su.name = f"{user.first_name} {user.last_name}"
+            su.middle_name = user.middle_name
+            if mobile_no:
+                su.mobile_no = mobile_no
+            su.city = city
+            su.state = state
+            su.address = address
+            su.pincode = pincode
+            su.save()
             
-            # Create Teacher record
             from django.contrib.auth.hashers import make_password as hash_pw
             teacher_obj = Teacher.objects.create(
+                user=user,
+                role=teacher_school_role.role,
+                institution=inst,
                 branch=branch,
-                school_user=school_user,
-                name=school_user.full_name,
-                email=school_user.email,
-                password=hash_pw(password),
-                status='active'
+                name=f"{user.first_name} {user.last_name}",
+                middle_name=user.middle_name,
+                email=user.email,
+                password=hash_pw(password) if password else user.password,
+                status='active',
+                date_of_birth=dob,
+                city=city,
+                state=state,
+                address=address,
+                pincode=pincode,
+                mobile_no=mobile_no
             )
             
-            # Create TeacherProfile (links User ↔ Teacher)
             from teacher.models import TeacherProfile
-            TeacherProfile.objects.create(user=user, teacher=teacher_obj)
+            TeacherProfile.objects.update_or_create(user=user, defaults={'teacher': teacher_obj})
             
-            messages.success(request, f"Teacher '{school_user.full_name}' registered successfully!")
+            messages.success(request, f"Teacher '{user.first_name} {user.last_name}' registered successfully!")
             return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
     selected_branch_ids = []
@@ -748,7 +828,10 @@ def school_others_view(request):
     branch_filter_id = request.GET.get('branch_id', '').strip()
     others = StaffMember.objects.filter(branch__in=branches)
     if q:
-        others = others.filter(name__icontains=q)
+        others = others.filter(
+            db_models.Q(user__first_name__icontains=q) |
+            db_models.Q(user__last_name__icontains=q)
+        )
     if branch_filter_id:
         others = others.filter(branch_id=branch_filter_id)
         
@@ -1250,121 +1333,97 @@ def school_users_view(request):
     inst = profile.institution
 
     q = request.GET.get('q', '').strip()
-    users = SchoolUser.objects.filter(institution=inst).order_by('-created_at')
+    users = RoleProfile.objects.filter(institution=inst, role__role_name='USER').order_by('-id')
     if q:
-        users = users.filter(email__icontains=q) | users.filter(first_name__icontains=q) | users.filter(last_name__icontains=q)
-        users = users.filter(institution=inst).order_by('-created_at')
+        users = users.filter(
+            db_models.Q(email_id__icontains=q) |
+            db_models.Q(user__first_name__icontains=q) |
+            db_models.Q(user__last_name__icontains=q) |
+            db_models.Q(user__middle_name__icontains=q)
+        )
 
     if request.method == 'POST':
         action = request.POST.get('action', 'add')
 
         if action == 'delete':
             user_id = request.POST.get('user_id')
-            su = get_object_or_404(SchoolUser, id=user_id, institution=inst)
-            name = su.full_name if hasattr(su, 'full_name') else f"{su.first_name} {su.last_name}"
+            su = get_object_or_404(RoleProfile, id=user_id, institution=inst, role__role_name='USER')
+            name = su.name
             su.delete()
             messages.success(request, f"User '{name}' deleted successfully.")
             return redirect('school_users')
 
         elif action == 'edit':
             user_id = request.POST.get('user_id')
-            su = get_object_or_404(SchoolUser, id=user_id, institution=inst)
+            su = get_object_or_404(RoleProfile, id=user_id, institution=inst, role__role_name='USER')
             first_name = request.POST.get('first_name', '').strip()
+            middle_name = request.POST.get('middle_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
-            email = request.POST.get('email', '').strip()
-            dob = request.POST.get('dob', '').strip() or None
-            city = request.POST.get('city', '').strip()
-            state = request.POST.get('state', '').strip()
-            address = request.POST.get('address', '').strip()
-            pincode = request.POST.get('pincode', '').strip()
-            mobile_number = request.POST.get('mobile_number', '').strip()
+            mobile_no = request.POST.get('mobile_number', '').strip() or request.POST.get('mobile_no', '').strip()
 
-            if first_name and last_name and email:
-                if email != su.email and SchoolUser.objects.filter(email=email).exclude(id=su.id).exists():
-                    messages.error(request, "A user with this email already exists.")
-                    return redirect('school_users')
-                    
-                old_email = su.email
-                su.first_name = first_name
-                su.last_name = last_name
-                su.email = email
-                su.dob = dob
-                su.city = city
-                su.state = state
-                su.address = address
-                su.pincode = pincode
-                su.mobile_number = mobile_number
-                su.save()
+            if first_name and last_name:
+                user_obj = su.user
+                user_obj.first_name = first_name
+                user_obj.middle_name = middle_name
+                user_obj.last_name = last_name
+                user_obj.mobile_no = mobile_no
+                user_obj.save()
 
-                # Sync name and email changes to Teacher, Student, and User if the user is registered
-                user_needs_sync = False
-                if hasattr(su, 'teacher_role') and su.teacher_role:
-                    teacher = su.teacher_role
-                    teacher.name = su.full_name
-                    teacher.email = su.email
-                    teacher.save()
-                    user_needs_sync = True
-                if hasattr(su, 'student_role') and su.student_role:
-                    student = su.student_role
-                    student.name = su.full_name
-                    student.email = su.email
-                    student.save()
-                    user_needs_sync = True
-                if hasattr(su, 'staff_role') and su.staff_role:
-                    staff = su.staff_role
-                    staff.name = su.full_name
-                    staff.email = su.email
-                    staff.save()
-                    user_needs_sync = True
-                    
-                user = User.objects.filter(email=old_email).first()
-                if user:
-                    user.first_name = first_name
-                    user.last_name = last_name
-                    user.email = email
-                    if user.username == old_email:
-                        user.username = email
-                    user.save()
+                RoleProfile.objects.filter(user=user_obj).update(
+                    mobile_no=mobile_no
+                )
 
-                messages.success(request, f"User '{su.full_name}' updated successfully.")
+                messages.success(request, f"User '{su.name}' updated successfully.")
             return redirect('school_users')
 
         else:  # add
             first_name = request.POST.get('first_name', '').strip()
+            middle_name = request.POST.get('middle_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
             email = request.POST.get('email', '').strip()
-            dob = request.POST.get('dob', '').strip() 
-            city = request.POST.get('city', '').strip()
-            state = request.POST.get('state', '').strip()
-            address = request.POST.get('address', '').strip()
-            pincode = request.POST.get('pincode', '').strip()
-            mobile_number = request.POST.get('mobile_number', '').strip()
+            mobile_no = request.POST.get('mobile_number', '').strip() or request.POST.get('mobile_no', '').strip()
+            password = request.POST.get('password', '').strip()
 
-            if not (first_name and last_name and email):
-                messages.error(request, "First name, last name, and email are required.")
+            if not (first_name and last_name and email and password):
+                messages.error(request, "First name, last name, email, and password are required.")
                 return redirect('school_users')
 
-            if SchoolUser.objects.filter(
-                institution=inst,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                dob=dob
-            ).exists():
-                messages.error(request, f"An exact duplicate user already exists.")
+            role_obj, _ = Role.objects.get_or_create(role_name='USER')
+            school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=inst)
+
+            if RoleProfile.objects.filter(role=school_role.role, institution=inst, email_id=email).exists():
+                messages.error(request, f"A user with email '{email}' is already registered at this school.")
                 return redirect('school_users')
 
-            SchoolUser.objects.create(
+            user_obj = User.objects.filter(email=email).first()
+            if not user_obj:
+                user_obj = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=password,
+                    first_name=first_name,
+                    middle_name=middle_name,
+                    last_name=last_name,
+                    mobile_no=mobile_no
+                )
+            else:
+                if password:
+                    user_obj.set_password(password)
+                user_obj.first_name = first_name
+                user_obj.middle_name = middle_name
+                user_obj.last_name = last_name
+                user_obj.mobile_no = mobile_no
+                user_obj.save()
+
+            RoleProfile.objects.create(
+                user=user_obj,
+                role=school_role.role,
                 institution=inst,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                dob=dob,
-                city=city,
-                state=state,
-                address=address,
-                pincode=pincode,
-                mobile_number=mobile_number,
+                role_name=school_role.role.role_name,
+                email_id=email,
+                password=password,
+                mobile_no=mobile_no,
+                status='active'
             )
             messages.success(request, f"User '{first_name} {last_name}' added successfully.")
             return redirect('school_users')
@@ -1381,7 +1440,7 @@ def school_users_view(request):
 
 @school_admin_required
 def school_user_lookup_api(request):
-    """AJAX endpoint: search SchoolUser by email for teacher/student registration."""
+    """AJAX endpoint: search pre-registered school users (RoleProfile role='USER') for teacher/student registration."""
     profile = get_school_profile(request.user)
     inst = profile.institution
     q = request.GET.get('q', '').strip()
@@ -1389,33 +1448,30 @@ def school_user_lookup_api(request):
     if not q or len(q) < 1:
         return JsonResponse({'results': []})
 
-    existing_teacher_user_ids = set(
-        Teacher.objects.filter(branch__institution=inst, school_user__isnull=False).values_list('school_user_id', flat=True)
-    )
-    existing_student_user_ids = set(
-        Student.objects.filter(branch__institution=inst, school_user__isnull=False).values_list('school_user_id', flat=True)
-    )
-    existing_staff_user_ids = set(
-        StaffMember.objects.filter(branch__institution=inst, school_user__isnull=False).values_list('school_user_id', flat=True)
-    )
-
-    qs = SchoolUser.objects.filter(institution=inst).filter(
-        db_models.Q(first_name__icontains=q) |
-        db_models.Q(last_name__icontains=q) |
-        db_models.Q(email__icontains=q)
+    qs = RoleProfile.objects.filter(
+        institution=inst,
+        role__role_name='USER'
+    ).filter(
+        db_models.Q(user__first_name__icontains=q) |
+        db_models.Q(user__last_name__icontains=q) |
+        db_models.Q(email_id__icontains=q) |
+        db_models.Q(user__middle_name__icontains=q)
     )[:10]
 
     results = []
     for su in qs:
+        is_teacher = Teacher.objects.filter(branch__institution=inst, user=su.user).exists()
+        is_student = Student.objects.filter(branch__institution=inst, user=su.user).exists()
         results.append({
             'id': su.id,
             'first_name': su.first_name,
+            'middle_name': su.middle_name or '',
             'last_name': su.last_name,
-            'full_name': su.full_name,
+            'full_name': su.name,
             'email': su.email,
-            'is_teacher': su.id in existing_teacher_user_ids,
-            'is_student': su.id in existing_student_user_ids,
-            'is_staff': su.id in existing_staff_user_ids,
+            'mobile_no': su.mobile_no or '',
+            'is_teacher': is_teacher,
+            'is_student': is_student,
         })
 
     return JsonResponse({'results': results})

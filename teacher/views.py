@@ -59,7 +59,7 @@ def teacher_dashboard_view(request):
 
     # Classes assigned to this teacher
     assigned_classes = SchoolClass.objects.filter(teacher=teacher).select_related('branch') if teacher else []
-    total_students = Student.objects.filter(school_class__teacher=teacher).count() if teacher else 0
+    total_students = Student.objects.filter(user_profile__school_class__teacher=teacher).count() if teacher else 0
 
     # Attendance summary for today
     today = date_type.today()
@@ -119,7 +119,7 @@ def teacher_attendance_view(request):
 
     if selected_class_id:
         selected_class = get_object_or_404(SchoolClass, id=selected_class_id, teacher=teacher)
-        students = Student.objects.filter(school_class=selected_class, status='active').order_by('name')
+        students = Student.objects.filter(user_profile__school_class=selected_class, user__is_active=True).order_by('user__first_name', 'user__last_name')
         # Load existing attendance for the selected date
         for att in Attendance.objects.filter(school_class=selected_class, date=selected_date):
             existing_records[att.student_id] = att
@@ -135,7 +135,7 @@ def teacher_attendance_view(request):
             return redirect(f"{request.path}?class_id={class_id}&date={today_str}")
 
         cls = get_object_or_404(SchoolClass, id=class_id, teacher=teacher)
-        class_students = Student.objects.filter(school_class=cls, status='active')
+        class_students = Student.objects.filter(user_profile__school_class=cls, user__is_active=True)
 
         saved = 0
         for student in class_students:

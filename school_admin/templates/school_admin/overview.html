@@ -228,7 +228,8 @@
         <h1
             style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             Overview</h1>
-        <p style="color: var(--text-secondary); font-size: 0.95rem;">Administration panel for <strong>{{institution.name }}</strong></p>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">Administration panel for <strong>{{institution.name
+                }}</strong></p>
     </div>
     <!-- 
     <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
@@ -528,7 +529,7 @@
                 onchange="document.getElementById('branchSelectorForm').submit();">
                 {% for br in branches %}
                 <option value="{{ br.id }}" {% if selected_branch and selected_branch.id == br.id %}selected{% endif %}>
-                    {{ br.name }} ({{ br.branch_code }})</option>
+                    {{br.name }} ({{ br.branch_code }})</option>
                 {% endfor %}
             </select>
         </form>
@@ -542,7 +543,8 @@
                 <i class="fa-solid fa-user-graduate"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_students_count }}</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{
+                    branch_students_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
                     Branch Students</div>
@@ -556,7 +558,8 @@
                 <i class="fa-solid fa-chalkboard-user"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_teachers_count }}</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{
+                    branch_teachers_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
                     Branch Teachers</div>
@@ -570,7 +573,8 @@
                 <i class="fa-solid fa-school"></i>
             </div>
             <div>
-                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{ branch_classes_count }}</div>
+                <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-primary); line-height: 1.2;">{{
+                    branch_classes_count }}</div>
                 <div
                     style="font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-top: 2px;">
                     Branch Classes</div>
