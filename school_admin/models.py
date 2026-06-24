@@ -62,6 +62,7 @@ class RoleProfile(models.Model):
     institution = models.ForeignKey('super_admin.Institution', on_delete=models.CASCADE, db_column='institution_id', related_name='role_profiles')
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, db_column='branch_id', null=True, blank=True, related_name='role_profiles')
     address_record = models.ForeignKey('super_admin.Address', on_delete=models.SET_NULL, null=True, blank=True, db_column='address_id', related_name='role_profiles')
+    permissions = models.JSONField(default=dict, blank=True)
 
     class Meta:
         unique_together = ('user', 'role', 'institution')

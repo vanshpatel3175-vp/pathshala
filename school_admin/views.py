@@ -728,10 +728,30 @@ def school_teachers_view(request):
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
             
+            manage_attendance = request.POST.get('manage_attendance') == 'on'
+            manage_subjects = request.POST.get('manage_subjects') == 'on'
+            
+            attendance_classes = request.POST.getlist('attendance_classes')
+            subject_classes = {}
+            for key in request.POST:
+                if key.startswith('edit_subject_for_class_'):
+                    class_id = key.split('_')[-1]
+                    val = request.POST.get(key, '').strip()
+                    if val:
+                        subject_classes[class_id] = val
+            
             if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
                 teacher.branch = branch
                 teacher.status = status
+                
+                if not isinstance(teacher.permissions, dict):
+                    teacher.permissions = {}
+                teacher.permissions['manage_attendance'] = manage_attendance
+                teacher.permissions['manage_subjects'] = manage_subjects
+                teacher.permissions['attendance_classes'] = attendance_classes
+                teacher.permissions['subject_classes'] = subject_classes
+                
                 teacher.save()
                 messages.success(request, f"Teacher '{teacher.name}' updated successfully.")
             return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
@@ -747,6 +767,18 @@ def school_teachers_view(request):
             state = request.POST.get('state', '').strip() or 'Gujarat'
             address = request.POST.get('address', '').strip()
             pincode = request.POST.get('pincode', '').strip()
+            
+            manage_attendance = request.POST.get('manage_attendance') == 'on'
+            manage_subjects = request.POST.get('manage_subjects') == 'on'
+            
+            attendance_classes = request.POST.getlist('attendance_classes')
+            subject_classes = {}
+            for key in request.POST:
+                if key.startswith('subject_for_class_') and not key.startswith('edit_subject_for_class_'):
+                    class_id = key.split('_')[-1]
+                    val = request.POST.get(key, '').strip()
+                    if val:
+                        subject_classes[class_id] = val
             
             if not school_user_id:
                 messages.error(request, "Please search and select a user by email first.")
@@ -811,7 +843,13 @@ def school_teachers_view(request):
                 state=state,
                 address=address,
                 pincode=pincode,
-                mobile_no=mobile_no
+                mobile_no=mobile_no,
+                permissions={
+                    'manage_attendance': manage_attendance, 
+                    'manage_subjects': manage_subjects,
+                    'attendance_classes': attendance_classes,
+                    'subject_classes': subject_classes
+                }
             )
             
             from teacher.models import TeacherProfile
@@ -833,6 +871,7 @@ def school_teachers_view(request):
         selected_branch_ids.append(branches.first().id)
 
     mediums = Medium.objects.filter(institution=inst)
+    all_classes = SchoolClass.objects.filter(branch__in=branches).order_by('branch', 'name', 'section')
 
     context = {
         'profile': profile,
@@ -840,6 +879,7 @@ def school_teachers_view(request):
         'teachers': teachers,
         'branches': branches,
         'mediums': mediums,
+        'all_classes': all_classes,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'selected_branch_ids': selected_branch_ids,

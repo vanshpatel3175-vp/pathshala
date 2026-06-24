@@ -208,6 +208,45 @@
             </div>
         </div>
 
+        <!-- Step 6: Assign Permissions -->
+        <div id="teacher-permissions-section" style="display: none; margin-bottom: 18px;">
+            <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-user-lock" style="margin-right: 6px;"></i> Step 6 — Assign Permissions
+            </p>
+            <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease; border-bottom: 1px solid var(--border-color);" onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 500; color: var(--text-primary); font-size: 0.9rem;">Manage Attendance (Global)</span>
+                    <input type="checkbox" name="manage_attendance" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);" onchange="document.getElementById('attendance-classes-container').style.display = this.checked ? 'block' : 'none'">
+                </label>
+                <div id="attendance-classes-container" style="display: none; padding: 10px 15px; border-bottom: 1px solid var(--border-color); background: var(--bg-primary);">
+                    <p style="font-size: 0.8rem; margin-bottom: 8px; color: var(--text-secondary);">Select classes for attendance:</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        {% for cls in all_classes %}
+                        <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                            <input type="checkbox" name="attendance_classes" value="{{ cls.id }}" style="accent-color: var(--color-primary);"> {{ cls.name }} {{ cls.section|default:"" }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(0,0,0,0.1)'" onmouseout="this.style.background='transparent'">
+                    <span style="font-weight: 500; color: var(--text-primary); font-size: 0.9rem;">Manage Subjects (Global)</span>
+                    <input type="checkbox" name="manage_subjects" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);" onchange="document.getElementById('subject-classes-container').style.display = this.checked ? 'block' : 'none'">
+                </label>
+                <div id="subject-classes-container" style="display: none; padding: 10px 15px; background: var(--bg-primary);">
+                    <p style="font-size: 0.8rem; margin-bottom: 8px; color: var(--text-secondary);">Assign subjects per class:</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for cls in all_classes %}
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <span style="font-size: 0.8rem; width: 120px;">{{ cls.name }} {{ cls.section|default:"" }}</span>
+                            <input type="text" name="subject_for_class_{{ cls.id }}" class="form-control" placeholder="e.g. Math, Science" style="flex: 1; padding: 6px 10px; font-size: 0.8rem; border-radius: 4px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Submit -->
         <div id="teacher-submit-section" style="display: none; margin-top: 22px;">
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem;">
@@ -277,7 +316,9 @@
                                 </div>
                             </div>
                         </div>
+                        </div>
                     </th>
+                    <th style="padding: 15px; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted);">Permissions</th>
                     <th style="text-align: right;">Action</th>
                 </tr>
             </thead>
@@ -370,8 +411,22 @@
                             class="badge {% if teacher.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
                             style="font-size: 0.7rem;">{{ teacher.status|title }}</span>
                     </td>
+                    <td>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            {% if teacher.permissions.manage_attendance %}
+                            <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2); font-size: 0.65rem; text-transform: uppercase;">Attendance</span>
+                            {% endif %}
+                            {% if teacher.permissions.manage_subjects %}
+                            <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2); font-size: 0.65rem; text-transform: uppercase;">Subjects</span>
+                            {% endif %}
+                            {% if not teacher.permissions.manage_attendance and not teacher.permissions.manage_subjects %}
+                            <span style="font-size: 0.7rem; color: var(--text-muted);">—</span>
+                            {% endif %}
+                        </div>
+                    </td>
                     <td style="text-align: right; vertical-align: middle;">
                         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                            {{ teacher.permissions|json_script:teacher.id }}
                             <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
                                 onclick="openEditTeacherCard('{{ teacher.id }}', '{{ teacher.branch.id }}', '{{ teacher.status }}')">
                                 <i class="fa-solid fa-user-pen"></i> edit
@@ -392,7 +447,7 @@
 
                 <!-- Dynamic Placeholder when filters yield zero rows -->
                 <tr id="no-results-placeholder" style="{% if teachers %}display: none;{% endif %}">
-                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                    <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 50px;">
                         <i class="fa-solid fa-users"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
                         No teachers found matching the selected filters.{% if query %} Try a different search.
@@ -437,6 +492,42 @@
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
             </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label style="margin-bottom: 8px; display: block; font-size: 0.85rem;">Permissions</label>
+            <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;">
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color);">
+                    <span style="font-weight: 500; color: var(--text-primary); font-size: 0.9rem;">Manage Attendance (Global)</span>
+                    <input type="checkbox" id="edit_manage_attendance" name="manage_attendance" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);" onchange="document.getElementById('edit-attendance-classes-container').style.display = this.checked ? 'block' : 'none'">
+                </label>
+                <div id="edit-attendance-classes-container" style="display: none; padding: 10px 15px; border-bottom: 1px solid var(--border-color); background: var(--bg-primary);">
+                    <p style="font-size: 0.8rem; margin-bottom: 8px; color: var(--text-secondary);">Select classes for attendance:</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        {% for cls in all_classes %}
+                        <label style="font-size: 0.8rem; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                            <input type="checkbox" name="attendance_classes" id="edit_att_class_{{ cls.id }}" value="{{ cls.id }}" style="accent-color: var(--color-primary);"> {{ cls.name }} {{ cls.section|default:"" }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color);">
+                    <span style="font-weight: 500; color: var(--text-primary); font-size: 0.9rem;">Manage Subjects (Global)</span>
+                    <input type="checkbox" id="edit_manage_subjects" name="manage_subjects" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--color-primary);" onchange="document.getElementById('edit-subject-classes-container').style.display = this.checked ? 'block' : 'none'">
+                </label>
+                <div id="edit-subject-classes-container" style="display: none; padding: 10px 15px; background: var(--bg-primary);">
+                    <p style="font-size: 0.8rem; margin-bottom: 8px; color: var(--text-secondary);">Assign subjects per class:</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        {% for cls in all_classes %}
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <span style="font-size: 0.8rem; width: 120px;">{{ cls.name }} {{ cls.section|default:"" }}</span>
+                            <input type="text" name="edit_subject_for_class_{{ cls.id }}" id="edit_subj_class_{{ cls.id }}" class="form-control" placeholder="e.g. Math, Science" style="flex: 1; padding: 6px 10px; font-size: 0.8rem; border-radius: 4px; background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
@@ -586,6 +677,7 @@
         document.getElementById('teacher-info-section').style.display = 'block';
         document.getElementById('teacher-additional-section').style.display = 'block';
         document.getElementById('teacher-school-section').style.display = 'block';
+        document.getElementById('teacher-permissions-section').style.display = 'block';
         document.getElementById('teacher-submit-section').style.display = 'block';
     }
 
@@ -595,6 +687,7 @@
         document.getElementById('teacher-info-section').style.display = 'none';
         document.getElementById('teacher-additional-section').style.display = 'none';
         document.getElementById('teacher-school-section').style.display = 'none';
+        document.getElementById('teacher-permissions-section').style.display = 'none';
         document.getElementById('teacher-submit-section').style.display = 'none';
         statusEl.style.display = 'none';
 
@@ -611,6 +704,45 @@
         document.getElementById('edit_teacher_id').value = id;
         document.getElementById('edit_branch_id').value = branchId;
         document.getElementById('edit_status').value = status;
+        
+        // Parse permissions from script tag
+        let perms = {};
+        try {
+            let permStr = document.getElementById(id).textContent;
+            perms = JSON.parse(permStr);
+        } catch(e) {
+            console.error("Could not parse permissions:", e);
+        }
+        
+        let hasAtt = perms.manage_attendance === true;
+        let hasSubj = perms.manage_subjects === true;
+        
+        document.getElementById('edit_manage_attendance').checked = hasAtt;
+        document.getElementById('edit-attendance-classes-container').style.display = hasAtt ? 'block' : 'none';
+        
+        document.getElementById('edit_manage_subjects').checked = hasSubj;
+        document.getElementById('edit-subject-classes-container').style.display = hasSubj ? 'block' : 'none';
+        
+        // Reset inputs first
+        document.querySelectorAll('input[name="attendance_classes"]').forEach(el => el.checked = false);
+        document.querySelectorAll('input[name^="edit_subject_for_class_"]').forEach(el => el.value = '');
+        
+        if (perms.attendance_classes && Array.isArray(perms.attendance_classes)) {
+            perms.attendance_classes.forEach(clsId => {
+                let cb = document.getElementById('edit_att_class_' + clsId);
+                if(cb) cb.checked = true;
+            });
+        }
+        
+        if (perms.subject_classes && typeof perms.subject_classes === 'object') {
+            for (let clsId in perms.subject_classes) {
+                let inp = document.getElementById('edit_subj_class_' + clsId);
+                if (inp) {
+                    inp.value = perms.subject_classes[clsId];
+                }
+            }
+        }
+        
         openDrawer('edit-teacher-card');
     }
 
