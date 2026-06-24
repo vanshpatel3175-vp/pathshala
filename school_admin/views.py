@@ -1341,7 +1341,7 @@ def school_manage_view(request):
         recent_teachers = Teacher.objects.filter(branch=selected_branch).order_by('-id')[:5]
         recent_classes  = SchoolClass.objects.filter(branch=selected_branch).order_by('-id')[:5]
         recent_staff    = StaffMember.objects.filter(branch=selected_branch).order_by('-id')[:5]
-        all_students    = Student.objects.filter(branch=selected_branch).order_by('name')
+        all_students    = Student.objects.filter(branch=selected_branch).order_by('user__first_name', 'user__last_name')
         all_classes     = SchoolClass.objects.filter(branch=selected_branch).order_by('name')
     else:
         total_students = 0

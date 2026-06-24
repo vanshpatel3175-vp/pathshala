@@ -45,8 +45,7 @@
                     onchange="this.form.submit()">
                     <option value="">-- Search and Select a School --</option>
                     {% for inst in institutions %}
-                    <option value="{{ inst.id }}" {% if selected_inst and selected_inst.id==inst.id %}selected{% endif
-                        %}>
+                    <option value="{{ inst.id }}" {% if selected_inst and selected_inst.id == inst.id %}selected{% endif %}>
                         {{ inst.name }} ({{ inst.school_code }})
                     </option>
                     {% endfor %}
