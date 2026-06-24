@@ -10,14 +10,68 @@ from datetime import datetime, date, timedelta
 from .models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription
 
 def superadmin_required(view_func):
-    decorator = user_passes_test(
-        lambda u: u.is_authenticated and (u.is_superuser or u.is_staff),
-        login_url='login'
-    )
-    return decorator(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        has_teacher = False
+        has_student = False
+        try:
+            if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+                has_teacher = True
+        except AttributeError:
+            pass
+        try:
+            if hasattr(request.user, 'student_profile') and request.user.student_profile:
+                has_student = True
+        except AttributeError:
+            pass
+
+        if has_teacher or has_student:
+            logout(request)
+            messages.error(request, "This account is not authorized to access the Super Admin portal.")
+            return redirect('login')
+
+        if not (request.user.is_superuser or request.user.is_staff):
+            return redirect('login')
+            
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 def login_view(request):
     if request.user.is_authenticated:
+        # Check student/teacher profiles first — if they exist, bypass admin portals
+        has_teacher = False
+        has_student = False
+        try:
+            if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+                has_teacher = True
+        except AttributeError:
+            pass
+        try:
+            if hasattr(request.user, 'student_profile') and request.user.student_profile:
+                has_student = True
+        except AttributeError:
+            pass
+
+        if has_teacher or has_student:
+            total_profiles = (1 if has_teacher else 0) + (1 if has_student else 0)
+            if total_profiles > 1:
+                active_role = request.session.get('active_role')
+                if active_role == 'TEACHER':
+                    return redirect('teacher_dashboard')
+                elif active_role == 'STUDENT':
+                    return redirect('student_dashboard')
+                return redirect('select_profile')
+            
+            if has_teacher:
+                request.session['active_role'] = 'TEACHER'
+                return redirect('teacher_dashboard')
+            elif has_student:
+                request.session['active_role'] = 'STUDENT'
+                return redirect('student_dashboard')
+
+        # Fallback for pure admin users
         try:
             if hasattr(request.user, 'school_profile') and request.user.school_profile:
                 return redirect('school_overview')
@@ -27,35 +81,6 @@ def login_view(request):
         if request.user.is_superuser or request.user.is_staff:
             return redirect('dashboard')
             
-        all_users = User.objects.filter(email=request.user.email)
-        total_profiles = 0
-        for u in all_users:
-            if hasattr(u, 'teacher_profile') and u.teacher_profile:
-                total_profiles += 1
-            if hasattr(u, 'student_profile') and u.student_profile:
-                total_profiles += 1
-                
-        if total_profiles > 1:
-            active_role = request.session.get('active_role')
-            if active_role == 'TEACHER':
-                return redirect('teacher_dashboard')
-            elif active_role == 'STUDENT':
-                return redirect('student_dashboard')
-            return redirect('select_profile')
-            
-        if hasattr(request.user, 'teacher_profile'):
-            request.session['active_role'] = 'TEACHER'
-            return redirect('teacher_dashboard')
-        elif hasattr(request.user, 'student_profile'):
-            request.session['active_role'] = 'STUDENT'
-            return redirect('student_dashboard')
-            
-        # Check if the user is a school admin and redirect them
-        try:
-            if hasattr(request.user, 'school_profile'):
-                return redirect('school_overview')
-        except Exception:
-            pass
         return redirect('dashboard')
         
     if request.method == 'POST':
@@ -78,6 +103,36 @@ def login_view(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
+                
+                # Check student/teacher profiles first — if they exist, bypass admin portals
+                has_teacher = False
+                has_student = False
+                try:
+                    if hasattr(user, 'teacher_profile') and user.teacher_profile:
+                        has_teacher = True
+                except AttributeError:
+                    pass
+                try:
+                    if hasattr(user, 'student_profile') and user.student_profile:
+                        has_student = True
+                except AttributeError:
+                    pass
+
+                if has_teacher or has_student:
+                    total_profiles = (1 if has_teacher else 0) + (1 if has_student else 0)
+                    if total_profiles > 1:
+                        if 'active_role' in request.session:
+                            del request.session['active_role']
+                        return redirect('select_profile')
+                    
+                    if has_teacher:
+                        request.session['active_role'] = 'TEACHER'
+                        return redirect('teacher_dashboard')
+                    elif has_student:
+                        request.session['active_role'] = 'STUDENT'
+                        return redirect('student_dashboard')
+
+                # Fallback for pure admin users
                 try:
                     if hasattr(user, 'school_profile') and user.school_profile:
                         return redirect('school_overview')
@@ -86,40 +141,10 @@ def login_view(request):
                     
                 if user.is_superuser or user.is_staff:
                     return redirect('dashboard')
-                
-                # Check dual-role or multiple profiles
-                all_users = User.objects.filter(email=user.email)
-                total_profiles = 0
-                has_teacher = False
-                has_student = False
-                for u in all_users:
-                    if hasattr(u, 'teacher_profile') and u.teacher_profile:
-                        total_profiles += 1
-                        has_teacher = True
-                    if hasattr(u, 'student_profile') and u.student_profile:
-                        total_profiles += 1
-                        has_student = True
-                        
-                if total_profiles > 1:
-                    if 'active_role' in request.session:
-                        del request.session['active_role']
-                    return redirect('select_profile')
-                    
-                if has_teacher:
-                    request.session['active_role'] = 'TEACHER'
-                    return redirect('teacher_dashboard')
-                elif has_student:
-                    request.session['active_role'] = 'STUDENT'
-                    return redirect('student_dashboard')
-                else:
-                    try:
-                        if hasattr(user, 'school_profile'):
-                            return redirect('school_overview')
-                    except Exception:
-                        pass
-                    logout(request)
-                    messages.error(request, "This account is not linked to any school or superadmin portal.")
-                    return render(request, 'super_admin/login.html')
+
+                logout(request)
+                messages.error(request, "This account is not linked to any school or superadmin portal.")
+                return render(request, 'super_admin/login.html')
             else:
                 try:
                     if hasattr(user, 'school_profile'):
@@ -511,9 +536,10 @@ def select_profile_view(request):
         selected_role = request.POST.get('role', '').strip()
         selected_user_id = request.POST.get('user_id', '').strip()
         
-        if selected_user_id:
+        if selected_user_id or selected_role:
             try:
-                selected_user = User.objects.get(id=selected_user_id, email=user.email)
+                # User model uses email as PK — there is no integer 'id' field
+                selected_user = User.objects.get(email=user.email)
                 login(request, selected_user)
                 request.session['active_role'] = selected_role
                 if selected_role == 'TEACHER':

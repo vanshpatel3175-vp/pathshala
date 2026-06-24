@@ -161,6 +161,25 @@ def school_admin_required(view_func):
     def wrapper(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('login')
+            
+        has_teacher = False
+        has_student = False
+        try:
+            if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+                has_teacher = True
+        except AttributeError:
+            pass
+        try:
+            if hasattr(request.user, 'student_profile') and request.user.student_profile:
+                has_student = True
+        except AttributeError:
+            pass
+
+        if has_teacher or has_student:
+            logout(request)
+            messages.error(request, "This account is not authorized to access the School Admin portal.")
+            return redirect('login')
+            
         profile = get_school_profile(request.user)
         if not profile or not profile.institution:
             logout(request)
@@ -560,16 +579,20 @@ def school_students_view(request):
                 messages.error(request, f"'{user.first_name} {user.last_name}' is already registered as a student.")
                 return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
-            if first_name_val:
-                user.first_name = first_name_val
-            user.middle_name = middle_name_val
-            if last_name_val:
-                user.last_name = last_name_val
-            if password:
-                user.set_password(password)
-            if mobile_no:
-                user.mobile_no = mobile_no
-            user.save()
+            # Check if this user is registered in another institution/school
+            is_shared_user = RoleProfile.objects.filter(user=user).exclude(institution=inst).exists()
+            
+            if not is_shared_user:
+                if first_name_val:
+                    user.first_name = first_name_val
+                user.middle_name = middle_name_val
+                if last_name_val:
+                    user.last_name = last_name_val
+                if password:
+                    user.set_password(password)
+                if mobile_no:
+                    user.mobile_no = mobile_no
+                user.save()
 
             # Keep looking-up profile (USER role profile) details synced as well
             su.name = f"{user.first_name} {user.last_name}"
@@ -590,7 +613,6 @@ def school_students_view(request):
                 except SchoolClass.DoesNotExist:
                     pass
 
-            from django.contrib.auth.hashers import make_password as hash_pw
             student_obj = Student.objects.create(
                 user=user,
                 role=student_school_role.role,
@@ -600,7 +622,7 @@ def school_students_view(request):
                 name=f"{user.first_name} {user.last_name}",
                 middle_name=user.middle_name,
                 email=user.email,
-                password=hash_pw(password) if password else user.password,
+                password=user.password,
                 status='active',
                 parent_full_name=parent_full_name,
                 parent_mobile_no=parent_mobile_no,
@@ -734,11 +756,15 @@ def school_teachers_view(request):
                 messages.error(request, f"'{user.first_name} {user.last_name}' is already registered as a teacher.")
                 return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
-            if password:
-                user.set_password(password)
-            if mobile_no:
-                user.mobile_no = mobile_no
-            user.save()
+            # Check if this user is registered in another institution/school
+            is_shared_user = RoleProfile.objects.filter(user=user).exclude(institution=inst).exists()
+            
+            if not is_shared_user:
+                if password:
+                    user.set_password(password)
+                if mobile_no:
+                    user.mobile_no = mobile_no
+                user.save()
             
             # Keep looking-up profile (USER role profile) details synced as well
             su.name = f"{user.first_name} {user.last_name}"
@@ -751,7 +777,6 @@ def school_teachers_view(request):
             su.pincode = pincode
             su.save()
             
-            from django.contrib.auth.hashers import make_password as hash_pw
             teacher_obj = Teacher.objects.create(
                 user=user,
                 role=teacher_school_role.role,
@@ -760,7 +785,7 @@ def school_teachers_view(request):
                 name=f"{user.first_name} {user.last_name}",
                 middle_name=user.middle_name,
                 email=user.email,
-                password=hash_pw(password) if password else user.password,
+                password=user.password,
                 status='active',
                 date_of_birth=dob,
                 city=city,
@@ -1086,7 +1111,7 @@ def school_attendance_view(request):
         qs = Attendance.objects.filter(school_class=selected_class).select_related('student', 'teacher')
         if date_filter:
             qs = qs.filter(date=date_filter)
-        attendances = qs.order_by('-date', 'student__name')
+        attendances = qs.order_by('-date', 'student__user__first_name', 'student__user__last_name')
 
     # Attendance summary per class
     from django.db.models import Count, Q
@@ -1318,13 +1343,10 @@ def school_users_view(request):
                     mobile_no=mobile_no
                 )
             else:
-                if password:
-                    user_obj.set_password(password)
-                user_obj.first_name = first_name
-                user_obj.middle_name = middle_name
-                user_obj.last_name = last_name
-                user_obj.mobile_no = mobile_no
-                user_obj.save()
+                # User already exists in the database. To prevent overwriting
+                # existing user data across other schools/branches, do NOT modify
+                # the existing User model's details (password, name, mobile number).
+                pass
 
             RoleProfile.objects.create(
                 user=user_obj,
@@ -1332,7 +1354,7 @@ def school_users_view(request):
                 institution=inst,
                 role_name=school_role.role.role_name,
                 email_id=email,
-                password=password,
+                password=user_obj.password,
                 mobile_no=mobile_no,
                 status='active'
             )

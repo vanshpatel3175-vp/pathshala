@@ -34,14 +34,14 @@ class User(AbstractUser):
 
     @property
     def role(self):
-        if self.is_superuser:
-            return 'SUPER ADMIN'
-        if hasattr(self, 'school_profile') and self.school_profile:
-            return 'SCHOOL STAFF'
         if self.role_profiles.filter(role__role_name='TEACHER').exists():
             return 'TEACHER'
         if self.role_profiles.filter(role__role_name='STUDENT').exists():
             return 'STUDENT'
+        if self.is_superuser:
+            return 'SUPER ADMIN'
+        if hasattr(self, 'school_profile') and self.school_profile:
+            return 'SCHOOL STAFF'
         return 'SCHOOL STAFF'
 
     @role.setter
