@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .serializer import (
     SchoolSignupSerializer, SchoolLoginAPISerializer, LegacyLoginUserSerializer,
-    LoginSerializer, VerifyProfileSerializer
+    LoginSerializer, StudentProfileSerializer, TeacherProfileSerializer
 )
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -256,17 +256,23 @@ class LoginAPIView(APIView):
             if rp.role_name and rp.role_name.upper() != 'USER':
                 all_roles.append(rp.role_name)
 
-        # Also include SCHOOL_ADMIN if user has a school_profile
-        try:
-            sp = user.school_profile
-            if sp:
-                all_roles.append('SCHOOL_ADMIN')
-        except Exception:
-            pass
+        # Check if the user has a Student or Teacher role
+        has_student_or_teacher = any(r.upper() in ('STUDENT', 'TEACHER') for r in all_roles)
 
-        # Include SUPER_ADMIN if superuser
-        if user.is_superuser:
-            all_roles.append('SUPER_ADMIN')
+        if has_student_or_teacher:
+            all_roles = [r for r in all_roles if r.upper() not in ('SCHOOL_ADMIN', 'SUPER_ADMIN')]
+        else:
+            # Also include SCHOOL_ADMIN if user has a school_profile
+            try:
+                sp = user.school_profile
+                if sp:
+                    all_roles.append('SCHOOL_ADMIN')
+            except Exception:
+                pass
+
+            # Include SUPER_ADMIN if superuser
+            if user.is_superuser:
+                all_roles.append('SUPER_ADMIN')
 
         # Remove duplicates while preserving order
         seen = set()
@@ -291,16 +297,24 @@ class LoginAPIView(APIView):
 
 class VerifyProfileAPIView(APIView):
     """
-    POST /api/auth/verify/
-    Body: { "access": "...", "refresh": "..." }
-    Returns full profile details for every role the authenticated user holds,
-    along with access and refresh tokens.
+    POST /api/auth/verify
+    Body: { "access": "<jwt>", "refresh": "<jwt>" }   (refresh is optional)
+
+    Returns profile details for every STUDENT and TEACHER role the authenticated
+    user holds.  SCHOOL_ADMIN and SUPER_ADMIN roles are silently excluded —
+    users with those roles cannot access profile data through this endpoint.
+
+    If the user holds both STUDENT and TEACHER roles, both profiles appear
+    in the `profiles` array.
     """
     authentication_classes = []
     permission_classes = []
 
+    # Roles that this API exposes — anything else is silently skipped.
+    ALLOWED_ROLES = {'STUDENT', 'TEACHER'}
+
     def post(self, request):
-        access_token = request.data.get('access') or request.data.get('access_token')
+        access_token  = request.data.get('access') or request.data.get('access_token')
         refresh_token = request.data.get('refresh') or request.data.get('refresh_token')
 
         if not access_token:
@@ -328,57 +342,39 @@ class VerifyProfileAPIView(APIView):
                 "message": "User is inactive or deleted."
             }, status=status.HTTP_401_UNAUTHORIZED)
 
-        profiles_data = []
-
-        # SCHOOL_ADMIN profile
-        try:
-            sp = user.school_profile
-            if sp:
-                profiles_data.append({
-                    "role": "SCHOOL_ADMIN",
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "middle_name": getattr(user, 'middle_name', "") or "",
-                    "email": user.email,
-                    "mobile_no": sp.phone or "",
-                    "institution_name": sp.institution.name if sp.institution else "",
-                    "branch_name": "",
-                    "address": None,
-                    "city": sp.city or "",
-                    "state": sp.state or "",
-                    "date_of_birth": None,
-                })
-        except Exception:
-            pass
-
-        # SUPER_ADMIN profile
-        if user.is_superuser:
-            profiles_data.append({
-                "role": "SUPER_ADMIN",
-                "first_name": user.first_name,
-                "last_name": user.last_name,
-                "middle_name": getattr(user, 'middle_name', "") or "",
-                "email": user.email,
-                "mobile_no": getattr(user, 'mobile_no', "") or "",
-                "institution_name": "",
-                "branch_name": "",
-                "address": None,
-                "date_of_birth": None,
-            })
-
-        # Role-based profiles (TEACHER, STUDENT, etc.) from RoleProfile
+        # Check if the user has any allowed role profiles (STUDENT or TEACHER)
+        # Exclude users with only SCHOOL_ADMIN or SUPER_ADMIN roles
         role_profiles = user.role_profiles.select_related(
             'role', 'institution', 'branch', 'address_record'
         ).all()
+
+        has_allowed_role = any((rp.role_name or '').upper() in self.ALLOWED_ROLES for rp in role_profiles)
+        if not has_allowed_role:
+            return Response({
+                "success_key": 0,
+                "message": "Access denied for this role profile."
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        profiles_data = []
         for rp in role_profiles:
-            if rp.role_name and rp.role_name.upper() != 'USER':
-                serialized = VerifyProfileSerializer(rp).data
-                profiles_data.append(serialized)
+            role_upper = (rp.role_name or '').upper()
+
+            if role_upper not in self.ALLOWED_ROLES:
+                # Silently skip USER, SCHOOL_ADMIN, SUPER_ADMIN, etc.
+                continue
+
+            if role_upper == 'STUDENT':
+                serialized = StudentProfileSerializer(rp).data
+            elif role_upper == 'TEACHER':
+                serialized = TeacherProfileSerializer(rp).data
+            else:
+                continue
+
+            profiles_data.append(serialized)
 
         return Response({
             "success_key": 1,
             "email": user.email,
-            "user_id": user.id,
             "access_token": access_token,
             "refresh_token": refresh_token,
             "profiles": profiles_data,

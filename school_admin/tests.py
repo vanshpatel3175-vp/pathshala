@@ -646,4 +646,461 @@ class UserProfileDateOfBirthSyncTests(TestCase):
         self.assertEqual(str(student_profile.date_of_birth), "2005-05-20")
 
 
+class RoleWisePermissionTests(TestCase):
+    def setUp(self):
+        from super_admin.models import Institution, Role, SchoolRole
+        from school_admin.models import Branch
+        from datetime import datetime, timedelta
+        
+        self.User = get_user_model()
+        self.institution = Institution.objects.create(
+            name="Permission Test School",
+            contact_no="1234567890",
+            email="perm@school.com",
+            expired_date=datetime.now() + timedelta(days=365)
+        )
+        self.branch = Branch.objects.create(
+            institution=self.institution,
+            name="Main Branch",
+            city="Navsari",
+            status="active"
+        )
+        
+        # Student role setup
+        self.student_role, _ = Role.objects.get_or_create(role_name='STUDENT')
+        self.student_school_role, _ = SchoolRole.objects.get_or_create(role=self.student_role, school=self.institution)
+        
+        # Teacher role setup
+        self.teacher_role, _ = Role.objects.get_or_create(role_name='TEACHER')
+        self.teacher_school_role, _ = SchoolRole.objects.get_or_create(role=self.teacher_role, school=self.institution)
+        
+        # Admin role setup
+        self.admin_role, _ = Role.objects.get_or_create(role_name='SCHOOL_ADMIN')
+        self.admin_school_role, _ = SchoolRole.objects.get_or_create(role=self.admin_role, school=self.institution)
+
+    def test_dual_role_login_excludes_admin(self):
+        from school_admin.models import Student, RoleProfile
+        from student.models import StudentProfile
+        
+        # Create dual-role user (Student + School Admin)
+        user = self.User.objects.create_user(
+            username="dualadmin@test.com",
+            email="dualadmin@test.com",
+            password="password123"
+        )
+        
+        # 1. Add STUDENT role profile
+        student = Student.objects.create(
+            user=user,
+            role=self.student_school_role.role,
+            institution=self.institution,
+            branch=self.branch,
+            name="Dual Admin",
+            email=user.email
+        )
+        student_profile = StudentProfile.objects.create(
+            user=user,
+            student=student,
+            date_of_birth="2005-05-15"
+        )
+        
+        # 2. Add SCHOOL_ADMIN role profile
+        RoleProfile.objects.create(
+            user=user,
+            role=self.admin_school_role.role,
+            institution=self.institution,
+            role_name='SCHOOL_ADMIN',
+            email_id=user.email,
+            status='active'
+        )
+        
+        # Login via API
+        client = Client()
+        response = client.post(reverse('api_login'), {
+            'email': 'dualadmin@test.com',
+            'password': 'password123'
+        }, content_type='application/json')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        roles = data.get('all_roles', [])
+        # Should include STUDENT, but NOT SCHOOL_ADMIN
+        self.assertIn('STUDENT', roles)
+        self.assertNotIn('SCHOOL_ADMIN', roles)
+
+    def test_pure_admin_login_includes_admin(self):
+        from school_admin.models import RoleProfile
+        
+        user = self.User.objects.create_user(
+            username="pureadmin@test.com",
+            email="pureadmin@test.com",
+            password="password123"
+        )
+        
+        RoleProfile.objects.create(
+            user=user,
+            role=self.admin_school_role.role,
+            institution=self.institution,
+            role_name='SCHOOL_ADMIN',
+            email_id=user.email,
+            status='active'
+        )
+        # Create school admin profile model representation
+        SchoolAdminProfile.objects.create(
+            user=user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        
+        client = Client()
+        response = client.post(reverse('api_login'), {
+            'email': 'pureadmin@test.com',
+            'password': 'password123'
+        }, content_type='application/json')
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        roles = data.get('all_roles', [])
+        self.assertIn('SCHOOL_ADMIN', roles)
+
+    def test_verify_api_excludes_pure_admin(self):
+        from school_admin.models import RoleProfile
+        
+        user = self.User.objects.create_user(
+            username="pureadmin@test.com",
+            email="pureadmin@test.com",
+            password="password123"
+        )
+        RoleProfile.objects.create(
+            user=user,
+            role=self.admin_school_role.role,
+            institution=self.institution,
+            role_name='SCHOOL_ADMIN',
+            email_id=user.email,
+            status='active'
+        )
+        SchoolAdminProfile.objects.create(
+            user=user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        
+        client = Client()
+        # Login to get token
+        login_res = client.post(reverse('api_login'), {
+            'email': 'pureadmin@test.com',
+            'password': 'password123'
+        }, content_type='application/json')
+        access_token = login_res.json().get('access_token')
+        
+        # Access verify endpoint
+        verify_res = client.post(reverse('api_verify_profile'), {
+            'access': access_token
+        }, content_type='application/json')
+        
+        # Access should be denied (403)
+        self.assertEqual(verify_res.status_code, 403)
+
+    def test_dual_role_web_login_redirects_correctly(self):
+        from school_admin.models import Student, RoleProfile
+        from student.models import StudentProfile
+        
+        user = self.User.objects.create_user(
+            username="dualadmin@test.com",
+            email="dualadmin@test.com",
+            password="password123"
+        )
+        
+        student = Student.objects.create(
+            user=user,
+            role=self.student_school_role.role,
+            institution=self.institution,
+            branch=self.branch,
+            name="Dual Admin",
+            email=user.email
+        )
+        StudentProfile.objects.create(
+            user=user,
+            student=student,
+            date_of_birth="2005-05-15"
+        )
+        
+        RoleProfile.objects.create(
+            user=user,
+            role=self.admin_school_role.role,
+            institution=self.institution,
+            role_name='SCHOOL_ADMIN',
+            email_id=user.email,
+            status='active'
+        )
+        SchoolAdminProfile.objects.create(
+            user=user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        
+        client = Client()
+        # Logging in should redirect to student_dashboard (since they have a student role, and admin roles are blocked)
+        # instead of school_overview
+        response = client.post(reverse('login'), {
+            'email': 'dualadmin@test.com',
+            'password': 'password123'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('student_dashboard'))
+
+    def test_school_admin_required_blocks_dual_role_user(self):
+        from school_admin.models import Student, RoleProfile
+        from student.models import StudentProfile
+        
+        user = self.User.objects.create_user(
+            username="dualadmin@test.com",
+            email="dualadmin@test.com",
+            password="password123"
+        )
+        
+        student = Student.objects.create(
+            user=user,
+            role=self.student_school_role.role,
+            institution=self.institution,
+            branch=self.branch,
+            name="Dual Admin",
+            email=user.email
+        )
+        StudentProfile.objects.create(
+            user=user,
+            student=student,
+            date_of_birth="2005-05-15"
+        )
+        
+        RoleProfile.objects.create(
+            user=user,
+            role=self.admin_school_role.role,
+            institution=self.institution,
+            role_name='SCHOOL_ADMIN',
+            email_id=user.email,
+            status='active'
+        )
+        SchoolAdminProfile.objects.create(
+            user=user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        
+        client = Client()
+        client.login(username='dualadmin@test.com', password='password123')
+        
+        # Try accessing school overview
+        response = client.get(reverse('school_overview'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
+
+    def test_teacher_attendance_history_view_resolves_name_field(self):
+        from school_admin.models import Teacher, Student, SchoolClass, Attendance
+        from teacher.models import TeacherProfile
+        from student.models import StudentProfile
+        from datetime import date
+        
+        # Create a teacher user
+        teacher_user = self.User.objects.create_user(
+            username="teacher@test.com",
+            email="teacher@test.com",
+            password="password123"
+        )
+        teacher = Teacher.objects.create(
+            user=teacher_user,
+            role=self.teacher_school_role.role,
+            institution=self.institution,
+            branch=self.branch,
+            name="Teacher User",
+            email=teacher_user.email
+        )
+        TeacherProfile.objects.create(
+            user=teacher_user,
+            teacher=teacher
+        )
+        
+        # Create student user
+        student_user = self.User.objects.create_user(
+            username="student@test.com",
+            email="student@test.com",
+            password="password123"
+        )
+        student = Student.objects.create(
+            user=student_user,
+            role=self.student_school_role.role,
+            institution=self.institution,
+            branch=self.branch,
+            name="Student User",
+            email=student_user.email
+        )
+        StudentProfile.objects.create(
+            user=student_user,
+            student=student
+        )
+        
+        # Create SchoolClass
+        school_class = SchoolClass.objects.create(
+            branch=self.branch,
+            name="Class 10",
+            section="A",
+            teacher=teacher
+        )
+        
+        # Create Attendance record
+        Attendance.objects.create(
+            school_class=school_class,
+            student=student,
+            teacher=teacher,
+            date=date.today(),
+            status="present"
+        )
+        
+        # Log in teacher and access attendance history view
+        client = Client()
+        client.login(username="teacher@test.com", password="password123")
+        
+        # Set active_role session variable so teacher_required decorator allows access
+        session = client.session
+        session['active_role'] = 'TEACHER'
+        session.save()
+        
+        response = client.get(reverse('teacher_attendance_history'), {
+            'class_id': school_class.id,
+            'date': str(date.today())
+        })
+        
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_existing_user_to_another_school_preserves_data(self):
+        from super_admin.models import Institution, Role, SchoolRole
+        from school_admin.models import RoleProfile
+        from datetime import datetime, timedelta
+        
+        # 1. Create another institution
+        school2 = Institution.objects.create(
+            name="Second School",
+            email="school2@test.com",
+            status="active",
+            expired_date=datetime.now() + timedelta(days=365)
+        )
+        
+        # Create user with initial details
+        user = self.User.objects.create_user(
+            username="existing@test.com",
+            email="existing@test.com",
+            password="original_password",
+            first_name="OriginalName",
+            last_name="LastName"
+        )
+        
+        # Log in admin for Second School
+        admin2 = self.User.objects.create_user(
+            username="admin2@test.com",
+            email="admin2@test.com",
+            password="adminpassword",
+            role="SCHOOL STAFF"
+        )
+        SchoolAdminProfile.objects.create(
+            user=admin2,
+            institution=school2,
+            city="Navsari"
+        )
+        
+        # Let's hit school_users_view POST (add action) to register the same email in School 2
+        client = Client()
+        client.login(username="admin2@test.com", password="adminpassword")
+        
+        response = client.post(reverse('school_users'), {
+            'action': 'add',
+            'first_name': 'NewName',
+            'last_name': 'NewLastName',
+            'email': 'existing@test.com',
+            'password': 'new_password',
+            'mobile_no': '9999999999'
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify that User model was NOT modified
+        user.refresh_from_db()
+        self.assertEqual(user.first_name, "OriginalName")
+        self.assertEqual(user.last_name, "LastName")
+        # Assert password check still passes with the original password, not the new one
+        self.assertTrue(user.check_password("original_password"))
+        self.assertFalse(user.check_password("new_password"))
+        
+        # But a new RoleProfile should exist for this user in School 2
+        self.assertTrue(RoleProfile.objects.filter(user=user, institution=school2).exists())
+
+    def test_register_shared_student_preserves_central_user_details(self):
+        from super_admin.models import Institution, Role, SchoolRole
+        from school_admin.models import Student, RoleProfile
+        from student.models import StudentProfile
+        from datetime import datetime, timedelta
+        
+        # School 1 (self.institution) already has a USER RoleProfile for this user:
+        user = self.User.objects.create_user(
+            username="shared_student@test.com",
+            email="shared_student@test.com",
+            password="original_password",
+            first_name="OriginalName",
+            last_name="LastName"
+        )
+        
+        # Create a RoleProfile in another institution to make the user 'shared'
+        other_inst = Institution.objects.create(
+            name="Other Institution",
+            email="other@inst.com",
+            status="active",
+            expired_date=datetime.now() + timedelta(days=365)
+        )
+        RoleProfile.objects.create(
+            user=user,
+            role=self.student_school_role.role, # just any role
+            institution=other_inst,
+            role_name="STUDENT",
+            email_id=user.email,
+            status="active"
+        )
+        
+        # Also create lookup USER RoleProfile in the current school
+        user_role, _ = Role.objects.get_or_create(role_name='USER')
+        user_school_role, _ = SchoolRole.objects.get_or_create(role=user_role, school=self.institution)
+        su = RoleProfile.objects.create(
+            user=user,
+            role=user_school_role.role,
+            institution=self.institution,
+            role_name="USER",
+            email_id=user.email,
+            status="active"
+        )
+        
+        # Log in current school admin and try to register them as a student
+        client = Client()
+        client.login(username="admin@testschool.com", password="password123")
+        
+        response = client.post(reverse('school_students'), {
+            'school_user_id': su.id,
+            'password': 'new_student_password',
+            'first_name': 'OverwrittenName',
+            'last_name': 'OverwrittenLast',
+            'branch_id': self.branch.id,
+            'mobile_no': '8888888888'
+        })
+        
+        self.assertEqual(response.status_code, 302)
+        
+        # Verify that User model details are NOT modified
+        user.refresh_from_db()
+        self.assertEqual(user.first_name, "OriginalName")
+        self.assertEqual(user.last_name, "LastName")
+        self.assertTrue(user.check_password("original_password"))
+        self.assertFalse(user.check_password("new_student_password"))
+        
+        # But they are successfully registered as a Student in the current school/branch
+        self.assertTrue(Student.objects.filter(user=user, branch=self.branch).exists())
+
+
+
 

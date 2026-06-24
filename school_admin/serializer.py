@@ -611,87 +611,78 @@ class LoginSerializer(serializers.Serializer):
         return attrs
 
 
-class VerifyProfileSerializer(serializers.ModelSerializer):
+class StudentProfileSerializer(serializers.ModelSerializer):
     """
-    Returns full profile details for the authenticated user.
-    Pulls data from User, RoleProfile, UserProfile and related tables.
+    Returns full profile for a STUDENT role profile.
+    Fields: role_profile_id, role_name, first_name, middle_name, last_name,
+            email, mobile_no, institution_name, branch_name, class_name,
+            date_of_birth, roll_no, uid_no, grno, parent_full_name,
+            parent_mobile_no, gardian_name, gardian_mobile_no, address.
     """
-    first_name   = serializers.CharField(source='user.first_name', read_only=True)
-    last_name    = serializers.CharField(source='user.last_name', read_only=True)
-    middle_name  = serializers.SerializerMethodField()
-    mobile_no    = serializers.CharField(read_only=True)
-    email        = serializers.CharField(source='email_id', read_only=True)
-    role_name    = serializers.CharField(read_only=True)
-    institution_name  = serializers.CharField(source='institution.name', read_only=True)
-    branch_name       = serializers.CharField(source='branch.name', read_only=True)
-    address      = serializers.SerializerMethodField()
-
-    # Student-specific fields (null for other roles)
-    roll_no      = serializers.SerializerMethodField()
-    uid_no       = serializers.SerializerMethodField()
-    grno         = serializers.SerializerMethodField()
-    school_class = serializers.SerializerMethodField()
+    role_profile_id    = serializers.IntegerField(source='id', read_only=True)
+    role_name          = serializers.SerializerMethodField()
+    first_name         = serializers.CharField(source='user.first_name', read_only=True)
+    middle_name        = serializers.SerializerMethodField()
+    last_name          = serializers.CharField(source='user.last_name', read_only=True)
+    email              = serializers.CharField(source='email_id', read_only=True)
+    mobile_no          = serializers.CharField(read_only=True)
+    institution_name   = serializers.SerializerMethodField()
+    branch_name        = serializers.SerializerMethodField()
+    class_name         = serializers.SerializerMethodField()
+    date_of_birth      = serializers.SerializerMethodField()
+    roll_no            = serializers.SerializerMethodField()
+    uid_no             = serializers.SerializerMethodField()
+    grno               = serializers.SerializerMethodField()
     parent_full_name   = serializers.SerializerMethodField()
     parent_mobile_no   = serializers.SerializerMethodField()
     gardian_name       = serializers.SerializerMethodField()
     gardian_mobile_no  = serializers.SerializerMethodField()
-    date_of_birth      = serializers.SerializerMethodField()
-
-    # Teacher-specific fields (null for other roles)
-    teacher_qualification = serializers.SerializerMethodField()
+    address            = serializers.SerializerMethodField()
 
     class Meta:
         from school_admin.models import RoleProfile
         model = RoleProfile
         fields = [
-            'id', 'email', 'first_name', 'last_name', 'middle_name',
-            'mobile_no', 'role_name',
-            'institution_name', 'branch_name', 'address',
+            'role_profile_id', 'role_name',
+            'first_name', 'middle_name', 'last_name',
+            'email', 'mobile_no',
+            'institution_name', 'branch_name', 'class_name',
             'date_of_birth',
-            # Student
-            'roll_no', 'uid_no', 'grno', 'school_class',
+            'roll_no', 'uid_no', 'grno',
             'parent_full_name', 'parent_mobile_no',
             'gardian_name', 'gardian_mobile_no',
-            # Teacher
-            'teacher_qualification',
+            'address',
         ]
+
+    def _get_user_profile(self, obj):
+        if obj.user:
+            return getattr(obj.user, 'user_profile', None)
+        return None
+
+    def get_role_name(self, obj):
+        return 'STUDENT'
 
     def get_middle_name(self, obj):
         return getattr(obj.user, 'middle_name', None) or ""
 
     def get_institution_name(self, obj):
-        if obj.institution:
-            return obj.institution.name
-        return ""
+        return obj.institution.name if obj.institution else ""
 
     def get_branch_name(self, obj):
-        if obj.branch:
-            return obj.branch.name
-        return ""
+        return obj.branch.name if obj.branch else ""
 
-    def get_address(self, obj):
-        if obj.address_record:
-            return {
-                'addressline1': obj.address_record.addressline1 or "",
-                'addressline2': obj.address_record.addressline2 or "",
-                'city':         obj.address_record.city or "",
-                'state':        obj.address_record.state or "",
-                'pincode':      obj.address_record.pincode or "",
-            }
+    def get_class_name(self, obj):
+        up = self._get_user_profile(obj)
+        if up and up.school_class:
+            sc = up.school_class
+            return f"{sc.name} — {sc.section}" if sc.section else sc.name
         return None
-
-    def _get_user_profile(self, obj):
-        """Return the linked UserProfile if exists, else None."""
-        if hasattr(obj, 'user') and obj.user:
-            return getattr(obj.user, 'user_profile', None)
-        return getattr(obj, 'user_profile', None)
 
     def get_date_of_birth(self, obj):
         up = self._get_user_profile(obj)
         dob = up.date_of_birth if up else None
         return dob.strftime('%Y-%m-%d') if dob else None
 
-    # --- Student fields ---
     def get_roll_no(self, obj):
         up = self._get_user_profile(obj)
         return up.roll_no if up else None
@@ -703,12 +694,6 @@ class VerifyProfileSerializer(serializers.ModelSerializer):
     def get_grno(self, obj):
         up = self._get_user_profile(obj)
         return up.grno if up else None
-
-    def get_school_class(self, obj):
-        up = self._get_user_profile(obj)
-        if up and up.school_class:
-            return {'id': up.school_class.id, 'name': up.school_class.name}
-        return None
 
     def get_parent_full_name(self, obj):
         up = self._get_user_profile(obj)
@@ -726,7 +711,80 @@ class VerifyProfileSerializer(serializers.ModelSerializer):
         up = self._get_user_profile(obj)
         return up.gardian_mobile_no if up else None
 
-    # --- Teacher fields ---
-    def get_teacher_qualification(self, obj):
-        # Reserved for teacher qualification field if added later
+    def get_address(self, obj):
+        ar = obj.address_record
+        if ar:
+            return {
+                'addressline1': ar.addressline1 or "",
+                'addressline2': ar.addressline2 or "",
+                'city':         ar.city or "",
+                'state':        ar.state or "",
+                'pincode':      ar.pincode or "",
+            }
+        return None
+
+
+class TeacherProfileSerializer(serializers.ModelSerializer):
+    """
+    Returns full profile for a TEACHER role profile.
+    Fields: role_profile_id, role_name, first_name, middle_name, last_name,
+            email, mobile_no, institution_name, branch_name,
+            date_of_birth, address.
+    """
+    role_profile_id    = serializers.IntegerField(source='id', read_only=True)
+    role_name          = serializers.SerializerMethodField()
+    first_name         = serializers.CharField(source='user.first_name', read_only=True)
+    middle_name        = serializers.SerializerMethodField()
+    last_name          = serializers.CharField(source='user.last_name', read_only=True)
+    email              = serializers.CharField(source='email_id', read_only=True)
+    mobile_no          = serializers.CharField(read_only=True)
+    institution_name   = serializers.SerializerMethodField()
+    branch_name        = serializers.SerializerMethodField()
+    date_of_birth      = serializers.SerializerMethodField()
+    address            = serializers.SerializerMethodField()
+
+    class Meta:
+        from school_admin.models import RoleProfile
+        model = RoleProfile
+        fields = [
+            'role_profile_id', 'role_name',
+            'first_name', 'middle_name', 'last_name',
+            'email', 'mobile_no',
+            'institution_name', 'branch_name',
+            'date_of_birth',
+            'address',
+        ]
+
+    def _get_user_profile(self, obj):
+        if obj.user:
+            return getattr(obj.user, 'user_profile', None)
+        return None
+
+    def get_role_name(self, obj):
+        return 'TEACHER'
+
+    def get_middle_name(self, obj):
+        return getattr(obj.user, 'middle_name', None) or ""
+
+    def get_institution_name(self, obj):
+        return obj.institution.name if obj.institution else ""
+
+    def get_branch_name(self, obj):
+        return obj.branch.name if obj.branch else ""
+
+    def get_date_of_birth(self, obj):
+        up = self._get_user_profile(obj)
+        dob = up.date_of_birth if up else None
+        return dob.strftime('%Y-%m-%d') if dob else None
+
+    def get_address(self, obj):
+        ar = obj.address_record
+        if ar:
+            return {
+                'addressline1': ar.addressline1 or "",
+                'addressline2': ar.addressline2 or "",
+                'city':         ar.city or "",
+                'state':        ar.state or "",
+                'pincode':      ar.pincode or "",
+            }
         return None

@@ -192,7 +192,7 @@ def teacher_attendance_history_view(request):
 
     if selected_class_id:
         selected_class = get_object_or_404(SchoolClass, id=selected_class_id, teacher=teacher)
-        qs = Attendance.objects.filter(school_class=selected_class).select_related('student').order_by('-date', 'student__name')
+        qs = Attendance.objects.filter(school_class=selected_class).select_related('student').order_by('-date', 'student__user__first_name', 'student__user__last_name')
         if date_filter:
             qs = qs.filter(date=date_filter)
         if status_filter:
