@@ -515,14 +515,33 @@ def school_students_view(request):
             student = get_object_or_404(Student, id=student_id, branch__in=branches)
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
+            class_id = request.POST.get('school_class_id', '').strip()
             
             if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
                 student.branch = branch
                 student.status = status
+                
+                # Update school class
+                if class_id:
+                    try:
+                        school_class_obj = SchoolClass.objects.get(id=class_id, branch=branch)
+                        student.school_class = school_class_obj
+                    except SchoolClass.DoesNotExist:
+                        student.school_class = None
+                else:
+                    student.school_class = None
+                    
                 student.save()
                 messages.success(request, f"Student '{student.name}' updated successfully.")
             return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+        elif action == 'delete':
+            student_id = request.POST.get('student_id')
+            student = get_object_or_404(Student, id=student_id, branch__in=branches)
+            student_name = student.name
+            student.delete()
+            messages.success(request, f"Student '{student_name}' deleted successfully.")
+            return redirect(f"{reverse('school_students')}?branch_id={branch_filter_id}")
         else:  # add action
             school_user_id = request.POST.get('school_user_id', '').strip()
             password = request.POST.get('password', '').strip()
@@ -709,10 +728,30 @@ def school_teachers_view(request):
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
             
+            manage_attendance = request.POST.get('manage_attendance') == 'on'
+            manage_subjects = request.POST.get('manage_subjects') == 'on'
+            
+            attendance_classes = request.POST.getlist('attendance_classes')
+            subject_classes = {}
+            for key in request.POST:
+                if key.startswith('edit_subject_for_class_'):
+                    class_id = key.split('_')[-1]
+                    val = request.POST.get(key, '').strip()
+                    if val:
+                        subject_classes[class_id] = val
+            
             if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
                 teacher.branch = branch
                 teacher.status = status
+                
+                if not isinstance(teacher.permissions, dict):
+                    teacher.permissions = {}
+                teacher.permissions['manage_attendance'] = manage_attendance
+                teacher.permissions['manage_subjects'] = manage_subjects
+                teacher.permissions['attendance_classes'] = attendance_classes
+                teacher.permissions['subject_classes'] = subject_classes
+                
                 teacher.save()
                 messages.success(request, f"Teacher '{teacher.name}' updated successfully.")
             return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
@@ -728,6 +767,18 @@ def school_teachers_view(request):
             state = request.POST.get('state', '').strip() or 'Gujarat'
             address = request.POST.get('address', '').strip()
             pincode = request.POST.get('pincode', '').strip()
+            
+            manage_attendance = request.POST.get('manage_attendance') == 'on'
+            manage_subjects = request.POST.get('manage_subjects') == 'on'
+            
+            attendance_classes = request.POST.getlist('attendance_classes')
+            subject_classes = {}
+            for key in request.POST:
+                if key.startswith('subject_for_class_') and not key.startswith('edit_subject_for_class_'):
+                    class_id = key.split('_')[-1]
+                    val = request.POST.get(key, '').strip()
+                    if val:
+                        subject_classes[class_id] = val
             
             if not school_user_id:
                 messages.error(request, "Please search and select a user by email first.")
@@ -792,7 +843,13 @@ def school_teachers_view(request):
                 state=state,
                 address=address,
                 pincode=pincode,
-                mobile_no=mobile_no
+                mobile_no=mobile_no,
+                permissions={
+                    'manage_attendance': manage_attendance, 
+                    'manage_subjects': manage_subjects,
+                    'attendance_classes': attendance_classes,
+                    'subject_classes': subject_classes
+                }
             )
             
             from teacher.models import TeacherProfile
@@ -814,6 +871,7 @@ def school_teachers_view(request):
         selected_branch_ids.append(branches.first().id)
 
     mediums = Medium.objects.filter(institution=inst)
+    all_classes = SchoolClass.objects.filter(branch__in=branches).order_by('branch', 'name', 'section')
 
     context = {
         'profile': profile,
@@ -821,6 +879,7 @@ def school_teachers_view(request):
         'teachers': teachers,
         'branches': branches,
         'mediums': mediums,
+        'all_classes': all_classes,
         'query': q,
         'branch_filter_id': branch_filter_id,
         'selected_branch_ids': selected_branch_ids,
@@ -854,41 +913,116 @@ def school_others_view(request):
             name = request.POST.get('name', '').strip()
             email = request.POST.get('email', '').strip()
             role = request.POST.get('role', '').strip()
+            password = request.POST.get('password', '').strip()
             if role == 'custom':
                 role = request.POST.get('custom_role', '').strip()
             branch_id = request.POST.get('branch_id')
             status = request.POST.get('status', 'active')
             
-            if name and email and role and branch_id:
+            if branch_id:
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
-                staff.name = name
-                staff.email = email
-                staff.role = role
                 staff.branch = branch
                 staff.status = status
+                staff.role = role
+                if staff.school_user:
+                    staff.name = staff.school_user.full_name
+                    staff.email = staff.school_user.email
+                else:
+                    if name:
+                        staff.name = name
+                    if email:
+                        staff.email = email
+                if password:
+                    from django.contrib.auth.hashers import make_password as hash_pw
+                    staff.password = hash_pw(password)
+                    user_obj = User.objects.filter(email=staff.email).first()
+                    if user_obj:
+                        user_obj.set_password(password)
+                        user_obj.save()
                 staff.save()
-                messages.success(request, f"Staff member '{name}' updated successfully.")
-            return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+                messages.success(request, f"Staff member '{staff.name}' updated successfully.")
+            return redirect(f"{reverse('school_others')}?branch_id={branch_filter_id}")
+        elif action == 'delete':
+            staff_id = request.POST.get('staff_id')
+            staff = get_object_or_404(StaffMember, id=staff_id, branch__in=branches)
+            staff_name = staff.name
+            staff.delete()
+            messages.success(request, f"Staff member '{staff_name}' deleted successfully.")
+            return redirect(f"{reverse('school_others')}?branch_id={branch_filter_id}")
         else:
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
+            school_user_id = request.POST.get('school_user_id', '').strip()
+            password = request.POST.get('password', '').strip()
+            branch_id = request.POST.get('branch_id', '').strip()
             role = request.POST.get('role', '').strip()
             if role == 'custom':
                 role = request.POST.get('custom_role', '').strip()
-            branch_id = request.POST.get('branch_id')
             
-            if name and email and role and branch_id:
-                branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+            if not school_user_id:
+                messages.error(request, "Please search and select a user by email first.")
+                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            
+            if not password:
+                messages.error(request, "Password is required.")
+                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            
+            if not branch_id:
+                messages.error(request, "Please assign a school (branch).")
+                return redirect(reverse('school_others'))
+            
+            school_user = get_object_or_404(SchoolUser, id=school_user_id, institution=inst)
+            branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+            
+            # Enforce unique staff (prevent registering the same SchoolUser twice)
+            if StaffMember.objects.filter(school_user=school_user).exists():
+                messages.error(request, f"'{school_user.full_name}' is already registered as a staff member.")
+                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            
+            # Find or create User
+            user = None
+            existing_user = User.objects.filter(email=school_user.email, first_name=school_user.first_name, last_name=school_user.last_name).first()
+            if existing_user:
+                user = existing_user
+                if password:
+                    user.set_password(password)
+                    user.save()
+            else:
+                base_username = school_user.email
+                username = base_username
+                if User.objects.filter(username=username).exists():
+                    username = f"{base_username.split('@')[0]}_{school_user.id}@{base_username.split('@')[1]}" if '@' in base_username else f"{base_username}_{school_user.id}"
+                
+                user_role = 'SCHOOL STAFF'
+                if role.upper() == 'TEACHER':
+                    user_role = 'TEACHER'
+                elif role.upper() == 'STUDENT':
+                    user_role = 'STUDENT'
+                    
+                user = User.objects.create_user(
+                    username=username,
+                    email=school_user.email,
+                    password=password,
+                    first_name=school_user.first_name,
+                    last_name=school_user.last_name,
+                    role=user_role
+                )
+            
+            from django.contrib.auth.hashers import make_password as hash_pw
+            from django.db import IntegrityError
+            try:
                 StaffMember.objects.create(
                     branch=branch,
-                    institution=inst,
-                    name=name,
-                    email=email,
+                    school_user=school_user,
+                    name=school_user.full_name,
+                    email=school_user.email,
+                    password=hash_pw(password),
                     role=role,
                     status='active'
                 )
-                messages.success(request, f"Staff member '{name}' added successfully.")
-                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+                messages.success(request, f"Staff member '{school_user.full_name}' registered successfully!")
+            except IntegrityError:
+                messages.error(request, f"'{school_user.full_name}' is already registered as a staff member.")
+                
+            return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
     selected_branch_ids = []
     if branch_filter_id:

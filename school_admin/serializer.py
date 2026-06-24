@@ -1,3 +1,4 @@
+
 from django.contrib.auth import authenticate
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
@@ -76,6 +77,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
             return obj.teacher_profile.school_user.city
         if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
             return obj.student_profile.school_user.city
+            
+        from .models import SchoolUser
+        school_user = SchoolUser.objects.filter(email=obj.email).first()
+        if school_user:
+            return school_user.city
+            
         return ""
 
     def get_state(self, obj):
@@ -87,6 +94,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
             return obj.teacher_profile.school_user.state
         if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
             return obj.student_profile.school_user.state
+            
+        from .models import SchoolUser
+        school_user = SchoolUser.objects.filter(email=obj.email).first()
+        if school_user:
+            return school_user.state
+            
         return ""
 
     def get_phone_number(self, obj):
@@ -98,6 +111,12 @@ class UserResponseSerializer(serializers.ModelSerializer):
             return obj.teacher_profile.school_user.mobile_number or ""
         if hasattr(obj, 'student_profile') and obj.student_profile.school_user:
             return obj.student_profile.school_user.mobile_number or ""
+            
+        from .models import SchoolUser
+        school_user = SchoolUser.objects.filter(email=obj.email).first()
+        if school_user:
+            return school_user.mobile_number or ""
+            
         return ""
 
     def get_school_name(self, obj):
@@ -109,8 +128,19 @@ class UserResponseSerializer(serializers.ModelSerializer):
             return obj.teacher_profile.institution.name
         if hasattr(obj, 'student_profile') and obj.student_profile.institution:
             return obj.student_profile.institution.name
+            
+        from .models import SchoolUser
+        school_user = SchoolUser.objects.filter(email=obj.email).first()
+        if school_user and school_user.institution:
+            return school_user.institution.name
+            
         return ""
     def get_role(self, obj):
+        if obj.role == 'SCHOOL STAFF':
+            from .models import StaffMember
+            staff_member = StaffMember.objects.filter(email=obj.email).first()
+            if staff_member and staff_member.role:
+                return staff_member.role
         return obj.role
 
 class SchoolLoginSerializer(serializers.Serializer):

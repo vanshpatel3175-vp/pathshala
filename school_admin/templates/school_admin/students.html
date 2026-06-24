@@ -481,11 +481,21 @@
                             class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
                             style="font-size: 0.7rem;">{{ student.status|title }}</span>
                     </td>
-                    <td style="text-align: right;">
-                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                            onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}')">
-                            <i class="fa-solid fa-user-pen"></i> edit
-                        </button>
+                    <td style="text-align: right; vertical-align: middle;">
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}', '{{ student.school_class.id|default:'' }}')">
+                                <i class="fa-solid fa-user-pen"></i> edit
+                            </button>
+                            <form method="POST" style="margin: 0; display: flex; align-items: center;" onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #ff6b6b; border-color: rgba(255,107,107,0.2); background-color: rgba(255,107,107,0.05); height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <i class="fa-solid fa-trash"></i> delete
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
@@ -523,10 +533,18 @@
             <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign School (Branch)</label>
             <select id="edit_branch_id" name="branch_id" class="custom-select"
                 style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
-                required>
+                required onchange="loadClassesForBranch(this.value, 'edit_school_class_id')">
                 {% for branch in branches %}
                 <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
                 {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_school_class_id" style="margin-bottom: 8px; display: block;">Assign Class</label>
+            <select id="edit_school_class_id" name="school_class_id" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                <option value="">-- Select Class (optional) --</option>
             </select>
         </div>
 
@@ -731,16 +749,17 @@
         });
     }
 
-    function openEditStudentCard(id, branchId, status) {
+    function openEditStudentCard(id, branchId, status, classId = '') {
         document.getElementById('edit_student_id').value = id;
         document.getElementById('edit_branch_id').value = branchId;
         document.getElementById('edit_status').value = status;
+        loadClassesForBranch(branchId, 'edit_school_class_id', classId);
         openDrawer('edit-student-card');
     }
 
     // ── Load classes dynamically when branch changes ──────────────────────────
-    function loadClassesForBranch(branchId) {
-        const classSelect = document.getElementById('school_class_id');
+    function loadClassesForBranch(branchId, targetSelectId = 'school_class_id', selectedClassId = '') {
+        const classSelect = document.getElementById(targetSelectId);
         if (!classSelect) return;
         if (!branchId) {
             classSelect.innerHTML = '<option value="">-- Select Class (optional) --</option>';
@@ -752,7 +771,8 @@
                 const classes = data.classes || [];
                 let opts = '<option value="">-- Select Class (optional) --</option>';
                 classes.forEach(c => {
-                    opts += `<option value="${c.id}">${c.label}</option>`;
+                    const selected = (String(c.id) === String(selectedClassId)) ? 'selected' : '';
+                    opts += `<option value="${c.id}" ${selected}>${c.label}</option>`;
                 });
                 if (!classes.length) {
                     opts += '<option value="" disabled>No classes found for this branch</option>';
