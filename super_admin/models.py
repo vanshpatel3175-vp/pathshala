@@ -251,15 +251,19 @@ class ThemeSetting(models.Model):
         ('royal-blue', 'Royal Blue'),
         ('premium-pink', 'Premium Pink'),
     ]
-    name = models.CharField(max_length=50, choices=THEME_CHOICES, unique=True)
+    name = models.CharField(max_length=50, choices=THEME_CHOICES)
+    institution = models.ForeignKey('Institution', on_delete=models.CASCADE, null=True, blank=True, related_name='theme_settings')
     is_active = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('name', 'institution')
 
     def __str__(self):
         return self.get_name_display()
 
     def save(self, *args, **kwargs):
         if self.is_active:
-            # Deactivate all other themes
-            ThemeSetting.objects.exclude(pk=self.pk).update(is_active=False)
+            # Deactivate all other themes for this institution
+            ThemeSetting.objects.filter(institution=self.institution).exclude(pk=self.pk).update(is_active=False)
         super().save(*args, **kwargs)
