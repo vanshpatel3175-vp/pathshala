@@ -93,7 +93,9 @@ class UserProfileManager(models.Manager):
 
 class StudentProfileManager(UserProfileManager):
     def get_queryset(self):
-        return super().get_queryset().filter(user__role_profiles__role__role_name='STUDENT')
+        from school_admin.models import RoleProfile
+        student_user_ids = RoleProfile.objects.filter(role__role_name='STUDENT').values_list('user_id', flat=True)
+        return super().get_queryset().filter(user_id__in=student_user_ids)
 
 class UserProfile(models.Model):
     """Links the Django User to their role profiles and details."""

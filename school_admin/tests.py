@@ -1076,6 +1076,19 @@ class RoleWisePermissionTests(TestCase):
             status="active"
         )
         
+        # Create an admin user and profile for the current school
+        admin_user = self.User.objects.create_user(
+            username="admin@testschool.com",
+            email="admin@testschool.com",
+            password="password123",
+            role="SCHOOL STAFF"
+        )
+        SchoolAdminProfile.objects.create(
+            user=admin_user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        
         # Log in current school admin and try to register them as a student
         client = Client()
         client.login(username="admin@testschool.com", password="password123")
