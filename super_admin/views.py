@@ -587,17 +587,26 @@ def theme_settings_view(request):
         
     from .models import ThemeSetting
     
+    institution = None
+    if request.user.role == 'SCHOOL STAFF':
+        try:
+            institution = request.user.school_profile.institution
+        except Exception:
+            pass
+            
     if request.method == 'POST':
         theme_code = request.POST.get('theme_code')
         if theme_code:
             # Set active theme
-            theme, created = ThemeSetting.objects.get_or_create(name=theme_code)
+            theme, created = ThemeSetting.objects.get_or_create(name=theme_code, institution=institution)
             theme.is_active = True
             theme.save()
             messages.success(request, f'Theme updated successfully!')
             return redirect(request.META.get('HTTP_REFERER', 'theme_settings'))
             
-    active_theme = ThemeSetting.objects.filter(is_active=True).first()
+    active_theme = ThemeSetting.objects.filter(is_active=True, institution=institution).first()
+    # If a school staff hasn't set one, it will just show default on settings page 
+    # (even though context processor might fall back to global, in settings it's better to show what THEY set or default)
     active_code = active_theme.name if active_theme else 'default'
     
     themes = [
@@ -608,13 +617,6 @@ def theme_settings_view(request):
     ]
     
     base_template = 'school_admin/base.html' if request.user.role == 'SCHOOL STAFF' else 'super_admin/base.html'
-    
-    institution = None
-    if request.user.role == 'SCHOOL STAFF':
-        try:
-            institution = request.user.school_profile.institution
-        except Exception:
-            pass
             
     return render(request, 'super_admin/theme_settings.html', {
         'themes': themes,

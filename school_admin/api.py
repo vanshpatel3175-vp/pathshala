@@ -143,7 +143,22 @@ class ThemeAPIView(APIView):
             {'code': 'premium-pink', 'name': 'Premium Pink', 'color': '#EC4899'},
         ]
         
-        active_theme = ThemeSetting.objects.filter(is_active=True).first()
+        institution = None
+        if request.user and request.user.is_authenticated:
+            if hasattr(request.user, 'school_profile') and request.user.school_profile and request.user.school_profile.institution:
+                institution = request.user.school_profile.institution
+            else:
+                first_role = request.user.role_profiles.first()
+                if first_role and first_role.institution:
+                    institution = first_role.institution
+                    
+        active_theme = None
+        if institution:
+            active_theme = ThemeSetting.objects.filter(institution=institution, is_active=True).first()
+            
+        if not active_theme:
+            active_theme = ThemeSetting.objects.filter(institution__isnull=True, is_active=True).first()
+            
         active_code = active_theme.name if active_theme else 'default'
         
         for theme in themes_data:
@@ -161,6 +176,15 @@ class ThemeAPIView(APIView):
 
     def post(self, request):
         from super_admin.models import ThemeSetting
+        
+        institution = None
+        if request.user and request.user.is_authenticated:
+            if hasattr(request.user, 'school_profile') and request.user.school_profile and request.user.school_profile.institution:
+                institution = request.user.school_profile.institution
+            else:
+                first_role = request.user.role_profiles.first()
+                if first_role and first_role.institution:
+                    institution = first_role.institution
         
         # User might send "theme_code" or "code"
         theme_input = request.data.get('theme_code') or request.data.get('code')
@@ -204,7 +228,7 @@ class ThemeAPIView(APIView):
                 }
             }, status=status.HTTP_400_BAD_REQUEST)
             
-        theme, created = ThemeSetting.objects.get_or_create(name=db_code)
+        theme, created = ThemeSetting.objects.get_or_create(name=db_code, institution=institution)
         theme.is_active = True
         theme.save()
         
