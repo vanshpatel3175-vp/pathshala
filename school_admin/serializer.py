@@ -826,7 +826,7 @@ class TrusteeProfileSerializer(serializers.ModelSerializer):
         return None
 
     def get_role_name(self, obj):
-        return 'TEACHER'
+        return 'TRUSTEE'
 
     def get_middle_name(self, obj):
         return getattr(obj.user, 'middle_name', None) or ""

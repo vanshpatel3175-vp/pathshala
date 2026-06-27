@@ -628,6 +628,10 @@ def school_students_view(request):
                 messages.error(request, f"'{user.first_name} {user.last_name}' is already registered as a student.")
                 return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
+            if RoleProfile.objects.filter(user=user, institution=inst).exclude(role_name__in=['USER', 'STUDENT']).exists():
+                messages.error(request, f"'{user.first_name} {user.last_name}' already has a staff or teacher role and cannot be registered as a student.")
+                return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
+            
             # Check if this user is registered in another institution/school
             is_shared_user = RoleProfile.objects.filter(user=user).exclude(institution=inst).exists()
             
@@ -837,6 +841,10 @@ def school_teachers_view(request):
                 messages.error(request, f"'{user.first_name} {user.last_name}' is already registered as a teacher.")
                 return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
             
+            if RoleProfile.objects.filter(user=user, institution=inst, role_name__iexact='STUDENT').exists():
+                messages.error(request, f"'{user.first_name} {user.last_name}' is registered as a student and cannot be assigned as a teacher.")
+                return redirect(f"{reverse('school_teachers')}?branch_id={branch_id}")
+            
             # Check if this user is registered in another institution/school
             is_shared_user = RoleProfile.objects.filter(user=user).exclude(institution=inst).exists()
             
@@ -1010,6 +1018,10 @@ def school_others_view(request):
             # Enforce unique staff (prevent registering the same user with the same role twice in this institution)
             if StaffMember.objects.filter(user=school_user.user, institution=inst, role_name__iexact=role).exists():
                 messages.error(request, f"'{school_user.full_name}' is already registered with the '{role}' role.")
+                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
+            
+            if RoleProfile.objects.filter(user=school_user.user, institution=inst, role_name__iexact='STUDENT').exists():
+                messages.error(request, f"'{school_user.full_name}' is registered as a student and cannot be assigned any other role.")
                 return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
             # Find or create User
