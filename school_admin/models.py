@@ -132,6 +132,15 @@ class RoleProfile(models.Model):
             profile.save()
             del self._temp_date_of_birth
 
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=self.user)
+            profile.school_class = self.rp_school_class
+            profile.roll_no = self.rp_roll_no
+            profile.uid_no = self.rp_uid_no
+            profile.grno = self.rp_grno
+            profile.save()
+
         # Sync to UserRole
         if role_obj:
             UserRole.objects.get_or_create(

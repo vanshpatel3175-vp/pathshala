@@ -193,12 +193,6 @@ class TeacherRegistrationAndLoginTest(TestCase):
         # Verify Student model record exists
         student = Student.objects.filter(email_id='jane@testschool.com').first()
         self.assertIsNotNone(student)
-        print("DEBUG: student.rp_uid_no =", repr(student.rp_uid_no))
-        print("DEBUG: student.uid_no =", repr(student.uid_no))
-        print("DEBUG: student.rp_roll_no =", repr(student.rp_roll_no))
-        print("DEBUG: student.roll_no =", repr(student.roll_no))
-        print("DEBUG: student.rp_grno =", repr(student.rp_grno))
-        print("DEBUG: student.grno =", repr(student.grno))
         self.assertEqual(student.name, 'Student Jane')
         self.assertEqual(student.branch, self.branch)
         self.assertEqual(student.uid_no, 'UID12345')
