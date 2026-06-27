@@ -7,7 +7,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 from django.utils import timezone
 from datetime import datetime, date, timedelta
-from .models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription
+from .models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription, AcademicYear
 
 def superadmin_required(view_func):
     def wrapper(request, *args, **kwargs):
@@ -624,4 +624,43 @@ def theme_settings_view(request):
         'current_tab': 'themes',
         'base_template': base_template,
         'institution': institution
+    })
+
+
+@superadmin_required
+def academic_years_view(request):
+    """Superadmin CRUD for global academic year labels."""
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'add':
+            name = request.POST.get('name', '').strip()
+            if not name:
+                messages.error(request, 'Academic year name is required.')
+            elif AcademicYear.objects.filter(name=name).exists():
+                messages.error(request, f"Academic year '{name}' already exists.")
+            else:
+                AcademicYear.objects.create(name=name)
+                messages.success(request, f"Academic year '{name}' added successfully.")
+
+        elif action == 'toggle':
+            yr_id = request.POST.get('year_id')
+            yr = get_object_or_404(AcademicYear, pk=yr_id)
+            yr.is_active = not yr.is_active
+            yr.save()
+            state = 'activated' if yr.is_active else 'deactivated'
+            messages.success(request, f"Academic year '{yr.name}' {state}.")
+
+        elif action == 'delete':
+            yr_id = request.POST.get('year_id')
+            yr = get_object_or_404(AcademicYear, pk=yr_id)
+            yr.delete()
+            messages.success(request, f"Academic year deleted.")
+
+        return redirect('academic_years')
+
+    years = AcademicYear.objects.all()
+    return render(request, 'super_admin/academic_years.html', {
+        'years': years,
+        'current_tab': 'academic_years',
     })

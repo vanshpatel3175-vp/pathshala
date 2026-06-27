@@ -90,7 +90,7 @@
             </p>
             <div
                 style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
                     <div>
                         <p
                             style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
@@ -101,34 +101,72 @@
                     <div>
                         <p
                             style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Middle Name</p>
+                        <input type="text" id="display_middle_name" class="form-control" readonly
+                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                    </div>
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
                             Last Name</p>
                         <input type="text" id="display_last_name" class="form-control" readonly
                             style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
                     </div>
                 </div>
-                <div>
-                    <p
-                        style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
-                        Email</p>
-                    <input type="text" id="display_email" class="form-control" readonly
-                        style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Email</p>
+                        <input type="text" id="display_email" class="form-control" readonly
+                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                    </div>
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Mobile Number *</p>
+                        <input type="text" id="register_mobile_no" name="mobile_no" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;" required>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Step 3: Set Login Password -->
-        <div id="staff-password-section" style="display: none; margin-bottom: 20px;">
-            <div
-                style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px;">
-                <p
-                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
-                    <i class="fa-solid fa-lock" style="margin-right: 6px;"></i> Step 3 — Set Login Password
-                </p>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label for="password" style="margin-bottom: 8px; display: block; font-size: 0.85rem;">Password <span
-                            style="color: var(--color-danger);">*</span></label>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••"
-                        style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+        <!-- Step 3: Staff Profile Details -->
+        <div id="staff-additional-section" style="display: none; margin-bottom: 18px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-address-card" style="margin-right: 6px;"></i> Step 3 — Staff Profile Details
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Date of Birth</label>
+                        <input type="date" name="date_of_birth" id="register_date_of_birth" class="form-control"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Pincode</label>
+                        <input type="text" name="pincode" class="form-control" placeholder="396445" maxlength="10"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">City</label>
+                        <input type="text" name="city" class="form-control" placeholder="Navsari"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">State</label>
+                        <input type="text" name="state" class="form-control" value="Gujarat" placeholder="Gujarat"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div>
+                    <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Address</label>
+                    <textarea name="address" class="form-control" placeholder="Full address..." rows="2"
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); resize: vertical; width: 100%;"></textarea>
                 </div>
             </div>
         </div>
@@ -143,13 +181,11 @@
                 <div class="form-group">
                     <label for="role" style="margin-bottom: 8px; display: block; font-size: 0.85rem;">Assign Role <span
                             style="color: var(--color-danger);">*</span></label>
-                    <select id="role" name="role" class="custom-select"
+                    <select id="role" name="role" class="custom-select" required
                         style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
-                        <option value="Student">Student</option>
-                        <option value="Principal">Principal</option>
-                        <option value="Teacher">Teacher</option>
-                        {% for cr in custom_roles %}
-                        <option value="{{ cr.name }}">{{ cr.name }}</option>
+                        <option value="">-- Select Role --</option>
+                        {% for r in available_roles %}
+                        <option value="{{ r.role_name }}">{{ r.role_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -157,7 +193,7 @@
                 <div class="form-group">
                     <label for="branch_id" style="margin-bottom: 8px; display: block; font-size: 0.85rem;">Assign Branch
                         <span style="color: var(--color-danger);">*</span></label>
-                    <select id="branch_id" name="branch_id" class="custom-select"
+                    <select id="branch_id" name="branch_id" class="custom-select" required
                         style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
                         {% for branch in branches %}
                         <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
@@ -528,7 +564,7 @@
             const alreadyStaff = u.is_staff;
             return `
                 <div class="user-dropdown-item"
-                    onclick="${alreadyStaff ? 'void(0)' : `selectUser(${u.id}, '${escapeJs(u.first_name)}', '${escapeJs(u.last_name)}', '${escapeJs(u.email)}')`}"
+                    onclick="${alreadyStaff ? 'void(0)' : `selectUser(${u.id}, '${escapeJs(u.first_name)}', '${escapeJs(u.middle_name || '')}', '${escapeJs(u.last_name)}', '${escapeJs(u.email)}', '${escapeJs(u.mobile_no || '')}', '${escapeJs(u.date_of_birth)}')`}"
                     style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: ${alreadyStaff ? 'not-allowed' : 'pointer'};
                         opacity: ${alreadyStaff ? '0.5' : '1'};
                         transition: background 0.15s ease;
@@ -558,20 +594,37 @@
         dropdown.style.display = 'none';
     }
 
-    function selectUser(id, firstName, lastName, email) {
+    function selectUser(id, firstName, middleName, lastName, email, mobileNo, dateOfBirth) {
         // Fill hidden field
         document.getElementById('school_user_id').value = id;
         // Update search box to show selected user
-        searchInput.value = `${firstName} ${lastName} (${email})`;
+        const fullName = middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`;
+        searchInput.value = `${fullName} (${email})`;
         searchInput.style.borderColor = 'var(--color-success)';
         hideDropdown();
         // Fill display fields
         document.getElementById('display_first_name').value = firstName;
+        document.getElementById('display_middle_name').value = middleName;
         document.getElementById('display_last_name').value = lastName;
         document.getElementById('display_email').value = email;
+        document.getElementById('register_mobile_no').value = mobileNo;
+        
+        const dobInput = document.getElementById('register_date_of_birth');
+        if (dobInput) {
+            dobInput.value = dateOfBirth;
+            if (dateOfBirth) {
+                dobInput.readOnly = true;
+                dobInput.style.backgroundColor = 'var(--bg-secondary)';
+                dobInput.style.opacity = '0.7';
+            } else {
+                dobInput.readOnly = false;
+                dobInput.style.backgroundColor = 'var(--bg-primary)';
+                dobInput.style.opacity = '1';
+            }
+        }
         // Show rest of form
         showStaffForm();
-        showLookupStatus('success', `<i class="fa-solid fa-circle-check"></i> User selected: <strong>${firstName} ${lastName}</strong>`);
+        showLookupStatus('success', `<i class="fa-solid fa-circle-check"></i> User selected: <strong>${fullName}</strong>`);
     }
 
     function escapeJs(str) {
@@ -586,7 +639,7 @@
 
     function showStaffForm() {
         document.getElementById('staff-info-section').style.display = 'block';
-        document.getElementById('staff-password-section').style.display = 'block';
+        document.getElementById('staff-additional-section').style.display = 'block';
         document.getElementById('staff-details-section').style.display = 'block';
         document.getElementById('staff-submit-section').style.display = 'block';
     }
@@ -597,13 +650,21 @@
         if (searchInput) searchInput.style.borderColor = '';
         const infoSection = document.getElementById('staff-info-section');
         if (infoSection) infoSection.style.display = 'none';
-        const passwordSection = document.getElementById('staff-password-section');
-        if (passwordSection) passwordSection.style.display = 'none';
+        const additionalSection = document.getElementById('staff-additional-section');
+        if (additionalSection) additionalSection.style.display = 'none';
         const detailsSection = document.getElementById('staff-details-section');
         if (detailsSection) detailsSection.style.display = 'none';
         const submitSection = document.getElementById('staff-submit-section');
         if (submitSection) submitSection.style.display = 'none';
         if (statusEl) statusEl.style.display = 'none';
+
+        const dobInput = document.getElementById('register_date_of_birth');
+        if (dobInput) {
+            dobInput.value = '';
+            dobInput.readOnly = false;
+            dobInput.style.backgroundColor = 'var(--bg-primary)';
+            dobInput.style.opacity = '1';
+        }
     }
 
     function openAddStaffDrawer() {

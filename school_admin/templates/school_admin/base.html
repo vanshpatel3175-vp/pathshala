@@ -241,6 +241,28 @@
 
             <div class="sidebar-footer">
 
+                <!-- Academic Year Switcher -->
+                {% if active_academic_years %}
+                <div style="margin-bottom:.75rem;">
+                    <label style="font-size:.72rem;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:.35rem;">
+                        <i class="fa-solid fa-calendar-alt" style="margin-right:.3rem;"></i>Academic Year
+                    </label>
+                    <form method="POST" action="{% url 'school_set_academic_year' %}" id="academic-year-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <select name="academic_year_id" onchange="document.getElementById('academic-year-form').submit();"
+                                style="width:100%;padding:.45rem .7rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);font-size:.85rem;cursor:pointer;">
+                            <option value="">-- None --</option>
+                            {% for yr in active_academic_years %}
+                            <option value="{{ yr.pk }}" {% if selected_academic_year.pk == yr.pk %}selected{% endif %}>
+                                {{ yr.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                {% endif %}
+
                 <a href="{% url 'school_logout' %}" class="sidebar-link"
                     style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.15)">
                     <i class="fa-solid fa-right-from-bracket"></i>

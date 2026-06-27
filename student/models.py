@@ -119,6 +119,20 @@ class UserProfile(models.Model):
     gardian_name = models.CharField(max_length=255, blank=True, null=True)
     gardian_mobile_no = models.CharField(max_length=15, blank=True, null=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, blank=True, null=True)
+    blood_group = models.CharField(max_length=10, blank=True, null=True)
+    alternate_mobile = models.CharField(max_length=15, blank=True, null=True)
+    admission_date = models.DateField(null=True, blank=True)
+    father_name = models.CharField(max_length=255, blank=True, null=True)
+    father_mobile = models.CharField(max_length=15, blank=True, null=True)
+    father_occupation = models.CharField(max_length=255, blank=True, null=True)
+    mother_name = models.CharField(max_length=255, blank=True, null=True)
+    mother_mobile = models.CharField(max_length=15, blank=True, null=True)
+    guardian_relation = models.CharField(max_length=100, blank=True, null=True)
+    category = models.CharField(max_length=50, blank=True, null=True)
+    religion = models.CharField(max_length=100, blank=True, null=True)
+    caste = models.CharField(max_length=100, blank=True, null=True)
+    nationality = models.CharField(max_length=100, blank=True, null=True)
 
     objects = UserProfileManager()
 
@@ -179,3 +193,56 @@ class StudentProfile(UserProfile):
 
     class Meta:
         proxy = True
+
+    @property
+    def student_rp(self):
+        return self.user.role_profiles.filter(role__role_name='STUDENT').first()
+
+    @property
+    def school_class(self):
+        rp = self.student_rp
+        return rp.rp_school_class if rp else None
+
+    @school_class.setter
+    def school_class(self, value):
+        rp = self.student_rp
+        if rp:
+            rp.rp_school_class = value
+            rp.save()
+
+    @property
+    def roll_no(self):
+        rp = self.student_rp
+        return rp.rp_roll_no if rp else ""
+
+    @roll_no.setter
+    def roll_no(self, value):
+        rp = self.student_rp
+        if rp:
+            rp.rp_roll_no = value
+            rp.save()
+
+    @property
+    def uid_no(self):
+        rp = self.student_rp
+        return rp.rp_uid_no if rp else ""
+
+    @uid_no.setter
+    def uid_no(self, value):
+        rp = self.student_rp
+        if rp:
+            rp.rp_uid_no = value
+            rp.save()
+
+    @property
+    def grno(self):
+        rp = self.student_rp
+        return rp.rp_grno if rp else ""
+
+    @grno.setter
+    def grno(self, value):
+        rp = self.student_rp
+        if rp:
+            rp.rp_grno = value
+            rp.save()
+

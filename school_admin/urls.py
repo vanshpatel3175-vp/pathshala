@@ -24,4 +24,9 @@ urlpatterns = [
     path('holidays/', views.school_holidays_view, name='school_holidays'),
     path('events/', views.school_events_view, name='school_events'),
     path('theme-settings/', super_admin_views.theme_settings_view, name='theme_settings'),
+    path('set-academic-year/', views.school_set_academic_year_view, name='school_set_academic_year'),
+    path('students/import/', views.student_import_view, name='student_import'),
+    path('students/template/csv/', views.student_template_csv, name='student_template_csv'),
+    path('students/template/xlsx/', views.student_template_xlsx, name='student_template_xlsx'),
 ]
+
