@@ -105,8 +105,13 @@ class RoleProfile(models.Model):
                 self.user.save()
             elif not self.mobile_no and self.user.mobile_no:
                 self.mobile_no = self.user.mobile_no
-        if self.role and not self.role_name:
-            self.role_name = self.role.role_name
+        role_obj = None
+        if self.role_id:
+            from super_admin.models import Role
+            role_obj = Role.objects.filter(pk=self.role_id).first()
+
+        if role_obj and not self.role_name:
+            self.role_name = role_obj.role_name
         if self.branch and not self.institution_id:
             self.institution = self.branch.institution
 
@@ -120,12 +125,13 @@ class RoleProfile(models.Model):
             del self._temp_date_of_birth
 
         # Sync to UserRole
-        UserRole.objects.get_or_create(
-            user=self.user,
-            role=self.role,
-            institution=self.institution,
-            branch=self.branch
-        )
+        if role_obj:
+            UserRole.objects.get_or_create(
+                user=self.user,
+                role=role_obj,
+                institution=self.institution,
+                branch=self.branch
+            )
 
     @property
     def user_profile(self):
@@ -173,14 +179,17 @@ class RoleProfile(models.Model):
 
     @property
     def school_role(self):
-        from super_admin.models import SchoolRole
-        school_role, _ = SchoolRole.objects.get_or_create(role=self.role, school=self.institution)
+        from super_admin.models import SchoolRole, Role
+        if not self.role_id:
+            return None
+        role_obj = Role.objects.get(pk=self.role_id)
+        school_role, _ = SchoolRole.objects.get_or_create(role=role_obj, school=self.institution)
         return school_role
 
     @school_role.setter
     def school_role(self, value):
         if value:
-            self.role = value.role
+            self.role_id = value.role.role_id
             self.institution = value.school
 
     @property
@@ -487,6 +496,9 @@ class RoleProfile(models.Model):
     @property
     def mobile_number(self):
         return self.mobile_no
+
+
+SchoolUser = RoleProfile
 
 
 class StudentManager(models.Manager):

@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 from .serializer import (
     SchoolSignupSerializer, SchoolLoginAPISerializer, LegacyLoginUserSerializer,
-    LoginSerializer, StudentProfileSerializer, TeacherProfileSerializer
+    LoginSerializer, StudentProfileSerializer, TeacherProfileSerializer, TrusteeProfileSerializer
 )
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -335,7 +335,7 @@ class VerifyProfileAPIView(APIView):
     permission_classes = []
 
     # Roles that this API exposes — anything else is silently skipped.
-    ALLOWED_ROLES = {'STUDENT', 'TEACHER'}
+    ALLOWED_ROLES = {'STUDENT', 'TEACHER', "TRUSTEE"}
 
     def post(self, request):
         access_token  = request.data.get('access') or request.data.get('access_token')
@@ -349,21 +349,34 @@ class VerifyProfileAPIView(APIView):
 
         from rest_framework_simplejwt.authentication import JWTAuthentication
         from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+        from rest_framework_simplejwt.tokens import RefreshToken
+        from rest_framework_simplejwt.settings import api_settings
+        from django.contrib.auth import get_user_model
 
         authenticator = JWTAuthentication()
+        user = None
         try:
             validated_token = authenticator.get_validated_token(access_token)
             user = authenticator.get_user(validated_token)
         except (InvalidToken, TokenError):
-            return Response({
-                "success_key": 0,
-                "message": "Authentication credentials were not provided or are invalid."
-            }, status=status.HTTP_401_UNAUTHORIZED)
+            if refresh_token:
+                try:
+                    refresh = RefreshToken(refresh_token)
+                    user_id = refresh.payload.get(api_settings.USER_ID_CLAIM, 'user_id')
+                    User = get_user_model()
+                    user = User.objects.get(**{api_settings.USER_ID_FIELD: user_id})
+                    
+                    # Generate a new token pair and update variables so they are returned to client
+                    new_refresh = RefreshToken.for_user(user)
+                    access_token = str(new_refresh.access_token)
+                    refresh_token = str(new_refresh)
+                except Exception:
+                    pass
 
         if not user or not user.is_active:
             return Response({
                 "success_key": 0,
-                "message": "User is inactive or deleted."
+                "message": "Authentication credentials were not provided or are invalid."
             }, status=status.HTTP_401_UNAUTHORIZED)
 
         # Check if the user has any allowed role profiles (STUDENT or TEACHER)
@@ -391,6 +404,8 @@ class VerifyProfileAPIView(APIView):
                 serialized = StudentProfileSerializer(rp).data
             elif role_upper == 'TEACHER':
                 serialized = TeacherProfileSerializer(rp).data
+            elif role_upper == 'TRUSTEE':
+                serialized = TrusteeProfileSerializer(rp).data
             else:
                 continue
 

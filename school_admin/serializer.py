@@ -788,3 +788,68 @@ class TeacherProfileSerializer(serializers.ModelSerializer):
                 'pincode':      ar.pincode or "",
             }
         return None
+
+class TrusteeProfileSerializer(serializers.ModelSerializer):
+    """
+    Returns full profile for a TRUSTEE role profile.
+    Fields: role_profile_id, role_name, first_name, middle_name, last_name,
+            email, mobile_no, institution_name, branch_name,
+            date_of_birth, address.
+    """
+    role_profile_id    = serializers.IntegerField(source='id', read_only=True)
+    role_name          = serializers.SerializerMethodField()
+    first_name         = serializers.CharField(source='user.first_name', read_only=True)
+    middle_name        = serializers.SerializerMethodField()
+    last_name          = serializers.CharField(source='user.last_name', read_only=True)
+    email              = serializers.CharField(source='email_id', read_only=True)
+    mobile_no          = serializers.CharField(read_only=True)
+    institution_name   = serializers.SerializerMethodField()
+    branch_name        = serializers.SerializerMethodField()
+    date_of_birth      = serializers.SerializerMethodField()
+    address            = serializers.SerializerMethodField()
+
+    class Meta:
+        from school_admin.models import RoleProfile
+        model = RoleProfile
+        fields = [
+            'role_profile_id', 'role_name',
+            'first_name', 'middle_name', 'last_name',
+            'email', 'mobile_no',
+            'institution_name', 'branch_name',
+            'date_of_birth',
+            'address',
+        ]
+
+    def _get_user_profile(self, obj):
+        if obj.user:
+            return getattr(obj.user, 'user_profile', None)
+        return None
+
+    def get_role_name(self, obj):
+        return 'TEACHER'
+
+    def get_middle_name(self, obj):
+        return getattr(obj.user, 'middle_name', None) or ""
+
+    def get_institution_name(self, obj):
+        return obj.institution.name if obj.institution else ""
+
+    def get_branch_name(self, obj):
+        return obj.branch.name if obj.branch else ""
+
+    def get_date_of_birth(self, obj):
+        up = self._get_user_profile(obj)
+        dob = up.date_of_birth if up else None
+        return dob.strftime('%Y-%m-%d') if dob else None
+
+    def get_address(self, obj):
+        ar = obj.address_record
+        if ar:
+            return {
+                'addressline1': ar.addressline1 or "",
+                'addressline2': ar.addressline2 or "",
+                'city':         ar.city or "",
+                'state':        ar.state or "",
+                'pincode':      ar.pincode or "",
+            }
+        return None

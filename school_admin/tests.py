@@ -1115,5 +1115,135 @@ class RoleWisePermissionTests(TestCase):
         self.assertTrue(Student.objects.filter(user=user, branch=self.branch).exists())
 
 
+class VerifyProfileAPITokenRefreshTest(TestCase):
+    def setUp(self):
+        # Create user
+        self.user = get_user_model().objects.create_user(
+            username="student@test.com",
+            email="student@test.com",
+            password="studentpassword123",
+            role="STUDENT"
+        )
+        # Create institution, branch and profile
+        self.institution = Institution.objects.create(
+            name="Test School",
+            email="admin@testschool.com",
+            status="active",
+            expired_date="2027-01-01T00:00:00Z"
+        )
+        self.branch = Branch.objects.create(
+            institution=self.institution,
+            name="Main Branch",
+            city="Navsari",
+            status="active"
+        )
+        from super_admin.models import Role, SchoolRole
+        user_role_obj, _ = Role.objects.get_or_create(role_name='STUDENT')
+        self.student = Student.objects.create(
+            user=self.user,
+            role=user_role_obj,
+            name='Test Student',
+            email_id='student@test.com',
+            role_name='STUDENT',
+            institution=self.institution,
+            branch=self.branch
+        )
+        self.client = Client()
+
+    def test_verify_profile_with_expired_access_and_valid_refresh(self):
+        from rest_framework_simplejwt.tokens import RefreshToken
+        # Generate initial tokens
+        refresh = RefreshToken.for_user(self.user)
+        access_token = str(refresh.access_token)
+        refresh_token = str(refresh)
+
+        # Create an expired or invalid access token (by adding junk to it, or using an old token)
+        invalid_access_token = access_token + "invalidjunk"
+
+        # Make the request to verify endpoint
+        response = self.client.post(
+            reverse('api_verify_profile'),
+            data={
+                'access': invalid_access_token,
+                'refresh': refresh_token
+            },
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['success_key'], 1)
+        self.assertEqual(data['email'], self.user.email)
+        # Verify that a new valid access token has been generated and returned
+        self.assertNotEqual(data['access_token'], invalid_access_token)
+        self.assertNotEqual(data['refresh_token'], refresh_token)
+        self.assertTrue(len(data['profiles']) > 0)
+
+
+class RegisterStaffMemberTest(TestCase):
+    def setUp(self):
+        self.institution = Institution.objects.create(
+            name="Test School",
+            email="admin@testschool.com",
+            status="active",
+            expired_date="2027-01-01T00:00:00Z"
+        )
+        self.branch = Branch.objects.create(
+            institution=self.institution,
+            name="Main Branch",
+            city="Navsari",
+            status="active"
+        )
+        # School admin user
+        self.admin_user = get_user_model().objects.create_user(
+            username="admin@testschool.com",
+            email="admin@testschool.com",
+            password="password123",
+            role="SCHOOL STAFF"
+        )
+        self.admin_profile = SchoolAdminProfile.objects.create(
+            user=self.admin_user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        # Target user (with USER role profile)
+        self.target_user = get_user_model().objects.create_user(
+            username="staffmember@test.com",
+            email="staffmember@test.com",
+            password="staffpassword123"
+        )
+        # Create USER role
+        from super_admin.models import Role, SchoolRole
+        user_role_obj, _ = Role.objects.get_or_create(role_name='USER')
+        self.profile = RoleProfile.objects.create(
+            user=self.target_user,
+            role=user_role_obj,
+            name='Test Staff User',
+            email_id='staffmember@test.com',
+            role_name='USER',
+            institution=self.institution,
+            branch=self.branch
+        )
+        self.client = Client()
+        self.client.login(username="admin@testschool.com", password="password123")
+
+    def test_register_staff_member_success(self):
+        # Register them as Trustee
+        response = self.client.post(
+            reverse('school_others'),
+            data={
+                'school_user_id': self.profile.id,
+                'password': 'newpassword123',
+                'role': 'Trustee',
+                'branch_id': self.branch.id,
+            }
+        )
+        self.assertEqual(response.status_code, 302)
+        from school_admin.models import StaffMember
+        self.assertTrue(StaffMember.objects.filter(email_id='staffmember@test.com').exists())
+
+
+
+
 
 

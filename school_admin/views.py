@@ -12,7 +12,7 @@ from django.utils import timezone
 from datetime import date
 from super_admin.models import SchoolApplication, Institution, Role, SchoolRole
 
-from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, Medium, Attendance, Holiday, Event, RoleProfile
+from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, Medium, Attendance, Holiday, Event, RoleProfile, SchoolUser
 
 def school_signup_view(request):
     if request.user.is_authenticated:
@@ -411,7 +411,15 @@ def school_roles_view(request):
                 if is_default or exists_custom:
                     messages.warning(request, f"Role '{role_name}' already exists.")
                 else:
+                    # 1. Create entry in CustomRole table
                     CustomRole.objects.create(institution=inst, name=role_name)
+                    
+                    # 2. Store in Role table inside super_admin (uppercase role_name)
+                    role_obj, _ = Role.objects.get_or_create(role_name=role_name.upper())
+                    
+                    # 3. Create the SchoolRole entry to link it to this institution
+                    SchoolRole.objects.get_or_create(role=role_obj, school=inst)
+                    
                     messages.success(request, f"Role '{role_name}' added successfully.")
             return redirect('school_roles')
             
@@ -422,12 +430,21 @@ def school_roles_view(request):
                 messages.error(request, f"System role '{old_role_name}' cannot be renamed.")
                 return redirect('school_roles')
             if old_role_name and new_role_name:
-                # Update CustomRole entry if exists
+                # 1. Update CustomRole entry if exists
                 CustomRole.objects.filter(institution=inst, name__iexact=old_role_name).update(name=new_role_name)
-                # Update StaffMembers having this role
-                staff_updated = StaffMember.objects.filter(branch__in=branches, role=old_role_name)
+                
+                # 2. Get/create the new Role and link it to the school
+                new_role_obj, _ = Role.objects.get_or_create(role_name=new_role_name.upper())
+                SchoolRole.objects.get_or_create(role=new_role_obj, school=inst)
+                
+                # 3. Update StaffMembers having this role
+                staff_updated = StaffMember.objects.filter(branch__in=branches, role_name__iexact=old_role_name)
                 count = staff_updated.count()
-                staff_updated.update(role=new_role_name)
+                for staff in staff_updated:
+                    staff.role = new_role_obj
+                    staff.role_name = new_role_name
+                    staff.save()
+                
                 messages.success(request, f"Role '{old_role_name}' renamed to '{new_role_name}' for {count} user(s).")
             return redirect('school_roles')
             
@@ -437,18 +454,29 @@ def school_roles_view(request):
                 messages.error(request, f"System role '{role_name}' cannot be deleted.")
                 return redirect('school_roles')
             if role_name:
-                # Delete CustomRole entry if exists
+                # 1. Delete CustomRole entry if exists
                 CustomRole.objects.filter(institution=inst, name__iexact=role_name).delete()
-                # Update StaffMembers having this role to Student
-                staff_updated = StaffMember.objects.filter(branch__in=branches, role=role_name)
+                
+                # 2. Delete SchoolRole link
+                old_role_obj = Role.objects.filter(role_name=role_name.upper()).first()
+                if old_role_obj:
+                    SchoolRole.objects.filter(role=old_role_obj, school=inst).delete()
+                
+                # 3. Reset StaffMembers having this role to Student
+                student_role_obj, _ = Role.objects.get_or_create(role_name='STUDENT')
+                staff_updated = StaffMember.objects.filter(branch__in=branches, role_name__iexact=role_name)
                 count = staff_updated.count()
-                staff_updated.update(role='Student')
+                for staff in staff_updated:
+                    staff.role = student_role_obj
+                    staff.role_name = 'STUDENT'
+                    staff.save()
+                
                 messages.success(request, f"Deleted role '{role_name}'. {count} user(s) reset to 'Student' role.")
             return redirect('school_roles')
             
     # Calculate role counts and unique roles
     from django.db.models import Count
-    role_counts_query = StaffMember.objects.filter(branch__in=branches).values('role').annotate(count=Count('id'))
+    role_counts_query = StaffMember.objects.filter(branch__in=branches).values('role_name').annotate(count=Count('id'))
     
     # Start with default system roles and their respective counts from their specific tables
     total_students_count = Student.objects.filter(branch__in=branches).count()
@@ -468,7 +496,9 @@ def school_roles_view(request):
             
     # Add counts from StaffMember database
     for item in role_counts_query:
-        role_name = item['role']
+        role_name = item['role_name']
+        if not role_name:
+            continue
         matched = False
         for k in role_dict.keys():
             if k.lower() == role_name.lower():
@@ -923,7 +953,12 @@ def school_others_view(request):
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
                 staff.branch = branch
                 staff.status = status
-                staff.role = role
+                
+                role_obj, _ = Role.objects.get_or_create(role_name=role.upper())
+                SchoolRole.objects.get_or_create(role=role_obj, school=inst)
+                staff.role = role_obj
+                staff.role_name = role
+                
                 if staff.school_user:
                     staff.name = staff.school_user.full_name
                     staff.email = staff.school_user.email
@@ -972,9 +1007,9 @@ def school_others_view(request):
             school_user = get_object_or_404(SchoolUser, id=school_user_id, institution=inst)
             branch = get_object_or_404(Branch, id=branch_id, institution=inst)
             
-            # Enforce unique staff (prevent registering the same SchoolUser twice)
-            if StaffMember.objects.filter(school_user=school_user).exists():
-                messages.error(request, f"'{school_user.full_name}' is already registered as a staff member.")
+            # Enforce unique staff (prevent registering the same user with the same role twice in this institution)
+            if StaffMember.objects.filter(user=school_user.user, institution=inst, role_name__iexact=role).exists():
+                messages.error(request, f"'{school_user.full_name}' is already registered with the '{role}' role.")
                 return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
             # Find or create User
@@ -1008,19 +1043,24 @@ def school_others_view(request):
             
             from django.contrib.auth.hashers import make_password as hash_pw
             from django.db import IntegrityError
+            
+            role_obj, _ = Role.objects.get_or_create(role_name=role.upper())
+            SchoolRole.objects.get_or_create(role=role_obj, school=inst)
+            
             try:
                 StaffMember.objects.create(
+                    user=school_user.user,
+                    institution=inst,
                     branch=branch,
-                    school_user=school_user,
-                    name=school_user.full_name,
                     email=school_user.email,
                     password=hash_pw(password),
-                    role=role,
+                    role=role_obj,
+                    role_name=role,
                     status='active'
                 )
                 messages.success(request, f"Staff member '{school_user.full_name}' registered successfully!")
-            except IntegrityError:
-                messages.error(request, f"'{school_user.full_name}' is already registered as a staff member.")
+            except IntegrityError as e:
+                messages.error(request, f"'{school_user.full_name}' is already registered as a staff member. (Database error: {e})")
                 
             return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
