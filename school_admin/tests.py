@@ -195,7 +195,6 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertIsNotNone(student)
         self.assertEqual(student.name, 'Student Jane')
         self.assertEqual(student.branch, self.branch)
-        self.assertEqual(student.uid_no, 'UID12345')
         self.assertEqual(student.roll_no, 'R10')
         self.assertEqual(student.roll_number, 'R10')
         self.assertEqual(student.grno, 'GR999')
@@ -214,7 +213,6 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertEqual(student_profile.parent_mobile_no, '9876543210')
         self.assertEqual(student_profile.gardian_name, 'Jane Guardian')
         self.assertEqual(student_profile.gardian_mobile_no, '9876543211')
-        self.assertEqual(student_profile.uid_no, 'UID12345')
         self.assertEqual(student_profile.roll_no, 'R10')
         self.assertEqual(student_profile.grno, 'GR999')
         
@@ -1315,9 +1313,8 @@ class StudentImportServiceTest(TestCase):
         self.assertEqual(student.name, "Rahul Patel")
         self.assertEqual(student.school_class, self.school_class)
         self.assertEqual(student.academic_year, self.academic_year)
-        self.assertEqual(student.rp_grno, "ADM-001")
-        self.assertEqual(student.rp_roll_no, "1")
-        self.assertEqual(student.rp_uid_no, "123456789012")
+        self.assertEqual(student.gr_number, "ADM-001")
+        self.assertEqual(student.roll_number, "1")
         
         # Verify UserProfile personal info
         profile = UserProfile.objects.get(user=student.user)
@@ -1380,7 +1377,7 @@ class StudentImportServiceTest(TestCase):
         
         self.assertEqual(result.success, 1)
         
-        student = Student.objects.filter(rp_grno="ADM-999").first()
+        student = Student.objects.filter(gr_number="ADM-999").first()
         self.assertIsNotNone(student)
         self.assertTrue(student.email_id.startswith("rahul.patel.adm-999"))
         self.assertTrue(student.email_id.endswith("@student.local"))

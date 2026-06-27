@@ -355,15 +355,6 @@ class StudentImportService:
         else:
             batch_admission_numbers.add(adm_no)
 
-        # --- Aadhaar uniqueness ---
-        aadhaar = row.get('aadhaar_number', '').strip()
-        if aadhaar:
-            if aadhaar in batch_aadhaar_numbers:
-                result.add_error(row_num, 'Aadhaar Number', f"Duplicate Aadhaar Number \"{aadhaar}\" in this file.")
-                ok = False
-            else:
-                batch_aadhaar_numbers.add(aadhaar)
-
         # --- Roll Number uniqueness within batch (year+class+section) ---
         roll = row.get('roll_number', '').strip()
         if roll:
@@ -423,19 +414,14 @@ class StudentImportService:
 
                 # ---- DB-level duplicate checks ----
                 adm_no = row['admission_number'].strip()
-                if RoleProfile.objects.filter(rp_grno=adm_no, institution=inst).exists():
+                if RoleProfile.objects.filter(gr_number=adm_no, institution=inst).exists():
                     result.add_error(row_num, 'Admission Number', f"Admission Number \"{adm_no}\" already exists in the database.")
-                    return False
-
-                aadhaar = row.get('aadhaar_number', '').strip()
-                if aadhaar and RoleProfile.objects.filter(rp_uid_no=aadhaar, institution=inst).exists():
-                    result.add_error(row_num, 'Aadhaar Number', f"Aadhaar Number \"{aadhaar}\" already exists in the database.")
                     return False
 
                 roll = row.get('roll_number', '').strip()
                 if roll and RoleProfile.objects.filter(
-                    rp_roll_no=roll,
-                    rp_school_class=school_class,
+                    roll_number=roll,
+                    school_class=school_class,
                     academic_year=ay,
                     institution=inst,
                 ).exists():
@@ -536,11 +522,10 @@ class StudentImportService:
                     branch=branch,
                     address_record=address_obj,
                     academic_year=ay,
-                    rp_school_class=school_class,
-                    rp_roll_no=roll or None,
-                    rp_grno=adm_no,
-                    rp_uid_no=aadhaar or None,
-                    rp_udise_no=row.get('udise_number', '').strip() or None,
+                    school_class=school_class,
+                    roll_number=roll or None,
+                    gr_number=adm_no,
+                    udise_number=row.get('udise_number', '').strip() or None,
                 )
 
                 # ---- Create UserRole ----

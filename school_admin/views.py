@@ -692,9 +692,8 @@ def school_students_view(request):
                 mobile_no=mobile_no,
                 gardian_name=gardian_name,
                 gardian_mobile_no=gardian_mobile_no,
-                rp_roll_no=roll_no,
-                rp_uid_no=uid_no,
-                rp_grno=grno,
+                roll_number=roll_no,
+                gr_number=grno,
                 academic_year_id=active_year_id,
             )
 

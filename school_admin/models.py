@@ -66,11 +66,10 @@ class RoleProfile(models.Model):
     permissions = models.JSONField(default=dict, blank=True)
     academic_year = models.ForeignKey('super_admin.AcademicYear', on_delete=models.SET_NULL, null=True, blank=True, related_name='role_profiles')
     # Year-specific student fields (stored directly on RoleProfile so they are per-academic-year)
-    rp_school_class = models.ForeignKey('SchoolClass', on_delete=models.SET_NULL, null=True, blank=True, related_name='rp_student_profiles')
-    rp_roll_no = models.CharField(max_length=50, blank=True, null=True)
-    rp_uid_no = models.CharField(max_length=100, blank=True, null=True)
-    rp_grno = models.CharField(max_length=100, blank=True, null=True)
-    rp_udise_no = models.CharField(max_length=100, blank=True, null=True)
+    school_class = models.ForeignKey('SchoolClass', on_delete=models.SET_NULL, null=True, blank=True, related_name='rp_student_profiles')
+    roll_number = models.CharField(max_length=50, blank=True, null=True)
+    gr_number = models.CharField(max_length=100, blank=True, null=True)
+    udise_number = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
         unique_together = ('user', 'role', 'institution', 'academic_year')
@@ -135,10 +134,7 @@ class RoleProfile(models.Model):
         if self.role_name == 'STUDENT':
             from student.models import UserProfile
             profile, _ = UserProfile.objects.get_or_create(user=self.user)
-            profile.school_class = self.rp_school_class
-            profile.roll_no = self.rp_roll_no
-            profile.uid_no = self.rp_uid_no
-            profile.grno = self.rp_grno
+            profile.school_class = self.school_class
             profile.save()
 
         # Sync to UserRole
@@ -369,48 +365,20 @@ class RoleProfile(models.Model):
 
     # Student specific properties — stored directly on RoleProfile (per-academic-year)
     @property
-    def school_class(self):
-        return self.rp_school_class
-
-    @school_class.setter
-    def school_class(self, value):
-        self.rp_school_class = value
-
-    @property
-    def school_class_id(self):
-        return self.rp_school_class_id
-
-    @property
     def roll_no(self):
-        return self.rp_roll_no or ""
+        return self.roll_number or ""
 
     @roll_no.setter
     def roll_no(self, value):
-        self.rp_roll_no = value
-
-    @property
-    def roll_number(self):
-        return self.rp_roll_no or ""
-
-    @roll_number.setter
-    def roll_number(self, value):
-        self.rp_roll_no = value
-
-    @property
-    def uid_no(self):
-        return self.rp_uid_no or ""
-
-    @uid_no.setter
-    def uid_no(self, value):
-        self.rp_uid_no = value
+        self.roll_number = value
 
     @property
     def grno(self):
-        return self.rp_grno or ""
+        return self.gr_number or ""
 
     @grno.setter
     def grno(self, value):
-        self.rp_grno = value
+        self.gr_number = value
 
     @property
     def parent_full_name(self):
