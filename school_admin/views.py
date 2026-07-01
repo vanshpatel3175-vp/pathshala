@@ -147,10 +147,6 @@ def school_login_view(request):
             messages.error(request, "Invalid email or password.")
             
     return render(request, 'school_admin/login.html')
-<<<<<<< HEAD
-
-=======
->>>>>>> 5e408bceec244428a045a1a5b69ce8b1915eeaa2
 def school_logout_view(request):
     logout(request)
     return redirect('login')

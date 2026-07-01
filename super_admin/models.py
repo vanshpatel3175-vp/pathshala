@@ -15,7 +15,7 @@ class AcademicYear(models.Model):
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    email = models.EmailField(primary_key=True)
+    email = models.EmailField(unique=True)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
     mobile_no = models.CharField(max_length=15, blank=True, null=True)
 

@@ -38,10 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
     'super_admin',
     'school_admin',
+    'student',
+    'teacher',
+    'study_material',
 ]
 
 MIDDLEWARE = [
