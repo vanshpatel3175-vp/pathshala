@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
@@ -9,22 +10,77 @@ from datetime import datetime, date, timedelta
 from .models import SchoolApplication, Institution, PlatformUser, Inquiry, Meeting, Subscription
 
 def superadmin_required(view_func):
-    decorator = user_passes_test(
-        lambda u: u.is_authenticated and (u.is_superuser or u.is_staff),
-        login_url='login'
-    )
-    return decorator(view_func)
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        has_teacher = False
+        has_student = False
+        try:
+            if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+                has_teacher = True
+        except AttributeError:
+            pass
+        try:
+            if hasattr(request.user, 'student_profile') and request.user.student_profile:
+                has_student = True
+        except AttributeError:
+            pass
+
+        if has_teacher or has_student:
+            logout(request)
+            messages.error(request, "This account is not authorized to access the Super Admin portal.")
+            return redirect('login')
+
+        if not (request.user.is_superuser or request.user.is_staff):
+            return redirect('login')
+            
+        return view_func(request, *args, **kwargs)
+    return wrapper
 
 def login_view(request):
     if request.user.is_authenticated:
-        if request.user.is_superuser or request.user.is_staff:
-            return redirect('dashboard')
-        # Check if the user is a school admin and redirect them
+        # Check student/teacher profiles first — if they exist, bypass admin portals
+        has_teacher = False
+        has_student = False
         try:
-            if hasattr(request.user, 'school_profile'):
+            if hasattr(request.user, 'teacher_profile') and request.user.teacher_profile:
+                has_teacher = True
+        except AttributeError:
+            pass
+        try:
+            if hasattr(request.user, 'student_profile') and request.user.student_profile:
+                has_student = True
+        except AttributeError:
+            pass
+
+        if has_teacher or has_student:
+            total_profiles = (1 if has_teacher else 0) + (1 if has_student else 0)
+            if total_profiles > 1:
+                active_role = request.session.get('active_role')
+                if active_role == 'TEACHER':
+                    return redirect('teacher_dashboard')
+                elif active_role == 'STUDENT':
+                    return redirect('student_dashboard')
+                return redirect('select_profile')
+            
+            if has_teacher:
+                request.session['active_role'] = 'TEACHER'
+                return redirect('teacher_dashboard')
+            elif has_student:
+                request.session['active_role'] = 'STUDENT'
+                return redirect('student_dashboard')
+
+        # Fallback for pure admin users
+        try:
+            if hasattr(request.user, 'school_profile') and request.user.school_profile:
                 return redirect('school_overview')
         except Exception:
             pass
+            
+        if request.user.is_superuser or request.user.is_staff:
+            return redirect('dashboard')
+            
         return redirect('dashboard')
         
     if request.method == 'POST':
@@ -43,20 +99,52 @@ def login_view(request):
             if email in ['admin@ab.com', 'admin', 'ab@gmail.com']:
                 user = authenticate(username='admin', password=password)
                 
+
         if user is not None:
             if user.is_active:
                 login(request, user)
+                
+                # Check student/teacher profiles first — if they exist, bypass admin portals
+                has_teacher = False
+                has_student = False
+                try:
+                    if hasattr(user, 'teacher_profile') and user.teacher_profile:
+                        has_teacher = True
+                except AttributeError:
+                    pass
+                try:
+                    if hasattr(user, 'student_profile') and user.student_profile:
+                        has_student = True
+                except AttributeError:
+                    pass
+
+                if has_teacher or has_student:
+                    total_profiles = (1 if has_teacher else 0) + (1 if has_student else 0)
+                    if total_profiles > 1:
+                        if 'active_role' in request.session:
+                            del request.session['active_role']
+                        return redirect('select_profile')
+                    
+                    if has_teacher:
+                        request.session['active_role'] = 'TEACHER'
+                        return redirect('teacher_dashboard')
+                    elif has_student:
+                        request.session['active_role'] = 'STUDENT'
+                        return redirect('student_dashboard')
+
+                # Fallback for pure admin users
+                try:
+                    if hasattr(user, 'school_profile') and user.school_profile:
+                        return redirect('school_overview')
+                except Exception:
+                    pass
+                    
                 if user.is_superuser or user.is_staff:
                     return redirect('dashboard')
-                else:
-                    try:
-                        if hasattr(user, 'school_profile'):
-                            return redirect('school_overview')
-                    except Exception:
-                        pass
-                    logout(request)
-                    messages.error(request, "This account is not linked to any school or superadmin portal.")
-                    return render(request, 'super_admin/login.html')
+
+                logout(request)
+                messages.error(request, "This account is not linked to any school or superadmin portal.")
+                return render(request, 'super_admin/login.html')
             else:
                 try:
                     if hasattr(user, 'school_profile'):
@@ -136,24 +224,27 @@ def approve_application_view(request, app_id):
     app.status = 'Validated'
     app.save()
     
-    # Create an Institution from the approved application
-    inst, created = Institution.objects.get_or_create(
-        name=app.name.split(' ')[0], # Simple code like "AB" or "RN"
-        type="SCHOOL",
-        planned_type="SCHOOL",
-        contact_no=app.contact_number,
-        email=app.email,
-        defaults={
-            'expired_date': timezone.now() + timedelta(days=365),
-            'status': 'active',
-            'school_code': f"SCH-{app.id:04d}",
-            'plan': 'Premium'
-        }
-    )
+    # Activate the Institution created during signup
+    inst = Institution.objects.filter(email=app.email).first()
+    if not inst:
+        inst = Institution.objects.create(
+            name=app.name,
+            type="SCHOOL",
+            planned_type="SCHOOL",
+            contact_no=app.contact_number,
+            email=app.email,
+            expired_date=timezone.now() + timedelta(days=365),
+            status='active',
+            school_code=f"SCH-{app.id:04d}",
+            plan='Premium'
+        )
+    elif inst.status == 'pending':
+        inst.status = 'active'
+        inst.save()
     
-    # Create a default first branch for the newly registered school
+    # Create a default first branch if missing
     from school_admin.models import Branch
-    if created or not inst.branches.exists():
+    if not inst.branches.exists():
         city_location = app.name.split(' ')[-1] if len(app.name.split(' ')) > 1 else "Gujarat"
         Branch.objects.create(
             institution=inst,
@@ -198,7 +289,7 @@ def decline_application_view(request, app_id):
 
 @superadmin_required
 def all_institutions_view(request):
-    institutions = Institution.objects.all().order_by('name')
+    institutions = Institution.objects.exclude(status='pending').order_by('name')
     total_registered = institutions.count()
     
     context = {
@@ -221,7 +312,12 @@ def toggle_institution_view(request, inst_id):
 
 @superadmin_required
 def platform_users_view(request):
-    users = User.objects.all().select_related('school_profile', 'school_profile__institution').order_by('-date_joined')
+    from django.db.models import Q
+    users = User.objects.filter(
+        Q(is_superuser=True) | Q(school_profile__isnull=False)
+    ).distinct().select_related(
+        'school_profile', 'school_profile__institution'
+    ).order_by('-date_joined')
     total_users = users.count()
     
     context = {
@@ -233,8 +329,8 @@ def platform_users_view(request):
 
 @superadmin_required
 def inquiries_view(request):
-    inquiries = Inquiry.objects.all().order_by('-last_active')
-    applications = SchoolApplication.objects.all().order_by('-date_applied')
+    inquiries = Inquiry.objects.exclude(status='Approved').order_by('-last_active')
+    applications = SchoolApplication.objects.exclude(status='Validated').order_by('-date_applied')
     
     context = {
         'inquiries': inquiries,
@@ -399,3 +495,133 @@ def pending_applications_context_processor(request):
         'pending_branch_requests_count': 0,
     }
 
+@superadmin_required
+def permission_view(request):
+    institutions = Institution.objects.exclude(status='pending').order_by('name')
+    selected_inst_id = request.GET.get('school_id') or request.POST.get('school_id')
+    selected_inst = None
+
+    if selected_inst_id:
+        selected_inst = get_object_or_404(Institution, id=selected_inst_id)
+
+    if request.method == 'POST' and selected_inst:
+        # We expect checkbox values (e.g. 'manage_branches', 'manage_students', etc.)
+        # If a checkbox is missing from POST, it means it's False.
+        # But wait, what if the user submits an empty form? We should iterate over default_features() keys.
+        from super_admin.models import default_features
+        new_features = {}
+        for key in default_features().keys():
+            # request.POST.get(key) returns 'on' if checked, else None
+            new_features[key] = request.POST.get(key) == 'on'
+        
+        selected_inst.features = new_features
+        selected_inst.save()
+        messages.success(request, f"Permissions updated successfully for {selected_inst.name}.")
+        return redirect(f"{reverse('permission')}?school_id={selected_inst.id}")
+
+    context = {
+        'current_tab': 'permission',
+        'institutions': institutions,
+        'selected_inst': selected_inst,
+        'features': selected_inst.features if selected_inst else {}
+    }
+    return render(request, 'super_admin/permission.html', context)
+
+
+@login_required
+def select_profile_view(request):
+    user = request.user
+    
+    if request.method == 'POST':
+        selected_role = request.POST.get('role', '').strip()
+        selected_user_id = request.POST.get('user_id', '').strip()
+        
+        if selected_user_id or selected_role:
+            try:
+                # User model uses email as PK — there is no integer 'id' field
+                selected_user = User.objects.get(email=user.email)
+                login(request, selected_user)
+                request.session['active_role'] = selected_role
+                if selected_role == 'TEACHER':
+                    return redirect('teacher_dashboard')
+                else:
+                    return redirect('student_dashboard')
+            except User.DoesNotExist:
+                messages.error(request, "Invalid profile selection.")
+                return redirect('select_profile')
+                
+        # Fallback
+        if selected_role in ('TEACHER', 'STUDENT'):
+            request.session['active_role'] = selected_role
+            if selected_role == 'TEACHER':
+                return redirect('teacher_dashboard')
+            else:
+                return redirect('student_dashboard')
+        else:
+            messages.error(request, "Invalid role selected.")
+            
+    all_users = User.objects.filter(email=user.email)
+    teacher_profiles = []
+    student_profiles = []
+    
+    for u in all_users:
+        if hasattr(u, 'teacher_profile') and u.teacher_profile:
+            teacher_profiles.append(u.teacher_profile)
+        if hasattr(u, 'student_profile') and u.student_profile:
+            student_profiles.append(u.student_profile)
+            
+    if len(teacher_profiles) + len(student_profiles) <= 1:
+        return redirect('login')
+            
+    context = {
+        'teacher_profiles': teacher_profiles,
+        'student_profiles': student_profiles,
+    }
+    return render(request, 'super_admin/select_profile.html', context)
+
+@login_required
+def theme_settings_view(request):
+    if request.user.role not in ['SUPER ADMIN', 'SCHOOL STAFF']:
+        messages.error(request, 'Access Denied.')
+        return redirect('school_overview' if request.user.role == 'SCHOOL STAFF' else 'dashboard')
+        
+    from .models import ThemeSetting
+    
+    institution = None
+    if request.user.role == 'SCHOOL STAFF':
+        try:
+            institution = request.user.school_profile.institution
+        except Exception:
+            pass
+            
+    if request.method == 'POST':
+        theme_code = request.POST.get('theme_code')
+        if theme_code:
+            # Set active theme
+            theme, created = ThemeSetting.objects.get_or_create(name=theme_code, institution=institution)
+            theme.is_active = True
+            theme.save()
+            messages.success(request, f'Theme updated successfully!')
+            return redirect(request.META.get('HTTP_REFERER', 'theme_settings'))
+            
+    active_theme = ThemeSetting.objects.filter(is_active=True, institution=institution).first()
+    # If a school staff hasn't set one, it will just show default on settings page 
+    # (even though context processor might fall back to global, in settings it's better to show what THEY set or default)
+    active_code = active_theme.name if active_theme else 'default'
+    
+    themes = [
+        {'code': 'default', 'name': 'Default Dark Theme', 'color': '#26a69a'},
+        {'code': 'ocean-cyan', 'name': 'Ocean Cyan', 'color': '#00BCD4'},
+        {'code': 'royal-blue', 'name': 'Royal Blue', 'color': '#2563EB'},
+        {'code': 'premium-pink', 'name': 'Premium Pink', 'color': '#EC4899'},
+    ]
+    
+    base_template = 'school_admin/base.html' if request.user.role == 'SCHOOL STAFF' else 'super_admin/base.html'
+            
+    return render(request, 'super_admin/theme_settings.html', {
+        'themes': themes,
+        'active_code': active_code,
+        'current_tab': 'themes',
+        'base_template': base_template,
+        'institution': institution
+    })

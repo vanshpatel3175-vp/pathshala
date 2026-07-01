@@ -1,0 +1,151 @@
+{% extends 'school_admin/base.html' %}
+
+{% block title %}Attendance Report{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header" style="margin-bottom: 30px;">
+    <div class="page-title">
+        <h1 style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Attendance Report
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">View and monitor student attendance across all classes</p>
+    </div>
+</div>
+
+
+<!-- Filter Bar -->
+<div class="glass-panel" style="padding: 22px; margin-bottom: 26px; border-left: 4px solid var(--color-primary); border-radius: 14px;">
+    <form method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+        {% if branches|length > 1 %}
+        <div style="min-width: 180px;">
+            <label style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Branch</label>
+            <select name="branch_id" style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);" onchange="this.form.submit()">
+                <option value="">All Branches</option>
+                {% for br in branches %}
+                <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Class</label>
+            <select name="class_id" style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);" onchange="this.form.submit()">
+                <option value="">-- Select Class --</option>
+                {% for cls in classes %}
+                <option value="{{ cls.id }}" {% if class_filter_id == cls.id|stringformat:"s" %}selected{% endif %}>
+                    {{ cls.name }}{% if cls.section %} — {{ cls.section }}{% endif %} ({{ cls.branch.name }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="min-width: 170px;">
+            <label style="display: block; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">Date</label>
+            <input type="date" name="date" value="{{ date_filter }}"
+                style="height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
+        </div>
+        <button type="submit" class="btn btn-primary" style="height: 44px; padding: 0 22px;">
+            <i class="fa-solid fa-filter"></i> Filter
+        </button>
+        {% if class_filter_id or date_filter %}
+        <a href="{% url 'school_attendance' %}" class="btn btn-secondary" style="height: 44px; padding: 0 16px; text-decoration: none; display: inline-flex; align-items: center;">
+            <i class="fa-solid fa-xmark"></i> Clear
+        </a>
+        {% endif %}
+    </form>
+</div>
+
+{% if selected_class %}
+<!-- Attendance Table for selected class -->
+<div class="glass-panel" style="padding: 0; overflow: hidden; border-left: 4px solid var(--color-primary); border-radius: 16px;">
+    <div style="padding: 18px 24px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h3 style="font-size: 1.1rem; color: var(--text-primary); margin: 0; font-family: var(--font-heading);">
+                <i class="fa-solid fa-chalkboard" style="color: var(--color-primary); margin-right: 8px;"></i>
+                {{ selected_class.name }}{% if selected_class.section %} &mdash; {{ selected_class.section }}{% endif %}
+            </h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 0;">
+                Branch: {{ selected_class.branch.name }}
+                {% if selected_class.teacher %} &bull; Teacher: {{ selected_class.teacher.name }}{% endif %}
+                {% if date_filter %} &bull; Date: {{ date_filter }}{% endif %}
+            </p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            {% if attendances %}
+            {% with total=attendances|length %}
+            <span style="padding: 5px 14px; background: rgba(16,185,129,0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.25); border-radius: 20px; font-size: 0.78rem; font-weight: 700;">
+                {{ attendances|length }} record(s)
+            </span>
+            {% endwith %}
+            {% endif %}
+        </div>
+    </div>
+
+    {% if attendances %}
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background: var(--bg-secondary);">
+                <th style="padding: 12px 20px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Student</th>
+                <th style="padding: 12px 20px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Date</th>
+                <th style="padding: 12px 20px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Status</th>
+                <th style="padding: 12px 20px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Taken By</th>
+                <th style="padding: 12px 20px; font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Note</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for att in attendances %}
+            <tr style="border-top: 1px solid var(--border-color); transition: background 0.15s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
+                <td style="padding: 13px 20px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: var(--text-primary); flex-shrink: 0;">
+                            {{ att.student.name|first|upper }}
+                        </div>
+                        <div>
+                            <p style="font-weight: 600; color: var(--text-primary); margin: 0; font-size: 0.875rem;">{{ att.student.name }}</p>
+                            <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0;">{{ att.student.email }}</p>
+                        </div>
+                    </div>
+                </td>
+                <td style="padding: 13px 20px; color: var(--text-secondary); font-size: 0.875rem;">{{ att.date }}</td>
+                <td style="padding: 13px 20px;">
+                    {% if att.status == 'present' %}
+                    <span style="padding: 4px 12px; background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; font-size: 0.72rem; font-weight: 700;">
+                        <i class="fa-solid fa-check"></i> Present
+                    </span>
+                    {% elif att.status == 'absent' %}
+                    <span style="padding: 4px 12px; background: rgba(239,68,68,0.12); color: #f87171; border: 1px solid rgba(239,68,68,0.3); border-radius: 20px; font-size: 0.72rem; font-weight: 700;">
+                        <i class="fa-solid fa-xmark"></i> Absent
+                    </span>
+                    {% else %}
+                    <span style="padding: 4px 12px; background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); border-radius: 20px; font-size: 0.72rem; font-weight: 700;">
+                        <i class="fa-solid fa-clock"></i> Late
+                    </span>
+                    {% endif %}
+                </td>
+                <td style="padding: 13px 20px; color: var(--text-secondary); font-size: 0.82rem;">
+                    {% if att.teacher %}
+                    <span style="color: var(--color-primary);"><i class="fa-solid fa-chalkboard-user"></i> {{ att.teacher.name }}</span>
+                    {% else %}—{% endif %}
+                </td>
+                <td style="padding: 13px 20px; color: var(--text-secondary); font-size: 0.82rem;">{{ att.note|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div style="padding: 50px; text-align: center; color: var(--text-muted);">
+        <i class="fa-solid fa-calendar-xmark" style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+        <p>No attendance records found{% if date_filter %} for {{ date_filter }}{% endif %}.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% else %}
+<div class="glass-panel" style="padding: 60px; text-align: center; color: var(--text-muted); border-radius: 16px;">
+    <i class="fa-solid fa-clipboard-list" style="font-size: 3rem; display: block; margin-bottom: 14px; opacity: 0.3;"></i>
+    <h3 style="color: var(--text-primary); margin-bottom: 8px;">Select a Class</h3>
+    <p>Choose a class from the filter above to view attendance records.</p>
+</div>
+{% endif %}
+
+{% endblock %}

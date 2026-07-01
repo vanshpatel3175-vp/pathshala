@@ -1,0 +1,128 @@
+{% extends 'teacher/base.html' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>My Profile</h1>
+        <p>Your personal information registered by the school admin</p>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 340px 1fr; gap: 28px; align-items: start;">
+    <!-- Profile Card -->
+    <div class="glass-panel" style="padding: 32px; text-align: center; border-top: 4px solid #6366f1;">
+        <div style="width: 90px; height: 90px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--text-primary); margin: 0 auto 20px; box-shadow: 0 10px 30px rgba(99,102,241,0.4);">
+            {% if school_user %}{{ school_user.first_name|first|upper }}{{ school_user.last_name|first|upper }}{% else %}{{ request.user.first_name|first|upper }}{% endif %}
+        </div>
+        <h2 style="font-size: 1.35rem; margin-bottom: 6px;">
+            {% if school_user %}{{ school_user.first_name }} {{ school_user.last_name }}{% else %}{{ request.user.first_name }}{% endif %}
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 18px;">{{ request.user.email }}</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% if institution %}
+            <div style="padding: 10px 16px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 10px; font-size: 0.875rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-school" style="color: var(--color-primary);"></i>
+                <span>{{ institution.name }}</span>
+            </div>
+            {% endif %}
+            {% if branch %}
+            <div style="padding: 10px 16px; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); border-radius: 10px; font-size: 0.875rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-code-branch" style="color: var(--color-info);"></i>
+                <span>{{ branch.name }}</span>
+            </div>
+            {% endif %}
+            <div style="padding: 10px 16px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 10px; font-size: 0.875rem; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-circle" style="color: var(--color-success); font-size: 0.6rem;"></i>
+                <span style="color: #34d399; font-weight: 600;">{{ teacher.status|title|default:"Active" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Panel -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- Personal Information -->
+        <div class="glass-panel" style="padding: 28px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-user" style="color: var(--color-primary);"></i> Personal Information
+            </h3>
+            {% if school_user %}
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">First Name</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.first_name }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Last Name</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.last_name }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Email Address</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.email }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Date of Birth</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.dob|date:"d M Y"|default:"—" }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p style="color: var(--text-muted);">No extended profile data available. Contact your school admin.</p>
+            {% endif %}
+        </div>
+
+        <!-- Address Information -->
+        {% if school_user %}
+        <div class="glass-panel" style="padding: 28px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-map-location-dot" style="color: var(--color-info);"></i> Address Information
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">City</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.city|default:"—" }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">State</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.state|default:"—" }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Pincode</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.pincode|default:"—" }}</p>
+                </div>
+                <div style="grid-column: span 2;">
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Full Address</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ school_user.address|default:"—" }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- School Assignment -->
+        <div class="glass-panel" style="padding: 28px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-graduation-cap" style="color: var(--color-warning);"></i> School Assignment
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Institution</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ institution.name|default:"—" }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Branch</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500;">{{ branch.name|default:"—" }} {% if branch %}<span style="color: var(--text-muted); font-size: 0.85rem;">({{ branch.city }})</span>{% endif %}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Teacher ID</p>
+                    <p style="font-size: 1rem; color: var(--text-primary); font-weight: 500; font-family: monospace;">#TCH-{{ teacher.id|stringformat:"04d" }}</p>
+                </div>
+                <div>
+                    <p style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; margin-bottom: 4px;">Account Status</p>
+                    <span class="badge {% if teacher.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}" style="font-size: 0.7rem;">{{ teacher.status|title }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

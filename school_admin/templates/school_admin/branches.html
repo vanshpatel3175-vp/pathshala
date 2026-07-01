@@ -11,7 +11,7 @@
     </div>
     <div>
         <!-- Add Branch Toggle Form Button -->
-        <button class="btn btn-primary" onclick="toggleAddBranchForm()" disabled>
+        <button class="btn btn-primary" onclick="openDrawer('add-branch-form-card', 'name')" {% if not institution.features.add_new_branch %}disabled{% endif %}>
             <i class="fa-solid fa-plus"></i> Add Your Branch
         </button>
     </div>
@@ -35,30 +35,30 @@
     </div>
 </div>
 
-<!-- Add Branch Form Section (Initially Hidden) -->
-<div id="add-branch-form-card" class="glass-panel"
-    style="padding: 25px; margin-bottom: 30px; display: none; border-left: 4px solid var(--color-success);">
+<!-- Add Branch Form Section (Side Drawer) -->
+<div id="add-branch-form-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
     <h3
-        style="font-size: 1.15rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
-        <span><i class="fa-solid fa-square-plus" style="color: var(--color-success);"></i> Add New Branch</span>
-        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;"
-            onclick="toggleAddBranchForm()">Close</button>
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-square-plus" style="color: var(--color-primary);"></i> Add New Branch</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
     </h3>
     <form method="POST" action="{% url 'school_branches' %}">
         {% csrf_token %}
-        <div class="meeting-form-grid">
+        <div class="meeting-form-grid" style="display: flex; flex-direction: column; gap: 20px;">
             <div class="form-group">
-                <label for="name">Branch Name</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="Primary Section" required>
+                <label for="name" style="margin-bottom: 8px; display: block;">Branch Name</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="Primary Section" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group">
-                <label for="city">City Location</label>
-                <input type="text" id="city" name="city" class="form-control" placeholder="Amalsad" required>
+                <label for="city" style="margin-bottom: 8px; display: block;">City Location</label>
+                <input type="text" id="city" name="city" class="form-control" placeholder="Amalsad" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
         </div>
-        <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
-            <button type="submit" class="btn btn-success">
+        <div style="margin-top: 25px; display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
                 <i class="fa-solid fa-circle-check"></i> Save Branch
             </button>
         </div>
@@ -101,7 +101,7 @@
             <div
                 style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px; display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
                 <div style="display: flex; gap: 10px; font-size: 0.8rem;">
-                    <a href="{% url 'school_students' %}?branch_id={{ branch.id }}" class="text-link" style="background: rgba(99,102,241,0.06); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(99,102,241,0.15); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text-primary); transition: var(--transition-smooth);" onmouseover="this.style.background='rgba(99,102,241,0.15)'" onmouseout="this.style.background='rgba(99,102,241,0.06)'">
+                    <a href="{% url 'school_students' %}?branch_id={{ branch.id }}" class="text-link" style="background: var(--bg-secondary); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text-primary); transition: var(--transition-smooth);" onmouseover="this.style.background='rgba(99,102,241,0.15)'" onmouseout="this.style.background='rgba(99,102,241,0.06)'">
                         <i class="fa-solid fa-user-graduate" style="color: var(--color-primary);"></i> {{ branch.students.count }} Students
                     </a>
                     <a href="{% url 'school_teachers' %}?branch_id={{ branch.id }}" class="text-link" style="background: rgba(16,185,129,0.06); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.15); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--text-primary); transition: var(--transition-smooth);" onmouseover="this.style.background='rgba(16,185,129,0.15)'" onmouseout="this.style.background='rgba(16,185,129,0.06)'">
@@ -109,7 +109,7 @@
                     </a>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <a href="{% url 'school_manage' %}?branch_id={{ branch.id }}" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; background: var(--color-primary); text-decoration: none; color: #fff;">
+                    <a href="{% url 'school_manage' %}?branch_id={{ branch.id }}" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; background: var(--color-primary); text-decoration: none; color: var(--text-primary);">
                         <i class="fa-solid fa-chart-pie"></i> Dashboard
                     </a>
                     <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
@@ -129,14 +129,19 @@
         {% endif %}
     </div>
 
-    <!-- Edit Branch Card (Initially Hidden) -->
-    <div id="edit-branch-card" class="glass-panel"
-        style="padding: 25px; display: none; border-top: 4px solid var(--color-primary);">
+    <!-- Empty column to keep grid layout intact -->
+    <div style="display: flex; flex-direction: column; gap: 30px;">
+    </div>
+</div>
+
+    <!-- Edit Branch Card (Side Drawer) -->
+    <div id="edit-branch-card" class="glass-panel side-drawer"
+        style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
         <h3
-            style="font-size: 1.1rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+            style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
             <span><i class="fa-solid fa-pen-to-square" style="color: var(--color-primary);"></i> Edit Branch</span>
-            <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 0.7rem;"
-                onclick="closeEditBranchCard()">Close</button>
+            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+                onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
         </h3>
 
         <form method="POST" action="{% url 'school_branches' %}">
@@ -144,37 +149,37 @@
             <input type="hidden" name="action" value="edit">
             <input type="hidden" id="edit_branch_id" name="branch_id">
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="edit_name">Branch Name</label>
-                <input type="text" id="edit_name" name="name" class="form-control" required>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="edit_city">City Location</label>
-                <input type="text" id="edit_city" name="city" class="form-control" required>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="edit_branch_code">Branch Code</label>
-                <input type="text" id="edit_branch_code" name="branch_code" class="form-control">
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="edit_address">Address</label>
-                <textarea id="edit_address" name="address" class="form-control"
-                    style="height: 80px; resize: vertical; font-family: var(--font-sans);"></textarea>
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_name" style="margin-bottom: 8px; display: block;">Branch Name</label>
+                <input type="text" id="edit_name" name="name" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_status">Status</label>
-                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px;"
+                <label for="edit_city" style="margin-bottom: 8px; display: block;">City Location</label>
+                <input type="text" id="edit_city" name="city" class="form-control" required style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_branch_code" style="margin-bottom: 8px; display: block;">Branch Code</label>
+                <input type="text" id="edit_branch_code" name="branch_code" class="form-control" style="width: 100%; border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label for="edit_address" style="margin-bottom: 8px; display: block;">Address</label>
+                <textarea id="edit_address" name="address" class="form-control"
+                    style="width: 100%; height: 80px; resize: vertical; font-family: var(--font-sans); border-radius: 8px; padding: 12px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"></textarea>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
+                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
                     required>
                     <option value="active">Active</option>
                     <option value="disabled">Disabled</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
                 <i class="fa-solid fa-save"></i> Save Changes
             </button>
         </form>
@@ -182,16 +187,6 @@
 </div>
 
 <script>
-    function toggleAddBranchForm() {
-        const formCard = document.getElementById('add-branch-form-card');
-        if (formCard.style.display === 'none') {
-            formCard.style.display = 'block';
-            formCard.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            formCard.style.display = 'none';
-        }
-    }
-
     function openEditBranchCard(id, name, city, branchCode, address, status) {
         document.getElementById('edit_branch_id').value = id;
         document.getElementById('edit_name').value = name;
@@ -199,15 +194,7 @@
         document.getElementById('edit_branch_code').value = branchCode;
         document.getElementById('edit_address').value = address;
         document.getElementById('edit_status').value = status;
-
-        document.getElementById('edit-branch-card').style.display = 'block';
-        document.getElementById('branches-main-layout').style.gridTemplateColumns = '2fr 1fr';
-        document.getElementById('edit-branch-card').scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function closeEditBranchCard() {
-        document.getElementById('edit-branch-card').style.display = 'none';
-        document.getElementById('branches-main-layout').style.gridTemplateColumns = '1fr';
+        openDrawer('edit-branch-card', 'edit_name');
     }
 </script>
 {% endblock %}

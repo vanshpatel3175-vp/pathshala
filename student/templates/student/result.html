@@ -1,0 +1,209 @@
+{% extends 'student/base.html' %}
+
+{% block title %}My Results{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-title">
+        <h1>My Results</h1>
+        <p>View your exam scores and academic performance</p>
+    </div>
+</div>
+
+<!-- Filter Section -->
+<div class="search-row" style="margin-bottom: 25px;">
+    <div style="flex: 1; display: flex; align-items: center; gap: 15px;">
+        <label for="examFilter" style="color: var(--text-secondary); font-weight: 500;">Filter by Exam:</label>
+        <select id="examFilter" class="custom-select" style="max-width: 300px; height: 42px; border-radius: 8px; padding: 10px 14px; background: transparent; border: 1px solid var(--border-color); color: var(--text-primary);" onchange="filterResults()">
+            <option value="all">All Examinations</option>
+            <option value="mid-term">Mid-Term Examination 2026</option>
+            <option value="final">Final Examination 2025</option>
+        </select>
+    </div>
+</div>
+
+<div class="glass-panel result-card" data-exam="mid-term" style="padding: 30px; margin-bottom: 30px;">
+    <!-- Exam Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-primary);">Mid-Term Examination 2026</h2>
+            <p style="margin: 5px 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">Issued on: June 15, 2026</p>
+        </div>
+        <div>
+            <span class="badge badge-validated" style="font-size: 0.9rem; padding: 6px 15px; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">
+                <i class="fa-solid fa-medal"></i> PASS
+            </span>
+        </div>
+    </div>
+
+    <!-- Marks Table -->
+    <div class="table-container" style="overflow-x: auto; margin-bottom: 30px;">
+        <table class="custom-table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th style="text-align: center;">Total Marks</th>
+                    <th style="text-align: center;">Passing Marks</th>
+                    <th style="text-align: center;">Marks Obtained</th>
+                    <th style="text-align: center;">Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Mathematics</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">88</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Science</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">92</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A+</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">English</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">78</td>
+                    <td style="text-align: center;"><span style="color: #60a5fa; font-weight: 700;">B+</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Social Studies</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">85</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Computer Science</td>
+                    <td style="text-align: center; color: var(--text-secondary);">50</td>
+                    <td style="text-align: center; color: var(--text-secondary);">18</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">48</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A+</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary Box -->
+    <div style="background: transparent; border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+        <div style="text-align: center;">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Total Marks</p>
+            <h3 style="margin: 5px 0 0 0; font-size: 1.8rem; color: var(--text-primary);">391 <span style="font-size: 1rem; color: var(--text-muted);">/ 450</span></h3>
+        </div>
+        <div style="width: 1px; background: var(--border-color);"></div>
+        <div style="text-align: center;">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Percentage</p>
+            <h3 style="margin: 5px 0 0 0; font-size: 1.8rem; color: #60a5fa;">86.8%</h3>
+        </div>
+        <div style="width: 1px; background: var(--border-color);"></div>
+        <div style="text-align: center;">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Overall Grade</p>
+            <h3 style="margin: 5px 0 0 0; font-size: 1.8rem; color: #10b981;">A</h3>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel result-card" data-exam="final" style="padding: 30px;">
+    <!-- Exam Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 25px;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-primary);">Final Examination 2025</h2>
+            <p style="margin: 5px 0 0 0; color: var(--text-secondary); font-size: 0.9rem;">Issued on: March 20, 2025</p>
+        </div>
+        <div>
+            <span class="badge badge-validated" style="font-size: 0.9rem; padding: 6px 15px; background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">
+                <i class="fa-solid fa-medal"></i> PASS
+            </span>
+        </div>
+    </div>
+
+    <!-- Marks Table -->
+    <div class="table-container" style="overflow-x: auto; margin-bottom: 30px;">
+        <table class="custom-table" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Subject</th>
+                    <th style="text-align: center;">Total Marks</th>
+                    <th style="text-align: center;">Passing Marks</th>
+                    <th style="text-align: center;">Marks Obtained</th>
+                    <th style="text-align: center;">Grade</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Mathematics</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">95</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A+</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Science</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">89</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">English</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">82</td>
+                    <td style="text-align: center;"><span style="color: #60a5fa; font-weight: 700;">B+</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Social Studies</td>
+                    <td style="text-align: center; color: var(--text-secondary);">100</td>
+                    <td style="text-align: center; color: var(--text-secondary);">35</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">91</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A+</span></td>
+                </tr>
+                <tr>
+                    <td style="font-weight: 600; color: var(--text-primary);">Computer Science</td>
+                    <td style="text-align: center; color: var(--text-secondary);">50</td>
+                    <td style="text-align: center; color: var(--text-secondary);">18</td>
+                    <td style="text-align: center; font-weight: 600; color: var(--text-primary);">49</td>
+                    <td style="text-align: center;"><span style="color: #10b981; font-weight: 700;">A+</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Summary Box -->
+    <div style="background: transparent; border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+        <div style="text-align: center;">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Total Marks</p>
+            <h3 style="margin: 5px 0 0 0; font-size: 1.8rem; color: var(--text-primary);">406 <span style="font-size: 1rem; color: var(--text-muted);">/ 450</span></h3>
+        </div>
+        <div style="width: 1px; background: var(--border-color);"></div>
+        <div style="text-align: center;">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Percentage</p>
+            <h3 style="margin: 5px 0 0 0; font-size: 1.8rem; color: #60a5fa;">90.2%</h3>
+        </div>
+        <div style="width: 1px; background: var(--border-color);"></div>
+        <div style="text-align: center;">
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">Overall Grade</p>
+            <h3 style="margin: 5px 0 0 0; font-size: 1.8rem; color: #10b981;">A+</h3>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterResults() {
+    const filterValue = document.getElementById('examFilter').value;
+    const cards = document.querySelectorAll('.result-card');
+    
+    cards.forEach(card => {
+        if (filterValue === 'all' || card.getAttribute('data-exam') === filterValue) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

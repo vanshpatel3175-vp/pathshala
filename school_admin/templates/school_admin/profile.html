@@ -7,7 +7,7 @@
 <div class="page-header" style="margin-bottom: 30px;">
     <div class="page-title">
         <h1
-            style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, #fff 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            style="font-family: var(--font-heading); font-weight: 800; font-size: 2.25rem; background: linear-gradient(135deg, var(--text-primary) 60%, var(--text-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
             School Profile</h1>
         <p style="color: var(--text-secondary); font-size: 0.95rem;">View and update your school's information</p>
     </div>
@@ -18,7 +18,7 @@
     <div class="glass-panel" style="padding: 30px; border-radius: 16px; border-top: 3px solid var(--color-primary);">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
             <div
-                style="width: 56px; height: 56px; border-radius: 16px; background: rgba(99,102,241,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: var(--color-primary);">
+                style="width: 56px; height: 56px; border-radius: 16px; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: var(--color-primary);">
                 <i class="fa-solid fa-graduation-cap"></i>
             </div>
             <div>
@@ -31,26 +31,26 @@
 
         <div style="display: grid; gap: 14px;">
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Plan</span>
                 <span style="color: var(--color-primary); font-weight: 600; font-size: 0.9rem;">{{
                     institution.plan|default:"Standard" }}</span>
             </div>
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Status</span>
                 <span
                     class="badge {% if institution.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
                     style="font-size: 0.75rem;">{{ institution.status|title }}</span>
             </div>
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Contact</span>
-                <span style="color: #fff; font-size: 0.9rem;">{{ institution.contact_no }}</span>
+                <span style="color: var(--text-primary); font-size: 0.9rem;">{{ institution.contact_no }}</span>
             </div>
             <div style="display: flex; justify-content: space-between; padding: 12px 0;">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Email</span>
-                <span style="color: #fff; font-size: 0.9rem;">{{ institution.email }}</span>
+                <span style="color: var(--text-primary); font-size: 0.9rem;">{{ institution.email }}</span>
             </div>
         </div>
     </div>
@@ -71,18 +71,18 @@
 
         <div style="display: grid; gap: 14px;">
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Phone</span>
-                <span style="color: #fff; font-size: 0.9rem;">{{ profile.phone|default:"—" }}</span>
+                <span style="color: var(--text-primary); font-size: 0.9rem;">{{ profile.phone|default:"—" }}</span>
             </div>
             <div
-                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color);">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">City</span>
-                <span style="color: #fff; font-size: 0.9rem;">{{ profile.city|default:"—" }}</span>
+                <span style="color: var(--text-primary); font-size: 0.9rem;">{{ profile.city|default:"—" }}</span>
             </div>
             <div style="display: flex; justify-content: space-between; padding: 12px 0;">
                 <span style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">State</span>
-                <span style="color: #fff; font-size: 0.9rem;">{{ profile.state|default:"—" }}</span>
+                <span style="color: var(--text-primary); font-size: 0.9rem;">{{ profile.state|default:"—" }}</span>
             </div>
         </div>
     </div>
@@ -108,21 +108,21 @@
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">School
                     Name</label>
                 <input type="text" name="school_name" value="{{ institution.name }}" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
             <div>
                 <label
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Contact
                     Number</label>
                 <input type="text" name="contact_no" value="{{ institution.contact_no }}" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
             <div>
                 <label
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Email
                     Address</label>
                 <input type="email" name="email" value="{{ institution.email }}" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
         </div>
 
@@ -136,19 +136,19 @@
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">Admin
                     Phone</label>
                 <input type="text" name="phone" value="{{ profile.phone }}" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
             <div>
                 <label
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">City</label>
                 <input type="text" name="city" value="{{ profile.city }}" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
             <div>
                 <label
                     style="display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">State</label>
                 <input type="text" name="state" value="{{ profile.state }}" class="form-input"
-                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: #fff;">
+                    style="width: 100%; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
             </div>
         </div>
 

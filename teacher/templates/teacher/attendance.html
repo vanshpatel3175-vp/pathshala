@@ -1,0 +1,299 @@
+{% extends 'teacher/base.html' %}
+
+{% block title %}Take Attendance{% endblock %}
+
+{% block extra_head %}
+<style>
+    .att-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.2s;
+    }
+
+    .att-row:hover {
+        background: var(--bg-secondary);
+    }
+
+    .att-row:last-child {
+        border-bottom: none;
+    }
+
+    .att-radio-group {
+        display: flex;
+        gap: 8px;
+    }
+
+    .att-radio-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        transition: all 0.2s;
+        user-select: none;
+    }
+
+    .att-radio-label.present {
+        border-color: rgba(16, 185, 129, 0.3);
+        color: #34d399;
+    }
+
+    .att-radio-label.absent {
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #f87171;
+    }
+
+    .att-radio-label.late {
+        border-color: rgba(251, 191, 36, 0.3);
+        color: #fbbf24;
+    }
+
+    input[type="radio"]:checked+.att-radio-label.present {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: #34d399;
+    }
+
+    input[type="radio"]:checked+.att-radio-label.absent {
+        background: rgba(239, 68, 68, 0.15);
+        border-color: #f87171;
+    }
+
+    input[type="radio"]:checked+.att-radio-label.late {
+        background: rgba(251, 191, 36, 0.15);
+        border-color: #fbbf24;
+    }
+
+    input[type="radio"] {
+        display: none;
+    }
+
+    .quick-btn {
+        padding: 7px 18px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        cursor: pointer;
+        font-weight: 600;
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        transition: all 0.2s;
+    }
+
+    .quick-btn:hover {
+        background: var(--bg-secondary);
+    }
+
+    /* Make calendar icon visible on dark background */
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-title">
+        <h1><i class="fa-solid fa-clipboard-check" style="color: var(--color-primary); margin-right: 10px;"></i>Take Attendance</h1>
+        <p>Mark attendance for your assigned class</p>
+    </div>
+    <a href="{% url 'teacher_attendance_history' %}" class="btn btn-secondary" style="text-decoration: none;">
+        <i class="fa-solid fa-clock-rotate-left"></i> View History
+    </a>
+</div>
+
+<!-- Class & Date Selector -->
+<div class="glass-panel" style="padding: 24px; margin-bottom: 24px; border-left: 4px solid var(--color-primary);">
+    <form method="GET" style="display: flex; gap: 16px; flex-wrap: wrap; align-items: flex-end;">
+        <div style="flex: 1; min-width: 200px;">
+            <label
+                style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+                <i class="fa-solid fa-chalkboard"></i> Select Class
+            </label>
+            <select name="class_id" id="class_id_select"
+                style="width: 100%; height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                onchange="this.form.submit()">
+                <option value="">-- Choose a Class --</option>
+                {% for cls in assigned_classes %}
+                <option value="{{ cls.id }}" {% if selected_class and selected_class.id == cls.id %}selected{% endif %}>
+                    {{ cls.name }}{% if cls.section %} — {{ cls.section }}{% endif %} ({{ cls.branch.name }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="min-width: 170px;">
+            <label
+                style="display: block; font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px;">
+                <i class="fa-solid fa-calendar"></i> Date
+            </label>
+            <input type="date" name="date" value="{{ selected_date }}" max="{{ today_str }}"
+                onchange="this.form.submit()"
+                style="height: 44px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); width: 100%;">
+        </div>
+        <button type="submit" class="btn btn-teacher" style="height: 44px; padding: 0 22px;">
+            <i class="fa-solid fa-magnifying-glass"></i> Load
+        </button>
+    </form>
+</div>
+
+{% if not assigned_classes %}
+<!-- No classes assigned -->
+<div class="glass-panel" style="padding: 50px; text-align: center; color: var(--text-muted);">
+    <i class="fa-solid fa-chalkboard" style="font-size: 3rem; display: block; margin-bottom: 14px; opacity: 0.35;"></i>
+    <h3 style="color: var(--text-primary); margin-bottom: 8px;">No Classes Assigned</h3>
+    <p>Your school admin has not yet assigned any class to you. Please contact your school admin.</p>
+</div>
+
+{% elif selected_class %}
+<!-- Attendance Form -->
+<form method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="class_id" value="{{ selected_class.id }}">
+    <input type="hidden" name="date" value="{{ selected_date }}">
+
+    <div class="glass-panel" style="padding: 0; overflow: hidden; border-left: 4px solid var(--color-primary);">
+        <!-- Header row -->
+        <div
+            style="padding: 16px 22px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h3 style="font-size: 1.05rem; margin: 0; color: var(--text-primary);">
+                    <i class="fa-solid fa-chalkboard" style="color: var(--color-primary); margin-right: 8px;"></i>
+                    {{ selected_class.name }}{% if selected_class.section %} &mdash; {{ selected_class.section }}{% endif %}
+                </h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 3px 0 0;">
+                    {{ selected_date }} &bull; {{ students|length }} student(s)
+                </p>
+            </div>
+            <!-- Quick Mark All Buttons -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" class="quick-btn" onclick="markAll('present')"
+                    style="color: #34d399; border-color: rgba(16,185,129,0.3);">
+                    <i class="fa-solid fa-check-double"></i> All Present
+                </button>
+                <button type="button" class="quick-btn" onclick="markAll('absent')"
+                    style="color: #f87171; border-color: rgba(239,68,68,0.3);">
+                    <i class="fa-solid fa-xmark"></i> All Absent
+                </button>
+            </div>
+        </div>
+
+        {% if students %}
+        <div style="overflow-x: auto;">
+            <table class="custom-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th style="padding: 12px 22px; width: 80px; text-align: left;">Roll No</th>
+                        <th style="padding: 12px 22px; text-align: left;">Student</th>
+                        <th style="padding: 12px 22px; text-align: left;">Status</th>
+                        <th style="padding: 12px 22px; text-align: left;">Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 14px 22px; font-weight: 700; color: var(--color-primary);">
+                            {% if student.roll_number %}{{ student.roll_number }}{% else %}-{% endif %}
+                        </td>
+                        <td style="padding: 14px 22px;">
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: var(--text-primary); flex-shrink: 0;">
+                                    {{ student.name|first|upper }}
+                                </div>
+                                <div>
+                                    <p style="font-weight: 600; color: var(--text-primary); margin: 0; font-size: 0.9rem;">{{ student.name }}</p>
+                                    <p style="font-size: 0.73rem; color: var(--text-muted); margin: 0;">{{ student.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 14px 22px;">
+                            <div class="att-radio-group">
+                                <input type="radio" id="p_{{ student.id }}" name="status_{{ student.id }}" value="present">
+                                <label for="p_{{ student.id }}" class="att-radio-label present">
+                                    <i class="fa-solid fa-check"></i> Present
+                                </label>
+
+                                <input type="radio" id="a_{{ student.id }}" name="status_{{ student.id }}" value="absent">
+                                <label for="a_{{ student.id }}" class="att-radio-label absent">
+                                    <i class="fa-solid fa-xmark"></i> Absent
+                                </label>
+
+                                <input type="radio" id="l_{{ student.id }}" name="status_{{ student.id }}" value="late">
+                                <label for="l_{{ student.id }}" class="att-radio-label late">
+                                    <i class="fa-solid fa-clock"></i> Late
+                                </label>
+                            </div>
+                        </td>
+                        <td style="padding: 14px 22px;">
+                            <input type="text" name="note_{{ student.id }}" placeholder="Optional note..."
+                                class="att-note-input"
+                                style="width: 100%; height: 36px; border-radius: 6px; padding: 0 12px; background: rgba(0,0,0,0.15); border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.8rem;">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Submit -->
+        <div
+            style="padding: 20px 22px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px;">
+            <button type="submit" class="btn btn-teacher" style="padding: 12px 32px; font-size: 1rem;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Attendance
+            </button>
+        </div>
+
+        {% else %}
+        <div style="padding: 50px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-users-slash"
+                style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+            <p>No active students in this class yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</form>
+
+{% else %}
+<!-- Prompt to select class -->
+<div class="glass-panel" style="padding: 50px; text-align: center; color: var(--text-muted);">
+    <i class="fa-solid fa-arrow-up" style="font-size: 2rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+    <p>Select a class and date above to start taking attendance.</p>
+</div>
+{% endif %}
+
+<script>
+    // Pre-fill radio buttons from existing records
+    const existingData = {
+        {% for sid, rec in existing_records.items %}
+    "{{ sid }}": "{{ rec.status }}",
+        {% endfor %}
+    };
+
+    // Set saved statuses
+    Object.entries(existingData).forEach(([sid, status]) => {
+        const radio = document.getElementById(status[0] + '_' + sid);
+        if (radio) radio.checked = true;
+    });
+
+    // Default unset rows to 'present'
+    document.querySelectorAll('.att-radio-group').forEach(group => {
+        const radios = group.querySelectorAll('input[type="radio"]');
+        const anyChecked = Array.from(radios).some(r => r.checked);
+        if (!anyChecked) {
+            const presentRadio = group.querySelector('input[value="present"]');
+            if (presentRadio) presentRadio.checked = true;
+        }
+    });
+
+    function markAll(status) {
+        document.querySelectorAll(`input[value="${status}"]`).forEach(r => r.checked = true);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Teacher Portal{% endblock %} | PathaShala</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% block extra_head %}{% endblock %}
+    <style>
+        /* Teacher portal accent: blue/indigo variant */
+        :root {
+            --teacher-accent: #6366f1;
+            --teacher-accent-hover: #818cf8;
+            --teacher-accent-glow: rgba(99, 102, 241, 0.25);
+        }
+
+        .sidebar-link.active {
+            background: rgba(99, 102, 241, 0.12) !important;
+            border-color: rgba(99, 102, 241, 0.3) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .btn-teacher {
+            background: linear-gradient(135deg, var(--teacher-accent), var(--teacher-accent-hover));
+            color: var(--text-primary);
+            box-shadow: 0 4px 14px 0 var(--teacher-accent-glow);
+        }
+
+        .btn-teacher:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px 0 var(--teacher-accent-glow);
+        }
+
+        .teacher-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: var(--bg-secondary);
+            color: var(--color-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+    </style>
+</head>
+
+<body data-theme="{{ active_theme_code|default:'default' }}">
+    {% if request.user.is_authenticated %}
+    <div class="app-shell">
+        <!-- Teacher Sidebar -->
+        <aside class="app-sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-chalkboard-user" style="color: var(--teacher-accent); font-size: 1.5rem;"></i>
+                <div>
+                    <h2 style="font-size: 1.1rem; line-height: 1.2;">
+                        {{ institution.name|default:"Teacher Portal" }}
+                    </h2>
+                    <span
+                        style="font-size: 0.65rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+                        Teacher Portal
+                    </span>
+                </div>
+            </div>
+
+            <nav style="flex: 1;">
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{% url 'teacher_dashboard' %}"
+                            class="sidebar-link {% if current_tab == 'dashboard' %}active{% endif %}">
+                            <i class="fa-solid fa-house"></i>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'teacher_attendance' %}"
+                            class="sidebar-link {% if current_tab == 'attendance' %}active{% endif %}">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                            Take Attendance
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'teacher_attendance_history' %}"
+                            class="sidebar-link {% if current_tab == 'attendance_history' %}active{% endif %}">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            Attendance History
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'teacher_study_materials' %}"
+                            class="sidebar-link {% if current_tab == 'study_materials' %}active{% endif %}">
+                            <i class="fa-solid fa-book-open"></i>
+                            Study Materials
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'teacher_holidays' %}"
+                            class="sidebar-link {% if current_tab == 'holidays' %}active{% endif %}">
+                            <i class="fa-solid fa-umbrella-beach"></i>
+                            Holidays
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'teacher_events' %}"
+                            class="sidebar-link {% if current_tab == 'events' %}active{% endif %}">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            Events
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'teacher_profile' %}"
+                            class="sidebar-link {% if current_tab == 'profile' %}active{% endif %}">
+                            <i class="fa-solid fa-user-circle"></i>
+                            My Profile
+                        </a>
+                    </li>
+                    {% if request.user.student_profile %}
+                    <li>
+                        <a href="{% url 'select_profile' %}" class="sidebar-link"
+                            style="border: 1px dashed rgba(255,255,255,0.15);">
+                            <i class="fa-solid fa-user-gear"></i>
+                            Switch Profile
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+
+            <!-- Teacher Info Footer -->
+            <div
+                style="padding: 16px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <div
+                        style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--teacher-accent), var(--teacher-accent-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; color: var(--text-primary);">
+                        {{ request.user.first_name|first|upper }}
+                    </div>
+                    <div>
+                        <p style="font-weight: 600; font-size: 0.875rem; color: var(--text-primary); margin: 0;">{{ request.user.first_name }}</p>
+                        <span class="teacher-badge"><i class="fa-solid fa-chalkboard-user"></i> Teacher</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'teacher_logout' %}" class="sidebar-link"
+                    style="color: var(--color-danger); background: rgba(239,68,68,0.05); border: 1px solid var(--color-danger);">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Log Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    {% block standalone_content %}{% endblock %}
+    {% endif %}
+
+    <!-- Flash notifications -->
+    {% if messages %}
+    {% for message in messages %}
+    <div
+        class="alert-overlay glass-panel {% if message.tags == 'error' %}badge-disabled{% else %}badge-active{% endif %}">
+        <i class="fa-solid {% if message.tags == 'error' %}fa-circle-xmark{% else %}fa-circle-check{% endif %}"
+            style="font-size: 1.25rem;"></i>
+        <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <script>
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-overlay');
+            alerts.forEach(el => {
+                el.style.transition = 'opacity 0.5s ease';
+                el.style.opacity = '0';
+                setTimeout(() => el.remove(), 500);
+            });
+        }, 4000);
+    </script>
+</body>
+
+</html>

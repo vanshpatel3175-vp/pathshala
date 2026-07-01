@@ -2,19 +2,83 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    ROLE_CHOICES = [
-        ('SUPER ADMIN', 'Super Admin'),
-        ('SCHOOL STAFF', 'School Staff'),
-    ]
-    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='SCHOOL STAFF')
+    email = models.EmailField(primary_key=True)
+    middle_name = models.CharField(max_length=100, blank=True, null=True)
+    mobile_no = models.CharField(max_length=15, blank=True, null=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     def save(self, *args, **kwargs):
-        if self.is_superuser:
-            self.role = 'SUPER ADMIN'
+        if self.email:
+            self.username = self.email
         super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'auth_user'
+
+    @property
+    def date_of_birth(self):
+        return self.user_profile.date_of_birth if hasattr(self, 'user_profile') else None
+
+    @date_of_birth.setter
+    def date_of_birth(self, value):
+        from student.models import UserProfile
+        profile, _ = UserProfile.objects.get_or_create(user=self)
+        profile.date_of_birth = value
+        profile.save()
+
+    @property
+    def role(self):
+        if self.role_profiles.filter(role__role_name='TEACHER').exists():
+            return 'TEACHER'
+        if self.role_profiles.filter(role__role_name='STUDENT').exists():
+            return 'STUDENT'
+        if self.is_superuser:
+            return 'SUPER ADMIN'
+        if hasattr(self, 'school_profile') and self.school_profile:
+            return 'SCHOOL STAFF'
+        return 'SCHOOL STAFF'
+
+    @role.setter
+    def role(self, value):
+        pass
+
+    @property
+    def school_profile(self):
+        return self.role_profiles.filter(role__role_name='SCHOOL_ADMIN').first()
+
+    @property
+    def student_profile(self):
+        if self.role_profiles.filter(role__role_name='STUDENT').exists():
+            return getattr(self, 'user_profile', None)
+        from student.models import StudentProfile
+        class StudentProfileDoesNotExist(AttributeError, StudentProfile.DoesNotExist):
+            pass
+        raise StudentProfileDoesNotExist("User has no student_profile")
+
+    @property
+    def teacher_profile(self):
+        if self.role_profiles.filter(role__role_name='TEACHER').exists():
+            return getattr(self, 'user_profile', None)
+        from teacher.models import TeacherProfile
+        class TeacherProfileDoesNotExist(AttributeError, TeacherProfile.DoesNotExist):
+            pass
+        raise TeacherProfileDoesNotExist("User has no teacher_profile")
+
+class Address(models.Model):
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    addressline1 = models.TextField()
+    addressline2 = models.TextField(blank=True, null=True)
+    pincode = models.CharField(max_length=10)
+
+    class Meta:
+        db_table = 'address'
+
+    def __str__(self):
+        return f"{self.addressline1}, {self.city}, {self.state} - {self.pincode}"
+
 
 class SchoolApplication(models.Model):
     STATUS_CHOICES = [
@@ -38,10 +102,26 @@ class SchoolApplication(models.Model):
     def __str__(self):
         return self.name
 
+def default_features():
+    return {
+        "manage_branches": True,
+        "add_new_branch": True,
+        "manage_students": True,
+        "manage_teachers": True,
+        "manage_others": True,
+        "manage_roles": True,
+        "manage_mediums": True,
+        "manage_classes": True,
+        "attendance": False,
+        "study_materials": True,
+        "fees": False
+    }
+
 class Institution(models.Model):
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('disabled', 'Disabled'),
+        ('pending', 'Pending'),
     ]
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=100, default='SCHOOL')
@@ -53,6 +133,7 @@ class Institution(models.Model):
     school_code = models.CharField(max_length=50, blank=True, null=True)
     plan = models.CharField(max_length=100, default='Standard')
     activation_requested = models.BooleanField(default=False)
+    features = models.JSONField(default=default_features, blank=True)
 
     def __str__(self):
         return self.name
@@ -79,6 +160,23 @@ class Institution(models.Model):
     def total_staff(self):
         from school_admin.models import StaffMember
         return StaffMember.objects.filter(branch__institution=self).count()
+
+class Role(models.Model):
+    role_id = models.AutoField(primary_key=True)
+    role_name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.role_name
+
+class SchoolRole(models.Model):
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, related_name='school_roles')
+    school = models.ForeignKey(Institution, on_delete=models.CASCADE, related_name='school_roles')
+
+    class Meta:
+        unique_together = ('role', 'school')
+
+    def __str__(self):
+        return f"{self.school.name} - {self.role.role_name}"
 
 class PlatformUser(models.Model):
     ROLE_CHOICES = [
@@ -144,3 +242,28 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"Subscription {self.sr_no} for {self.inquiry.full_name}"
+
+
+class ThemeSetting(models.Model):
+    THEME_CHOICES = [
+        ('default', 'Default Dark Theme'),
+        ('ocean-cyan', 'Ocean Cyan'),
+        ('royal-blue', 'Royal Blue'),
+        ('premium-pink', 'Premium Pink'),
+    ]
+    name = models.CharField(max_length=50, choices=THEME_CHOICES)
+    institution = models.ForeignKey('Institution', on_delete=models.CASCADE, null=True, blank=True, related_name='theme_settings')
+    is_active = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('name', 'institution')
+
+    def __str__(self):
+        return self.get_name_display()
+
+    def save(self, *args, **kwargs):
+        if self.is_active:
+            # Deactivate all other themes for this institution
+            ThemeSetting.objects.filter(institution=self.institution).exclude(pk=self.pk).update(is_active=False)
+        super().save(*args, **kwargs)

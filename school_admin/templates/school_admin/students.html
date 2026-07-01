@@ -8,23 +8,25 @@
     <div class="page-title">
         <h1>Students Directory</h1>
         {% if branch_filter_id %}
-            {% for branch in branches %}
-                {% if branch_filter_id == branch.id|stringformat:"s" %}
-                <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch: <strong style="color: #fff;">{{ branch.name }}</strong></p>
-                {% endif %}
-            {% endfor %}
+        {% for branch in branches %}
+        {% if branch_filter_id == branch.id|stringformat:"s" %}
+        <p style="color: var(--color-primary); font-size: 0.95rem; margin-top: 4px;">Viewing directory for branch:
+            <strong style="color: var(--text-primary);">{{ branch.name }}</strong>
+        </p>
+        {% endif %}
+        {% endfor %}
         {% else %}
-            <p>List, search, and register student accounts across all branches</p>
+        <p>List, search, and register student accounts across all branches</p>
         {% endif %}
     </div>
     <div>
-        <button class="btn btn-primary" onclick="toggleAddStudentForm()">
+        <button class="btn btn-primary" onclick="openDrawer('add-student-form-card', 'student-user-search')">
             <i class="fa-solid fa-plus"></i> Register Student
         </button>
     </div>
 </div>
 
-<!-- Search Form (Balsamiq Mockup search box) -->
+<!-- Search Form -->
 <form method="GET" action="{% url 'school_students' %}">
     {% if branch_filter_id %}
     <input type="hidden" name="branch_id" value="{{ branch_filter_id }}">
@@ -37,179 +39,829 @@
         </div>
         <button type="submit" class="btn btn-secondary" style="padding: 11px 22px;">Search</button>
         {% if query %}
-        <a href="{% url 'school_students' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}" class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
+        <a href="{% url 'school_students' %}{% if branch_filter_id %}?branch_id={{ branch_filter_id }}{% endif %}"
+            class="btn btn-secondary" style="padding: 11px 15px;">Clear</a>
         {% endif %}
     </div>
 </form>
 
-<!-- Add Student Form Section (Initially Hidden) -->
-<div id="add-student-form-card" class="glass-panel"
-    style="padding: 25px; margin-bottom: 30px; display: none; border-left: 4px solid var(--color-success);">
+<!-- Add Student Form Section (Side Drawer) -->
+<div id="add-student-form-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
     <h3
-        style="font-size: 1.15rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
-        <span><i class="fa-solid fa-user-plus" style="color: var(--color-success);"></i> Register New Student</span>
-        <button class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;"
-            onclick="toggleAddStudentForm()">Close</button>
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-user-plus" style="color: var(--color-primary);"></i> Register New Student</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
     </h3>
-    <form method="POST" action="{% url 'school_students' %}">
+    <form method="POST" action="{% url 'school_students' %}" id="registerStudentForm">
         {% csrf_token %}
-        <div class="meeting-form-grid">
-            <div class="form-group">
-                <label for="name">Student Name</label>
-                <input type="text" id="name" name="name" class="form-control" placeholder="Vansh Patel" required>
-            </div>
+        <input type="hidden" id="school_user_id" name="school_user_id">
 
-            <div class="form-group">
-                <label for="email">Student Email</label>
-                <input type="email" id="email" name="email" class="form-control" placeholder="vansh@gmail.com" required
-                    autocomplete="email">
+        <!-- Step 1: Live Search Dropdown -->
+        <div
+            style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 10px;">
+                <i class="fa-solid fa-search" style="margin-right: 6px;"></i> Step 1 — Search User by Name or Email
+            </p>
+            <div style="position: relative;">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-magnifying-glass"
+                        style="position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; z-index: 1;"></i>
+                    <input type="text" id="student-user-search" class="form-control"
+                        placeholder="Type name or email to search users..." autocomplete="off"
+                        style="padding: 12px 13px 12px 38px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                </div>
+                <!-- Dropdown Results -->
+                <div id="user-search-dropdown" style="display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 200;
+                    background: #122624; border: 1px solid var(--border-color); border-radius: 10px; overflow: hidden;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 220px; overflow-y: auto;">
+                </div>
             </div>
+            <div id="lookup-status" style="margin-top: 10px; font-size: 0.85rem; display: none;"></div>
+        </div>
 
-            <div class="form-group">
-                <label for="branch_id">Assign Branch</label>
-                <select id="branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px;"
-                    required>
+        <!-- Step 2: Auto-filled Info (shown after lookup) -->
+        <div id="student-info-section" style="display: none; margin-bottom: 18px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-user-check" style="margin-right: 6px;"></i> Step 2 — Confirmed User Details
+            </p>
+            <div
+                style="background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            First Name</p>
+                        <input type="text" id="display_first_name" name="first_name" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;">
+                    </div>
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Middle Name</p>
+                        <input type="text" id="display_middle_name" name="middle_name" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;">
+                    </div>
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Last Name</p>
+                        <input type="text" id="display_last_name" name="last_name" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Email</p>
+                        <input type="text" id="display_email" class="form-control" readonly
+                            style="background: var(--bg-secondary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px; cursor: not-allowed;">
+                    </div>
+                    <div>
+                        <p
+                            style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px;">
+                            Mobile Number *</p>
+                        <input type="text" id="register_mobile_no" name="mobile_no" class="form-control"
+                            style="background: var(--bg-primary); border: 1px solid var(--border-color); padding: 9px 13px; font-size: 0.9rem; color: var(--text-primary); border-radius: 8px;" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Step 4: Additional Details -->
+        <div id="student-additional-section" style="display: none; margin-bottom: 18px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-address-card" style="margin-right: 6px;"></i> Step 4 — Student Profile Details
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Date of Birth</label>
+                        <input type="date" name="date_of_birth" id="register_date_of_birth" class="form-control"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Pincode</label>
+                        <input type="text" name="pincode" class="form-control" placeholder="396445" maxlength="10"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">UID No</label>
+                        <input type="text" name="uid_no" class="form-control" placeholder="UID No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Roll No</label>
+                        <input type="text" name="roll_no" class="form-control" placeholder="Roll No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">GRNO</label>
+                        <input type="text" name="grno" class="form-control" placeholder="GRNO"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">City</label>
+                        <input type="text" name="city" class="form-control" placeholder="Navsari"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">State</label>
+                        <input type="text" name="state" class="form-control" value="Gujarat" placeholder="Gujarat"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div>
+                    <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Address</label>
+                    <textarea name="address" class="form-control" placeholder="Full address..." rows="2"
+                        style="border-radius: 8px; padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary); resize: vertical; width: 100%;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Parent & Guardian Details -->
+        <div id="student-parents-section" style="display: none; margin-bottom: 18px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-people-roof" style="margin-right: 6px;"></i> Step 5 — Parent &amp; Guardian Details
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Parent Full Name</label>
+                        <input type="text" name="parent_full_name" class="form-control" placeholder="Parent Name"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Parent Mobile No</label>
+                        <input type="text" id="register_parent_mobile_no" name="parent_mobile_no" class="form-control" placeholder="Parent Mobile No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Guardian Name</label>
+                        <input type="text" name="gardian_name" class="form-control" placeholder="Guardian Name"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                    <div>
+                        <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Guardian Mobile No</label>
+                        <input type="text" id="register_gardian_mobile_no" name="gardian_mobile_no" class="form-control" placeholder="Guardian Mobile No"
+                            style="padding: 11px 13px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="student-school-section" style="display: none; margin-bottom: 18px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-school" style="margin-right: 6px;"></i> Step 6 — Assign School (Branch)
+            </p>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Assign School (Branch) <span
+                        style="color: var(--color-danger);">*</span></label>
+                <select id="register_branch_id" name="branch_id" class="custom-select"
+                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                    onchange="loadClassesForBranch(this.value)">
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}" {% if branch_filter_id == branch.id|stringformat:"s" %}selected{% endif %}>{{ branch.name }} ({{ branch.city }})</option>
+                    {% if branch.id in selected_branch_ids %}
+                    <option value="{{ branch.id }}" selected>{{ branch.name }} ({{ branch.city }})</option>
+                    {% else %}
+                    <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+                    {% endif %}
                     {% empty %}
                     <option value="">-- Create a Branch First --</option>
                     {% endfor %}
                 </select>
             </div>
         </div>
-        <div style="margin-top: 15px; display: flex; justify-content: flex-end;">
-            <button type="submit" class="btn btn-success" {% if not branches %}disabled{% endif %}>
-                <i class="fa-solid fa-circle-check"></i> Save Student
+
+        <!-- Step 7: Class & Section -->
+        <div id="student-class-section" style="display: none; margin-bottom: 18px;">
+            <p
+                style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 700; margin-bottom: 12px;">
+                <i class="fa-solid fa-chalkboard" style="margin-right: 6px;"></i> Step 7 — Assign Class &amp; Section
+            </p>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label style="margin-bottom: 6px; display: block; font-size: 0.85rem;">Class &amp; Section <span
+                        style="color: var(--text-muted); font-size: 0.75rem;">(optional)</span></label>
+                <select id="school_class_id" name="school_class_id" class="custom-select"
+                    style="width: 100%; height: 45px; padding: 10px 14px; border-radius: 8px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                    <option value="">-- Select Class (optional) --</option>
+                </select>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">
+                    <i class="fa-solid fa-circle-info" style="margin-right: 4px;"></i>Classes are managed under <a
+                        href="/school/classes/" style="color: var(--color-primary);">Classes &amp; Sections</a>.
+                </p>
+            </div>
+        </div>
+
+        <!-- Submit -->
+        <div id="student-submit-section" style="display: none; margin-top: 22px;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem;">
+                <i class="fa-solid fa-user-plus"></i> Register Student
             </button>
         </div>
     </form>
 </div>
 
-<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px; align-items: start;">
-    <!-- Students Listing Table -->
-    <div class="glass-panel" style="padding: 25px;">
-        <div class="table-container">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Branch</th>
-                        <th>Status</th>
-                        <th style="text-align: right;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if students %}
-                    {% for student in students %}
-                    <tr>
-                        <td style="font-weight: 700; color: #ffffff;">{{ student.id }}</td>
-                        <td style="font-weight: 600; color: #ffffff;">{{ student.name }}</td>
-                        <td style="color: var(--text-secondary);">{{ student.email }}</td>
-                        <td>
-                            <span class="badge badge-pending" style="font-size: 0.7rem;">{{ student.branch.name }}</span>
-                        </td>
-                        <td>
-                            <span class="badge badge-validated" style="font-size: 0.7rem;">{{ student.status }}</span>
-                        </td>
-                        <td style="text-align: right;">
-                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;"
-                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.name|escapejs }}', '{{ student.email|escapejs }}', '{{ student.branch.id }}', '{{ student.status }}')">
-                                <i class="fa-solid fa-user-pen"></i> edit
-                            </button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            <i class="fa-solid fa-users-viewfinder"
-                                style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
-                            No students found matching your query.
-                        </td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+<!-- Students Listing Table & Hidden Inputs for Filters -->
+<input type="hidden" id="filter-branch" value="">
+<input type="hidden" id="filter-class" value="">
+<input type="hidden" id="filter-status" value="">
+
+<div class="glass-panel" style="padding: 25px; margin-top: 30px;">
+    <!-- Active Filters & Count Display -->
+    <div class="directory-filter-row" style="margin-bottom: 15px; justify-content: flex-end; padding: 0 10px;">
+        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+            Showing <span id="visible-count" style="font-weight: 700; color: var(--text-primary);">{{ students|length
+                }}</span> of
+            <span style="font-weight: 700; color: var(--text-primary);">{{ students|length }}</span> students
         </div>
     </div>
 
-    <!-- Edit Student Card -->
-    <div id="edit-student-card" class="glass-panel"
-        style="padding: 25px; display: none; border-top: 4px solid var(--color-primary);">
-        <h3
-            style="font-size: 1.1rem; margin-bottom: 20px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
-            <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Student</span>
-            <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 0.7rem;"
-                onclick="closeEditStudentCard()">Close</button>
-        </h3>
+    <div class="table-container" style="overflow-x: auto;">
+        <table class="custom-table" style="width: 100%; min-width: 900px;">
+            <thead>
+                <tr>
 
-        <form method="POST" action="{% url 'school_students' %}">
-            {% csrf_token %}
-            <input type="hidden" name="action" value="edit">
-            <input type="hidden" id="edit_student_id" name="student_id">
+                    <th>Person</th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>School (Branch)</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'branch-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="branch-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value=""
+                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStudentFilters')">All
+                                        Branches</div>
+                                    {% for b in branches %}
+                                    <div class="th-filter-option" data-value="{{ b.id }}"
+                                        onclick="selectHeaderFilter(this, 'filter-branch', 'applyStudentFilters')">{{
+                                        b.name }}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>Class</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'class-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="class-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value=""
+                                        onclick="selectHeaderFilter(this, 'filter-class', 'applyStudentFilters')">All
+                                        Classes</div>
+                                    {% for c in all_classes %}
+                                    <div class="th-filter-option" data-value="{{ c.id }}"
+                                        onclick="selectHeaderFilter(this, 'filter-class', 'applyStudentFilters')">{{
+                                        c.name }}{% if c.section %} - {{ c.section }}{% endif %}</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-filter-wrapper">
+                            <span>Status</span>
+                            <div class="th-filter-dropdown-wrapper">
+                                <button class="th-filter-btn" onclick="toggleHeaderFilter(event, 'status-filter-menu')">
+                                    <i class="fa-solid fa-filter"></i>
+                                </button>
+                                <div id="status-filter-menu" class="th-filter-dropdown">
+                                    <div class="th-filter-option active" data-value=""
+                                        onclick="selectHeaderFilter(this, 'filter-status', 'applyStudentFilters')">All
+                                        Statuses</div>
+                                    <div class="th-filter-option" data-value="active"
+                                        onclick="selectHeaderFilter(this, 'filter-status', 'applyStudentFilters')">
+                                        Active</div>
+                                    <div class="th-filter-option" data-value="inactive"
+                                        onclick="selectHeaderFilter(this, 'filter-status', 'applyStudentFilters')">
+                                        Inactive</div>
+                                </div>
+                            </div>
+                        </div>
+                    </th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                {% for student in students %}
+                <tr class="person-row" data-branch="{{ student.branch.id }}"
+                    data-class="{% if student.school_class %}{{ student.school_class.id }}{% endif %}"
+                    data-status="{{ student.status }}">
 
-            <div class="form-group">
-                <label for="edit_name">Student Name</label>
-                <input type="text" id="edit_name" name="name" class="form-control" required>
-            </div>
+                    <td class="person-cell">
+                        <div class="person-name-wrapper">
+                            <div
+                                style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; color: #fff; flex-shrink: 0;">
+                                {{ student.name|first|upper }}
+                            </div>
+                            <div>
+                                <p style="font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.2;">
+                                    {{ student.name }}</p>
+                                <p
+                                    style="font-size: 0.72rem; color: var(--text-secondary); margin: 0; margin-top: 2px;">
+                                    {{ student.email }}
+                                </p>
+                            </div>
 
-            <div class="form-group">
-                <label for="edit_email">Student Email</label>
-                <input type="email" id="edit_email" name="email" class="form-control" required autocomplete="email">
-            </div>
+                            <!-- Hover Tooltip Card Popover -->
+                            <div class="hover-card-popover">
+                                <div class="hover-card-banner bg-student">
+                                    <div class="hover-card-avatar-wrapper">
+                                        <div class="hover-card-avatar"
+                                            style="background: var(--color-primary); border: 3px solid var(--bg-card);">
+                                            {{ student.name|first|upper }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="hover-card-body">
+                                    <h4 class="hover-card-name">{{ student.name }}</h4>
+                                    <p class="hover-card-subtitle">
+                                        <i class="fa-solid fa-graduation-cap" style="color: var(--color-primary);"></i>
+                                        Student Profile
+                                    </p>
+                                    <div class="hover-card-details">
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Student ID</span>
+                                            <span class="hover-card-detail-value">#STD-{{ student.id|stringformat:"04d"
+                                                }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Email</span>
+                                            <span class="hover-card-detail-value">{{ student.email }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Roll Number</span>
+                                            <span class="hover-card-detail-value">{{ student.roll_number|default:"—"
+                                                }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">UID Number</span>
+                                            <span class="hover-card-detail-value">{{ student.uid_no|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">GR Number</span>
+                                            <span class="hover-card-detail-value">{{ student.grno|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Class</span>
+                                            <span class="hover-card-detail-value">{% if student.school_class %}{{
+                                                student.school_class.name }}{% if student.school_class.section %} - {{
+                                                student.school_class.section }}{% endif %}{% else %}—{% endif %}</span>
+                                        </div>
+                                        {% if student.school_user %}
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Mobile</span>
+                                            <span class="hover-card-detail-value">{{
+                                                student.school_user.mobile_number|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">DOB</span>
+                                            <span class="hover-card-detail-value">{{ student.school_user.dob|date:"d M
+                                                Y"|default:"—" }}</span>
+                                        </div>
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Location</span>
+                                            <span class="hover-card-detail-value">{{
+                                                student.school_user.city|default:"—" }}</span>
+                                        </div>
+                                        {% endif %}
+                                        <div class="hover-card-detail-item">
+                                            <span class="hover-card-detail-label">Status</span>
+                                            <span class="hover-card-detail-value">
+                                                <span
+                                                    class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
+                                                    style="font-size: 0.65rem; padding: 2px 8px;">
+                                                    {{ student.status|title }}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="badge badge-pending" style="font-size: 0.7rem; white-space: nowrap;">
+                            {{ student.branch.name }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if student.school_class %}
+                        <span class="badge"
+                            style="font-size: 0.7rem; background: var(--bg-secondary); color: var(--color-primary); border: 1px solid var(--border-color); border-radius: 20px; padding: 3px 10px; white-space: nowrap;">
+                            {{ student.school_class.name }}{% if student.school_class.section %} &mdash;
+                            {{ student.school_class.section }}{% endif %}
+                        </span>
+                        {% else %}
+                        <span style="color: var(--text-muted); font-size: 0.78rem;">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span
+                            class="badge {% if student.status == 'active' %}badge-active{% else %}badge-disabled{% endif %}"
+                            style="font-size: 0.7rem;">{{ student.status|title }}</span>
+                    </td>
+                    <td style="text-align: right; vertical-align: middle;">
+                        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;"
+                                onclick="openEditStudentCard('{{ student.id }}', '{{ student.branch.id }}', '{{ student.status }}', '{{ student.school_class.id|default:'' }}')">
+                                <i class="fa-solid fa-user-pen"></i> edit
+                            </button>
+                            <form method="POST" style="margin: 0; display: flex; align-items: center;" onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="student_id" value="{{ student.id }}">
+                                <button type="submit" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: #ff6b6b; border-color: rgba(255,107,107,0.2); background-color: rgba(255,107,107,0.05); height: 28px; display: inline-flex; align-items: center; justify-content: center; gap: 4px;">
+                                    <i class="fa-solid fa-trash"></i> delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% endif %}
 
-            <div class="form-group">
-                <label for="edit_branch_id">Assign Branch</label>
-                <select id="edit_branch_id" name="branch_id" class="custom-select" style="width: 100%; height: 45px;"
-                    required>
-                    {% for branch in branches %}
-                    <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label for="edit_status">Status</label>
-                <select id="edit_status" name="status" class="custom-select" style="width: 100%; height: 45px;"
-                    required>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%;">
-                <i class="fa-solid fa-save"></i> Save Changes
-            </button>
-        </form>
+                <!-- Dynamic Placeholder when filters yield zero rows -->
+                <tr id="no-results-placeholder" style="{% if students %}display: none;{% endif %}">
+                    <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 50px;">
+                        <i class="fa-solid fa-users"
+                            style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
+                        No students found matching the selected filters.{% if query %} Try a different search.{% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
+<!-- Edit Student Card -->
+<div id="edit-student-card" class="glass-panel side-drawer"
+    style="padding: 30px; border-top: none; border-left: 4px solid var(--color-primary);">
+    <h3
+        style="font-size: 1.25rem; margin-bottom: 25px; font-family: var(--font-heading); display: flex; align-items: center; justify-content: space-between;">
+        <span><i class="fa-solid fa-user-pen" style="color: var(--color-primary);"></i> Edit Student</span>
+        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 50%;"
+            onclick="closeAllDrawers()"><i class="fa-solid fa-xmark"></i></button>
+    </h3>
+
+    <form method="POST" action="{% url 'school_students' %}">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="edit">
+        <input type="hidden" id="edit_student_id" name="student_id">
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_branch_id" style="margin-bottom: 8px; display: block;">Assign School (Branch)</label>
+            <select id="edit_branch_id" name="branch_id" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                required onchange="loadClassesForBranch(this.value, 'edit_school_class_id')">
+                {% for branch in branches %}
+                <option value="{{ branch.id }}">{{ branch.name }} ({{ branch.city }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="edit_school_class_id" style="margin-bottom: 8px; display: block;">Assign Class</label>
+            <select id="edit_school_class_id" name="school_class_id" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);">
+                <option value="">-- Select Class (optional) --</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="edit_status" style="margin-bottom: 8px; display: block;">Status</label>
+            <select id="edit_status" name="status" class="custom-select"
+                style="width: 100%; height: 45px; border-radius: 8px; padding: 10px 14px; background: var(--bg-primary); border: 1px solid var(--border-color); color: var(--text-primary);"
+                required>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem;">
+            <i class="fa-solid fa-save"></i> Save Changes
+        </button>
+    </form>
+</div>
+
 <script>
-    function toggleAddStudentForm() {
-        const formCard = document.getElementById('add-student-form-card');
-        if (formCard.style.display === 'none') {
-            formCard.style.display = 'block';
-            formCard.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            formCard.style.display = 'none';
+    const LOOKUP_URL = "{% url 'school_user_lookup_api' %}";
+    const CLASSES_URL = "{% url 'classes_by_branch_api' %}";
+    let searchDebounceTimer = null;
+
+    const searchInput = document.getElementById('student-user-search');
+    const dropdown = document.getElementById('user-search-dropdown');
+    const statusEl = document.getElementById('lookup-status');
+
+    searchInput.addEventListener('input', function () {
+        const q = this.value.trim();
+        clearTimeout(searchDebounceTimer);
+
+        if (q.length < 1) {
+            hideDropdown();
+            hideStudentForm();
+            return;
+        }
+
+        searchDebounceTimer = setTimeout(() => fetchUsers(q), 280);
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            hideDropdown();
+        }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+            hideDropdown();
+        }
+    });
+
+    function fetchUsers(q) {
+        fetch(`${LOOKUP_URL}?q=${encodeURIComponent(q)}`)
+            .then(r => r.json())
+            .then(data => {
+                renderDropdown(data.results || []);
+            })
+            .catch(() => {
+                dropdown.style.display = 'none';
+            });
+    }
+
+    function renderDropdown(results) {
+        if (!results.length) {
+            dropdown.innerHTML = `
+                <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.875rem;">
+                    <i class="fa-solid fa-user-slash" style="display:block; font-size:1.4rem; margin-bottom:6px; opacity:0.5;"></i>
+                    No users found matching your search.
+                    <a href="/school/users/" style="color: var(--color-primary); display:block; margin-top:6px; font-size:0.8rem;">
+                        + Add a new user first
+                    </a>
+                </div>`;
+            dropdown.style.display = 'block';
+            return;
+        }
+
+        dropdown.innerHTML = results.map(u => {
+            const initials = (u.first_name[0] || '') + (u.last_name[0] || '');
+            const alreadyStudent = u.is_student;
+            return `
+                <div class="user-dropdown-item"
+                    onclick="${alreadyStudent ? 'void(0)' : `selectUser(${u.id}, '${escapeJs(u.first_name)}', '${escapeJs(u.middle_name)}', '${escapeJs(u.last_name)}', '${escapeJs(u.email)}', '${escapeJs(u.mobile_no)}', '${escapeJs(u.date_of_birth)}')`}"
+                    style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: ${alreadyStudent ? 'not-allowed' : 'pointer'};
+                        opacity: ${alreadyStudent ? '0.5' : '1'};
+                        transition: background 0.15s ease;
+                        border-bottom: 1px solid var(--border-color);"
+                    onmouseover="if(!${alreadyStudent}) this.style.background='var(--bg-secondary)'"
+                    onmouseout="this.style.background='transparent'">
+                    <div style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+                        display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; color:var(--text-primary); flex-shrink:0;">
+                        ${initials.toUpperCase()}
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <p style="font-weight:600; color:var(--text-primary); margin:0; font-size:0.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${u.full_name}
+                        </p>
+                        <p style="color:var(--text-secondary); margin:0; font-size:0.78rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${u.email}
+                        </p>
+                    </div>
+                    ${alreadyStudent ? `<span style="font-size:0.65rem; font-weight:700; padding:3px 8px; background:rgba(13,148,136,0.15); color:#14b8a6; border:1px solid rgba(13,148,136,0.3); border-radius:20px; white-space:nowrap;">Student</span>` : ''}
+                </div>`;
+        }).join('');
+
+        dropdown.style.display = 'block';
+    }
+
+    function hideDropdown() {
+        dropdown.style.display = 'none';
+    }
+
+    function selectUser(id, firstName, middleName, lastName, email, mobileNo, dateOfBirth) {
+        document.getElementById('school_user_id').value = id;
+        searchInput.value = `${firstName} ${lastName} (${email})`;
+        searchInput.style.borderColor = 'var(--color-success)';
+        hideDropdown();
+        document.getElementById('display_first_name').value = firstName;
+        document.getElementById('display_middle_name').value = middleName;
+        document.getElementById('display_last_name').value = lastName;
+        document.getElementById('display_email').value = email;
+        document.getElementById('register_mobile_no').value = mobileNo;
+        
+        const dobInput = document.getElementById('register_date_of_birth');
+        if (dobInput) {
+            dobInput.value = dateOfBirth;
+            if (dateOfBirth) {
+                dobInput.readOnly = true;
+                dobInput.style.backgroundColor = 'var(--bg-secondary)';
+                dobInput.style.opacity = '0.7';
+            } else {
+                dobInput.readOnly = false;
+                dobInput.style.backgroundColor = 'var(--bg-primary)';
+                dobInput.style.opacity = '1';
+            }
+        }
+        
+        showStudentForm();
+        // Trigger class loading for currently selected branch
+        const branchSel = document.getElementById('register_branch_id');
+        if (branchSel && branchSel.value) {
+            loadClassesForBranch(branchSel.value);
+        }
+        showLookupStatus('success', `<i class="fa-solid fa-circle-check"></i> User selected: <strong>${firstName} ${lastName}</strong>`);
+    }
+
+    function escapeJs(str) {
+        return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    }
+
+    function showLookupStatus(type, msg) {
+        statusEl.style.display = 'block';
+        statusEl.innerHTML = msg;
+        statusEl.style.color = type === 'success' ? 'var(--color-success)' : 'var(--color-danger)';
+    }
+
+    function showStudentForm() {
+        document.getElementById('student-info-section').style.display = 'block';
+        document.getElementById('student-additional-section').style.display = 'block';
+        document.getElementById('student-parents-section').style.display = 'block';
+        document.getElementById('student-school-section').style.display = 'block';
+        document.getElementById('student-class-section').style.display = 'block';
+        document.getElementById('student-submit-section').style.display = 'block';
+    }
+
+    // Reset Form
+    function hideStudentForm() {
+        document.getElementById('school_user_id').value = '';
+        searchInput.style.borderColor = '';
+        document.getElementById('student-info-section').style.display = 'none';
+        document.getElementById('student-additional-section').style.display = 'none';
+        document.getElementById('student-parents-section').style.display = 'none';
+        document.getElementById('student-school-section').style.display = 'none';
+        document.getElementById('student-class-section').style.display = 'none';
+        document.getElementById('student-submit-section').style.display = 'none';
+        statusEl.style.display = 'none';
+        
+        const dobInput = document.getElementById('register_date_of_birth');
+        if (dobInput) {
+            dobInput.value = '';
+            dobInput.readOnly = false;
+            dobInput.style.backgroundColor = 'var(--bg-primary)';
+            dobInput.style.opacity = '1';
         }
     }
 
-    function openEditStudentCard(id, name, email, branchId, status) {
-        document.getElementById('edit_student_id').value = id;
-        document.getElementById('edit_name').value = name;
-        document.getElementById('edit_email').value = email;
-        document.getElementById('edit_branch_id').value = branchId;
-        document.getElementById('edit_status').value = status;
+    // Add submit validation for mobile numbers
+    const registerStudentForm = document.getElementById('registerStudentForm');
+    if (registerStudentForm) {
+        registerStudentForm.addEventListener('submit', function (e) {
+            const mobileNo = document.getElementById('register_mobile_no').value.trim();
+            const parentMobileNo = document.getElementById('register_parent_mobile_no').value.trim();
+            const guardianMobileNo = document.getElementById('register_gardian_mobile_no').value.trim();
 
-        document.getElementById('edit-student-card').style.display = 'block';
-        document.getElementById('edit-student-card').scrollIntoView({ behavior: 'smooth' });
+            if (guardianMobileNo) {
+                if (guardianMobileNo === mobileNo || guardianMobileNo === parentMobileNo) {
+                    e.preventDefault();
+                    alert("Guardian mobile number must be different from both student mobile number and parent mobile number.");
+                }
+            }
+        });
     }
 
-    function closeEditStudentCard() {
-        document.getElementById('edit-student-card').style.display = 'none';
+    function openEditStudentCard(id, branchId, status, classId = '') {
+        document.getElementById('edit_student_id').value = id;
+        document.getElementById('edit_branch_id').value = branchId;
+        document.getElementById('edit_status').value = status;
+        loadClassesForBranch(branchId, 'edit_school_class_id', classId);
+        openDrawer('edit-student-card');
+    }
+
+    // ── Load classes dynamically when branch changes ──────────────────────────
+    function loadClassesForBranch(branchId, targetSelectId = 'school_class_id', selectedClassId = '') {
+        const classSelect = document.getElementById(targetSelectId);
+        if (!classSelect) return;
+        if (!branchId) {
+            classSelect.innerHTML = '<option value="">-- Select Class (optional) --</option>';
+            return;
+        }
+        fetch(`${CLASSES_URL}?branch_id=${encodeURIComponent(branchId)}`)
+            .then(r => r.json())
+            .then(data => {
+                const classes = data.classes || [];
+                let opts = '<option value="">-- Select Class (optional) --</option>';
+                classes.forEach(c => {
+                    const selected = (String(c.id) === String(selectedClassId)) ? 'selected' : '';
+                    opts += `<option value="${c.id}" ${selected}>${c.label}</option>`;
+                });
+                if (!classes.length) {
+                    opts += '<option value="" disabled>No classes found for this branch</option>';
+                }
+                classSelect.innerHTML = opts;
+            })
+            .catch(() => {
+                classSelect.innerHTML = '<option value="">-- Select Class (optional) --</option>';
+            });
+    }
+
+    // Auto-load classes on page load if a branch is pre-selected
+    (function () {
+        const branchSel = document.getElementById('register_branch_id');
+        if (branchSel && branchSel.value) {
+            loadClassesForBranch(branchSel.value);
+        }
+    })();
+
+    function applyStudentFilters() {
+        const branchVal = document.getElementById('filter-branch').value;
+        const classVal = document.getElementById('filter-class').value;
+        const statusVal = document.getElementById('filter-status').value;
+
+        const rows = document.querySelectorAll('.person-row');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const rowBranch = row.getAttribute('data-branch');
+            const rowClass = row.getAttribute('data-class');
+            const rowStatus = row.getAttribute('data-status');
+
+            let show = true;
+
+            if (branchVal && rowBranch !== branchVal) {
+                show = false;
+            }
+            if (classVal && rowClass !== classVal) {
+                show = false;
+            }
+            if (statusVal && rowStatus !== statusVal) {
+                show = false;
+            }
+
+            if (show) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('visible-count').textContent = visibleCount;
+
+        const placeholder = document.getElementById('no-results-placeholder');
+        if (visibleCount === 0) {
+            if (placeholder) placeholder.style.display = '';
+        } else {
+            if (placeholder) placeholder.style.display = 'none';
+        }
+    }
+
+    function toggleSelectAllStudents() {
+        const headerMock = document.querySelector('th.custom-checkbox-col .custom-checkbox-mock');
+        const checked = headerMock.classList.toggle('checked');
+        if (checked) {
+            headerMock.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+            headerMock.innerHTML = '';
+        }
+
+        document.querySelectorAll('td.custom-checkbox-col .custom-checkbox-mock').forEach(mock => {
+            if (checked) {
+                mock.classList.add('checked');
+                mock.innerHTML = '<i class="fa-solid fa-check"></i>';
+            } else {
+                mock.classList.remove('checked');
+                mock.innerHTML = '';
+            }
+        });
+    }
+
+    function toggleSelectStudent(element) {
+        const checked = element.classList.toggle('checked');
+        if (checked) {
+            element.innerHTML = '<i class="fa-solid fa-check"></i>';
+        } else {
+            element.innerHTML = '';
+        }
     }
 </script>
 {% endblock %}

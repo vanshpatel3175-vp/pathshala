@@ -22,6 +22,15 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('school/', include('school_admin.urls')),
     path('login/', include('super_admin.urls')),
+    path('teacher/', include('teacher.urls')),
+    path('student/', include('student.urls')),
+    path('study-material/', include('study_material.urls')),
     path('', school_signup_view, name='school_signup_root'),
-    path('api/', include('school_admin.api_url')),   
+    path('api/', include('school_admin.api_urls')),
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

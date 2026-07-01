@@ -1,0 +1,234 @@
+{% extends 'teacher/base.html' %}
+{% block title %}Events{% endblock %}
+
+{% block content %}
+<style>
+    .events-page-header {
+        margin-bottom: 28px;
+    }
+    .events-page-header h1 {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin: 0 0 6px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .events-page-header h1 i { color: var(--teacher-accent); }
+    .events-page-header p {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin: 0;
+    }
+    .branch-info-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        border-radius: 20px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        color: var(--color-primary);
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 24px;
+    }
+    .event-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 18px;
+    }
+    .event-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 22px 24px;
+        backdrop-filter: blur(var(--glass-blur));
+        box-shadow: var(--card-shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
+    }
+    .event-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--teacher-accent), #818cf8);
+        border-radius: 16px 16px 0 0;
+    }
+    .event-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+    }
+    .event-card-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .event-card-title i {
+        color: var(--teacher-accent);
+        font-size: 1rem;
+    }
+    .event-card-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .event-meta-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.83rem;
+        color: var(--text-secondary);
+    }
+    .event-meta-row i {
+        width: 16px;
+        text-align: center;
+        color: var(--teacher-accent);
+        font-size: 0.8rem;
+    }
+    .event-meta-row span { color: var(--text-primary); }
+    .event-card-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 4px;
+    }
+    .badge-single {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(251,191,36,0.12);
+        color: #fbbf24;
+        border: 1px solid rgba(251,191,36,0.25);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .badge-multi {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: var(--bg-secondary);
+        color: var(--color-primary);
+        border: 1px solid var(--border-color);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .badge-upcoming {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(16,185,129,0.12);
+        color: #34d399;
+        border: 1px solid rgba(16,185,129,0.25);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .badge-past {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        background: rgba(107,114,128,0.12);
+        color: #9ca3af;
+        border: 1px solid rgba(107,114,128,0.25);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 20px;
+        gap: 16px;
+        color: var(--text-secondary);
+        text-align: center;
+        background: var(--bg-card);
+        border-radius: 20px;
+        border: 1px solid var(--border-color);
+    }
+    .empty-state i { font-size: 3.5rem; opacity: 0.25; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin: 0; }
+    .empty-state p { font-size: 0.85rem; margin: 0; }
+</style>
+
+<div class="events-page-header">
+    <h1><i class="fa-solid fa-calendar-days"></i> Events</h1>
+    <p>View upcoming and past events for your branch.</p>
+</div>
+
+{% if branch %}
+<div class="branch-info-badge">
+    <i class="fa-solid fa-building"></i>
+    {{ branch.name }}
+    {% if institution %}&nbsp;·&nbsp;{{ institution.name }}{% endif %}
+</div>
+{% endif %}
+
+{% if events %}
+<div class="event-cards-grid">
+    {% for event in events %}
+    <div class="event-card">
+        <div class="event-card-title">
+            <i class="fa-solid fa-star"></i>
+            {{ event.event_name }}
+        </div>
+        <div class="event-card-meta">
+            <div class="event-meta-row">
+                <i class="fa-solid fa-calendar-day"></i>
+                <span>Start:</span> <span>{{ event.start_date|date:"d M Y" }}</span>
+            </div>
+            <div class="event-meta-row">
+                <i class="fa-solid fa-calendar-check"></i>
+                <span>End:</span> <span>{{ event.end_date|date:"d M Y" }}</span>
+            </div>
+            <div class="event-meta-row">
+                <i class="fa-solid fa-building"></i>
+                <span>Branch:</span>
+                {% if event.branch %}
+                    <span>{{ event.branch.name }}</span>
+                {% else %}
+                    <span>All Branches</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="event-card-badges">
+            {% if event.is_single_day %}
+                <span class="badge-single">Single Day</span>
+            {% else %}
+                <span class="badge-multi">Multi-Day</span>
+            {% endif %}
+            {% now "Y-m-d" as today_str %}
+            {% if event.start_date|date:"Y-m-d" > today_str %}
+                <span class="badge-upcoming">Upcoming</span>
+            {% elif event.end_date|date:"Y-m-d" < today_str %}
+                <span class="badge-past">Past</span>
+            {% else %}
+                <span style="padding:3px 10px; border-radius:12px; font-size:0.68rem; font-weight:700; background:rgba(239,68,68,0.12); color:#f87171; border:1px solid rgba(239,68,68,0.25); text-transform:uppercase; letter-spacing:0.05em;">Today</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <i class="fa-solid fa-calendar-xmark"></i>
+    <h3>No Events</h3>
+    <p>No events have been added for your branch yet.</p>
+</div>
+{% endif %}
+{% endblock %}

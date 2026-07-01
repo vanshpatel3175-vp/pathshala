@@ -28,7 +28,7 @@
         font-family: var(--font-heading);
         font-size: 2.2rem;
         font-weight: 800;
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 6px;
         line-height: 1.15;
     }
@@ -57,7 +57,7 @@
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--bg-secondary);
         border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 7px 14px;
@@ -68,8 +68,8 @@
     }
 
     .acc-back-btn:hover {
-        background: rgba(255, 255, 255, 0.09);
-        color: #fff;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
     }
 
     /* Session selector */
@@ -92,7 +92,7 @@
         border: 1px solid var(--border-color);
         border-radius: 8px;
         padding: 7px 12px;
-        color: #fff;
+        color: var(--text-primary);
         font-size: 0.85rem;
         appearance: none;
         cursor: pointer;
@@ -102,7 +102,7 @@
     .acc-tabs {
         display: flex;
         gap: 4px;
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--bg-secondary);
         border: 1px solid var(--border-color);
         border-radius: 12px;
         padding: 5px;
@@ -128,14 +128,14 @@
     }
 
     .acc-tab:hover {
-        color: #fff;
-        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        background: var(--bg-secondary);
     }
 
     .acc-tab.active {
-        background: rgba(38, 166, 154, 0.15);
+        background: var(--bg-secondary);
         color: var(--color-primary);
-        border: 1px solid rgba(38, 166, 154, 0.25);
+        border: 1px solid var(--color-primary);
     }
 
     /* Stat Cards */
@@ -177,7 +177,7 @@
         font-family: var(--font-heading);
         font-size: 1.6rem;
         font-weight: 800;
-        color: #fff;
+        color: var(--text-primary);
         line-height: 1;
     }
 
@@ -195,7 +195,7 @@
         font-family: var(--font-heading);
         font-size: 1rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 14px;
         display: flex;
         align-items: center;
@@ -226,9 +226,9 @@
 
     .quick-action-btn:hover {
         border-color: var(--border-glow);
-        background: rgba(38, 166, 154, 0.06);
+        background: var(--bg-secondary);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(38, 166, 154, 0.1);
+        box-shadow: 0 6px 20px var(--border-glow);
     }
 
     .quick-action-btn i {
@@ -261,7 +261,7 @@
         font-family: var(--font-heading);
         font-size: 1.25rem;
         font-weight: 700;
-        color: #fff;
+        color: var(--text-primary);
         margin-bottom: 10px;
     }
 
@@ -303,10 +303,10 @@
         display: flex;
         align-items: center;
         padding: 12px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid var(--border-color);
         gap: 12px;
         font-size: 0.86rem;
-        color: #fff;
+        color: var(--text-primary);
         transition: background 0.15s;
     }
 
@@ -315,7 +315,7 @@
     }
 
     .panel-row:hover {
-        background: rgba(255, 255, 255, 0.03);
+        background: var(--bg-secondary);
     }
 
     .panel-empty {
@@ -337,17 +337,17 @@
             <form method="GET" action="{% url 'school_manage' %}" id="branchSwitchForm"
                 style="margin: 0; display: inline-flex;">
                 <select name="branch_id" class="session-select"
-                    style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 7px 12px; color: #fff; font-size: 0.85rem; cursor: pointer;"
+                    style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 7px 12px; color: var(--text-primary); font-size: 0.85rem; cursor: pointer;"
                     onchange="document.getElementById('branchSwitchForm').submit();">
                     {% for br in branches %}
-                    <option value="{{ br.id }}" {% if selected_branch.id == br.id %}selected{% endif %}>{{ br.name }}
+                    <option value="{{ br.id }}" {% if selected_branch and selected_branch.id == br.id %}selected{% endif %}>{{ br.name }}
                     </option>
                     {% endfor %}
                 </select>
             </form>
         </div>
         {% endif %}
-        <div class="session-selector">
+        <!-- <div class="session-selector">
             <span class="session-label">Viewing Session</span>
             <select class="session-select">
                 <option>2026-27 (Active)</option>
@@ -356,7 +356,7 @@
             <button class="btn btn-primary" style="padding: 7px 16px; border-radius: 8px; font-size: 0.85rem;">
                 <i class="fa-solid fa-plus"></i> Year
             </button>
-        </div>
+        </div> -->
     </div>
 </div>
 
@@ -369,31 +369,31 @@
     <h1 class="acc-title">Academic Control Center</h1>
     {% if selected_branch %}
     <p style="color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px;">Viewing dashboard for branch: <strong
-            style="color: #fff;">{{ selected_branch.name }}</strong></p>
+            style="color: var(--text-primary);">{{ selected_branch.name }}</strong></p>
     {% endif %}
 </div>
 
 <!-- Tabs -->
 <div class="acc-tabs">
-    <!-- <button class="acc-tab active" onclick="switchTab('overview', this)">
-        <i class="fa-solid fa-chart-pie"></i> Overview
-    </button> -->
-    <button class="acc-tab active" onclick="switchTab('academics', this)">
+    {% if institution.features.manage_classes or institution.features.manage_mediums %}
+    <button class="acc-tab {% if current_tab == 'dashboard' or not current_tab %}active{% endif %}"
+        onclick="switchTab('academics', this)">
         <i class="fa-solid fa-sitemap"></i> Academics &amp; Structure
     </button>
-    <button class="acc-tab" onclick="switchTab('members', this)">
+    {% endif %}
+    {% if institution.features.manage_students or institution.features.manage_teachers or institution.features.manage_others %}
+    <button class="acc-tab {% if current_tab == 'members' %}active{% endif %}" onclick="switchTab('members', this)">
         <i class="fa-solid fa-users"></i> Membership Center
     </button>
-    <!-- <button class="acc-tab" onclick="switchTab('requests', this)">
-        <i class="fa-solid fa-inbox"></i> Join Requests
-    </button> -->
-    <button class="acc-tab" onclick="switchTab('study', this)">
-        <i class="fa-solid fa-book-open"></i> Study Materials
-    </button>
-    <button class="acc-tab" onclick="switchTab('attendance', this)">
+    {% endif %}
+
+    {% if institution.features.attendance %}
+    <button class="acc-tab {% if current_tab == 'attendance' %}active{% endif %}"
+        onclick="switchTab('attendance', this)">
         <i class="fa-solid fa-user-check"></i> Attendance
     </button>
-    <button class="acc-tab" onclick="switchTab('holidays', this)">
+    {% endif %}
+    <button class="acc-tab {% if current_tab == 'holidays' %}active{% endif %}" onclick="switchTab('holidays', this)">
         <i class="fa-solid fa-calendar-days"></i> Holidays &amp; Events
     </button>
 </div>
@@ -416,19 +416,21 @@
 </div>
 
 <!-- ═══ ACADEMICS TAB ═══ -->
-<div id="tab-academics" class="tab-panel">
+<div id="tab-academics" class="tab-panel" {% if current_tab != 'dashboard' and current_tab %}style="display:none;"{% endif %}>
     <div class="panel-grid">
+        {% if institution.features.manage_classes %}
         <!-- Classes -->
         <div class="panel-card">
             <div class="panel-card-header">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <i class="fa-solid fa-chalkboard" style="color:var(--color-primary);"></i>
-                    <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Classes &amp;
+                    <span style="font-family:var(--font-heading);font-weight:700;color:var(--text-primary);">Classes
+                        &amp;
                         Sections</span>
                 </div>
                 <a href="{% url 'school_classes' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(99,102,241,0.1);color:var(--color-primary);border:1px solid rgba(99,102,241,0.2);border-radius:7px;">Add
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-primary);border:1px solid var(--border-color);border-radius:7px;">Add
                     +</a>
             </div>
             <div class="panel-card-body">
@@ -445,31 +447,33 @@
                 {% endfor %}
                 {% if total_classes > 5 %}
                 <a href="{% url 'school_classes' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
-                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-primary);border-top:1px solid rgba(255,255,255,0.04);">View
+                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-primary);border-top: 1px solid var(--border-color);">View
                     all {{ total_classes }} →</a>
                 {% endif %}
             </div>
         </div>
+        {% endif %}
 
     </div>
 </div>
 
 <!-- ═══ MEMBERS TAB ═══ -->
-<div id="tab-members" class="tab-panel" style="display:none;">
+<div id="tab-members" class="tab-panel" {% if current_tab != 'members' %}style="display:none;"{% endif %}>
     <div class="panel-grid">
+        {% if institution.features.manage_students %}
         <!-- Students -->
         <div class="panel-card">
             <div class="panel-card-header">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <i class="fa-solid fa-user-graduate" style="color:var(--color-success);"></i>
-                    <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Students</span>
                     <span
-                        style="background:rgba(16,185,129,0.12);color:var(--color-success);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
-                        total_students }}</span>
+                        style="font-family:var(--font-heading);font-weight:700;color:var(--text-primary);">Students</span>
+                    <span
+                        style="background:rgba(16,185,129,0.12);color:var(--color-success);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_students }}</span>
                 </div>
                 <a href="{% url 'school_students' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(16,185,129,0.1);color:var(--color-success);border:1px solid rgba(16,185,129,0.2);border-radius:7px;">Manage
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-success);border:1px solid var(--border-color);border-radius:7px;">Manage
                     →</a>
             </div>
             <div class="panel-card-body">
@@ -486,20 +490,22 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
+        {% if institution.features.manage_teachers %}
         <!-- Teachers -->
         <div class="panel-card">
             <div class="panel-card-header">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <i class="fa-solid fa-chalkboard-user" style="color:var(--color-info);"></i>
-                    <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Teachers</span>
                     <span
-                        style="background:rgba(6,182,212,0.12);color:var(--color-info);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
-                        total_teachers }}</span>
+                        style="font-family:var(--font-heading);font-weight:700;color:var(--text-primary);">Teachers</span>
+                    <span
+                        style="background:rgba(6,182,212,0.12);color:var(--color-info);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_teachers }}</span>
                 </div>
                 <a href="{% url 'school_teachers' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(6,182,212,0.1);color:var(--color-info);border:1px solid rgba(6,182,212,0.2);border-radius:7px;">Manage
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-info);border:1px solid var(--border-color);border-radius:7px;">Manage
                     →</a>
             </div>
             <div class="panel-card-body">
@@ -516,20 +522,22 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
 
+        {% if institution.features.manage_others %}
         <!-- Staff -->
         <div class="panel-card">
             <div class="panel-card-header">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <i class="fa-solid fa-id-badge" style="color:var(--color-warning);"></i>
-                    <span style="font-family:var(--font-heading);font-weight:700;color:#fff;">Other Staff</span>
+                    <span style="font-family:var(--font-heading);font-weight:700;color:var(--text-primary);">Other
+                        Staff</span>
                     <span
-                        style="background:rgba(245,158,11,0.12);color:var(--color-warning);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{
-                        total_staff }}</span>
+                        style="background:rgba(245,158,11,0.12);color:var(--color-warning);border-radius:20px;padding:2px 10px;font-size:0.72rem;font-weight:700;">{{ total_staff }}</span>
                 </div>
                 <a href="{% url 'school_others' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
                     class="btn"
-                    style="padding:5px 12px;font-size:0.78rem;background:rgba(245,158,11,0.1);color:var(--color-warning);border:1px solid rgba(245,158,11,0.2);border-radius:7px;">Manage
+                    style="padding:5px 12px;font-size:0.78rem;background:var(--bg-secondary);color:var(--color-warning);border:1px solid var(--border-color);border-radius:7px;">Manage
                     →</a>
             </div>
             <div class="panel-card-body">
@@ -537,8 +545,7 @@
                 <div class="panel-row">
                     <i class="fa-solid fa-circle-user" style="color:var(--color-warning);font-size:0.9rem;"></i>
                     <span style="flex:1;">{{ s.name }} <span
-                            style="font-size:0.72rem; opacity:0.8; margin-left:6px; background:rgba(245,158,11,0.15); color:var(--color-warning); padding:2px 8px; border-radius:12px;">{{
-                            s.role }}</span></span>
+                            style="font-size:0.72rem; opacity:0.8; margin-left:6px; background:rgba(245,158,11,0.15); color:var(--color-warning); padding:2px 8px; border-radius:12px;">{{ s.role }}</span></span>
                     <span style="color:var(--text-muted);font-size:0.78rem;">{{ s.branch.name }}</span>
                 </div>
                 {% empty %}
@@ -548,11 +555,12 @@
                 {% endfor %}
                 {% if total_staff > 5 %}
                 <a href="{% url 'school_others' %}{% if selected_branch %}?branch_id={{ selected_branch.id }}{% endif %}"
-                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-warning);border-top:1px solid rgba(255,255,255,0.04);">View
+                    style="display:block;padding:12px 20px;text-align:center;font-size:0.8rem;color:var(--color-warning);border-top: 1px solid var(--border-color);">View
                     all {{ total_staff }} →</a>
                 {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 
@@ -575,118 +583,10 @@
     </div>
 </div>
 
-<!-- ═══ STUDY MATERIALS TAB ═══ -->
-<div id="tab-study" class="tab-panel" style="display:none;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h3
-            style="font-family: var(--font-heading); font-size: 1.5rem; margin: 0; display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-book-open" style="color: var(--color-primary);"></i> Study Materials
-        </h3>
-        <button class="btn btn-primary" onclick="toggleUploadMaterialForm()" style="padding: 8px 16px;">
-            <i class="fa-solid fa-plus"></i> Upload New
-        </button>
-    </div>
 
-    <div id="upload-material-form-card" class="glass-panel"
-        style="padding: 30px; border-radius: 16px; border-top: 3px solid var(--color-primary); display: none; margin-bottom: 30px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h3
-                style="font-family: var(--font-heading); font-size: 1.25rem; display: flex; align-items: center; gap: 10px; margin: 0;">
-                <i class="fa-solid fa-cloud-arrow-up" style="color: var(--color-primary);"></i> Upload Form
-            </h3>
-            <button type="button" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;"
-                onclick="toggleUploadMaterialForm()">Close</button>
-        </div>
-
-        <form action="#" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label
-                        style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Select
-                        Standard / Class</label>
-                    <select name="standard" class="custom-select" style="width: 100%; height: 42px;" required>
-                        <option value="">-- Choose Standard --</option>
-                        {% for c in recent_classes %}
-                        <option value="{{ c.id }}">{{ c.name }}{% if c.section %} - {{ c.section }}{% endif %}</option>
-                        {% endfor %}
-                        <option value="other">Other</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label
-                        style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Material
-                        Title</label>
-                    <input type="text" name="title" class="form-control" style="height: 42px;"
-                        placeholder="e.g. Chapter 1 Notes" required>
-                </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 25px;">
-                <label
-                    style="display: block; font-size: 0.85rem; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary);">Upload
-                    Document</label>
-                <div
-                    style="border: 1px dashed var(--border-color); padding: 25px; border-radius: 10px; text-align: center; background: rgba(255,255,255,0.02); transition: var(--transition-smooth);">
-                    <input type="file" name="material_file" id="material_file" style="display: none;" required>
-                    <label for="material_file"
-                        style="cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 0;">
-                        <i class="fa-solid fa-cloud-arrow-up"
-                            style="font-size: 2.2rem; color: var(--color-primary);"></i>
-                        <span style="font-size: 0.95rem; color: #fff; font-weight: 500;">Click to browse or drag and
-                            drop</span>
-                        <span style="font-size: 0.75rem; color: var(--text-muted);">Supported formats: PDF, DOCX,
-                            PPTX</span>
-                    </label>
-                </div>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end;">
-                <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">
-                    <i class="fa-solid fa-upload"></i> Upload Material
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Uploaded Materials List -->
-    <div class="glass-panel"
-        style="padding: 30px; border-radius: 16px; border-top: 3px solid var(--color-info); margin-top: 30px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h3
-                style="font-family: var(--font-heading); font-size: 1.25rem; display: flex; align-items: center; gap: 10px; margin: 0;">
-                <i class="fa-solid fa-folder-open" style="color: var(--color-info);"></i> Recently Uploaded
-            </h3>
-        </div>
-
-        <div class="table-container">
-            <table class="custom-table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Standard</th>
-                        <th>Format</th>
-                        <th>Date</th>
-                        <th style="text-align: right;">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                            <i class="fa-solid fa-folder-open"
-                                style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.5;"></i>
-                            No materials uploaded yet.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
 <!-- ═══ ATTENDANCE TAB ═══ -->
-<div id="tab-attendance" class="tab-panel" style="display:none;">
+<div id="tab-attendance" class="tab-panel" {% if current_tab != 'attendance' %}style="display:none;"{% endif %}>
     <div class="mgmt-console">
         <i class="fa-solid fa-user-check"></i>
         <h3>Attendance</h3>
@@ -715,14 +615,6 @@
         clickedBtn.classList.add('active');
     }
 
-    function toggleUploadMaterialForm() {
-        const formCard = document.getElementById('upload-material-form-card');
-        if (formCard.style.display === 'none' || formCard.style.display === '') {
-            formCard.style.display = 'block';
-            formCard.scrollIntoView({ behavior: 'smooth' });
-        } else {
-            formCard.style.display = 'none';
-        }
-    }
+
 </script>
 {% endblock %}

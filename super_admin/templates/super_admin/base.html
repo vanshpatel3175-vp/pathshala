@@ -12,7 +12,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 
-<body>
+<body data-theme="{{ active_theme_code|default:'default' }}">
     {% if request.user.is_authenticated and not no_sidebar %}
     <div class="app-shell">
         <!-- Sidebar Navigation -->
@@ -65,6 +65,13 @@
                             <span class="badge badge-awaiting"
                                 style="margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; text-transform: none;">{{ pending_branch_requests_count }}</span>
                             {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'permission' %}"
+                            class="sidebar-link {% if current_tab == 'permission' %}active{% endif %}">
+                            <i class="fa-solid fa-lock"></i>
+                            Permission
                         </a>
                     </li>
                 </ul>
