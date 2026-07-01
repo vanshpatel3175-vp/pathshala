@@ -1463,7 +1463,15 @@ def school_users_view(request):
     inst = profile.institution
 
     q = request.GET.get('q', '').strip()
-    users = RoleProfile.objects.filter(institution=inst, role__role_name='USER').order_by('-id')
+    
+    assigned_user_ids = RoleProfile.objects.filter(
+        institution=inst
+    ).exclude(role__role_name='USER').values_list('user_id', flat=True)
+
+    users = RoleProfile.objects.filter(
+        institution=inst, role__role_name='USER'
+    ).exclude(user_id__in=assigned_user_ids).order_by('-id')
+    
     if q:
         users = users.filter(
             db_models.Q(email_id__icontains=q) |

@@ -183,6 +183,21 @@ class RoleProfile(models.Model):
             return None
 
     @property
+    def teacher_role(self):
+        if not self.user: return None
+        return self.user.role_profiles.filter(institution=self.institution, role__role_name='TEACHER').first()
+
+    @property
+    def student_role(self):
+        if not self.user: return None
+        return self.user.role_profiles.filter(institution=self.institution, role__role_name='STUDENT').first()
+
+    @property
+    def staff_role(self):
+        if not self.user: return None
+        return self.user.role_profiles.exclude(role__role_name__in=['STUDENT', 'TEACHER', 'USER']).filter(institution=self.institution).first()
+
+    @property
     def school_user(self):
         return self
 
