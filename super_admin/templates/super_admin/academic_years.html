@@ -1,0 +1,78 @@
+{% extends "super_admin/base.html" %}
+{% block title %}Academic Years{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">Academic Years</h1>
+  <p class="page-subtitle">Manage global academic year labels available to all schools.</p>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}" style="margin-bottom:1rem;">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<!-- Add New Year -->
+<div class="card" style="margin-bottom:2rem; padding:1.5rem;">
+  <h3 style="margin-bottom:1rem;">Add Academic Year</h3>
+  <form method="POST" style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="add">
+    <div>
+      <label style="display:block;margin-bottom:.4rem;font-weight:600;">Year Label</label>
+      <input type="text" name="name" placeholder="e.g. 2026-2027" required
+             style="padding:.6rem 1rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-primary);min-width:200px;">
+    </div>
+    <button type="submit" class="btn btn-primary">Add Year</button>
+  </form>
+</div>
+
+<!-- Years Table -->
+<div class="card" style="padding:1.5rem;">
+  <h3 style="margin-bottom:1rem;">All Academic Years</h3>
+  {% if years %}
+  <table class="data-table" style="width:100%;">
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for yr in years %}
+      <tr>
+        <td><strong>{{ yr.name }}</strong></td>
+        <td>
+          {% if yr.is_active %}
+            <span class="badge badge-success">Active</span>
+          {% else %}
+            <span class="badge badge-secondary">Inactive</span>
+          {% endif %}
+        </td>
+        <td style="display:flex;gap:.5rem;">
+          <form method="POST" style="margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle">
+            <input type="hidden" name="year_id" value="{{ yr.pk }}">
+            <button type="submit" class="btn btn-sm {% if yr.is_active %}btn-warning{% else %}btn-success{% endif %}">
+              {% if yr.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+          </form>
+          <form method="POST" style="margin:0;"
+                onsubmit="return confirm('Delete academic year {{ yr.name }}? This cannot be undone.');">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="delete">
+            <input type="hidden" name="year_id" value="{{ yr.pk }}">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p style="color:var(--text-secondary);">No academic years added yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

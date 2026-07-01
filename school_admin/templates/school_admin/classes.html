@@ -93,6 +93,9 @@
                         Section</th>
                     <th
                         style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
+                        Medium</th>
+                    <th
+                        style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
                         Branch</th>
                     <th
                         style="padding: 14px 18px; font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); font-family: var(--font-heading); letter-spacing: 0.05em;">
@@ -113,6 +116,15 @@
                         <span
                             style="background: var(--bg-secondary); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
                             {{cls.section }}</span>
+                        {% else %}
+                        <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 14px 18px;">
+                        {% if cls.medium %}
+                        <span
+                            style="background: var(--bg-secondary); color: var(--color-primary); padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+                            {{ cls.medium.name }}</span>
                         {% else %}
                         <span style="color: var(--text-muted); font-style: italic; font-size: 0.85rem;">—</span>
                         {% endif %}
@@ -148,7 +160,7 @@
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" style="padding: 50px; text-align: center; color: var(--text-muted);">
+                    <td colspan="7" style="padding: 50px; text-align: center; color: var(--text-muted);">
                         <i class="fa-solid fa-chalkboard"
                             style="font-size: 2.5rem; display: block; margin-bottom: 12px; opacity: 0.4;"></i>
                         No classes found. Add one below.
@@ -326,6 +338,7 @@
         const sel = document.getElementById('class-name-select');
         const finalInput = document.getElementById('final-class-name');
         const customInput = document.getElementById('custom-class-name-input');
+        const mediumSel = document.getElementById('medium');
 
         if (sel.value === '__custom__') {
             const customVal = customInput.value.trim();
@@ -343,6 +356,13 @@
             return;
         } else {
             finalInput.value = sel.value;
+        }
+
+        if (mediumSel && mediumSel.value === '') {
+            mediumSel.style.borderColor = 'var(--color-danger)';
+            alert('Please select a medium.');
+            mediumSel.focus();
+            return;
         }
 
         form.submit();

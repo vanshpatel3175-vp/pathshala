@@ -10,7 +10,7 @@ from django.http import JsonResponse
 
 from django.utils import timezone
 from datetime import date
-from super_admin.models import SchoolApplication, Institution, Role, SchoolRole
+from super_admin.models import SchoolApplication, Institution, Role, SchoolRole, AcademicYear
 
 from .models import SchoolAdminProfile, Branch, Student, Teacher, StaffMember, BranchRequest, SchoolClass, CustomRole, Medium, Attendance, Holiday, Event, RoleProfile, SchoolUser
 
@@ -670,6 +670,11 @@ def school_students_view(request):
                 except SchoolClass.DoesNotExist:
                     pass
 
+            # Resolve active academic year from session or institution default
+            active_year_id = request.session.get('academic_year_id') or (
+                inst.current_academic_year_id
+            )
+
             student_obj = Student.objects.create(
                 user=user,
                 role=student_school_role.role,
@@ -690,19 +695,18 @@ def school_students_view(request):
                 pincode=pincode,
                 mobile_no=mobile_no,
                 gardian_name=gardian_name,
-                gardian_mobile_no=gardian_mobile_no
+                gardian_mobile_no=gardian_mobile_no,
+                roll_number=roll_no,
+                gr_number=grno,
+                academic_year_id=active_year_id,
             )
-            
+
             from student.models import StudentProfile
             student_profile_defaults = {
-                'school_class': school_class_obj,
                 'parent_full_name': parent_full_name,
                 'parent_mobile_no': parent_mobile_no,
                 'gardian_name': gardian_name,
                 'gardian_mobile_no': gardian_mobile_no,
-                'uid_no': uid_no,
-                'roll_no': roll_no,
-                'grno': grno,
             }
             if dob is not None:
                 student_profile_defaults['date_of_birth'] = dob
@@ -710,7 +714,7 @@ def school_students_view(request):
                 user=user,
                 defaults=student_profile_defaults,
             )
-            
+
             messages.success(request, f"Student '{user.first_name} {user.last_name}' registered successfully!")
             return redirect(f"{reverse('school_students')}?branch_id={branch_id}")
             
@@ -870,6 +874,9 @@ def school_teachers_view(request):
             su.pincode = pincode
             su.save()
             
+            # Resolve active academic year from session or institution default
+            active_year_id = request.session.get('academic_year_id') or inst.current_academic_year_id
+
             teacher_obj = Teacher.objects.create(
                 user=user,
                 role=teacher_school_role.role,
@@ -886,6 +893,7 @@ def school_teachers_view(request):
                 address=address,
                 pincode=pincode,
                 mobile_no=mobile_no,
+                academic_year_id=active_year_id,
                 permissions={
                     'manage_attendance': manage_attendance, 
                     'manage_subjects': manage_subjects,
@@ -998,18 +1006,19 @@ def school_others_view(request):
             return redirect(f"{reverse('school_others')}?branch_id={branch_filter_id}")
         else:
             school_user_id = request.POST.get('school_user_id', '').strip()
-            password = request.POST.get('password', '').strip()
             branch_id = request.POST.get('branch_id', '').strip()
             role = request.POST.get('role', '').strip()
-            if role == 'custom':
-                role = request.POST.get('custom_role', '').strip()
             
+            # Fetch all extra staff fields
+            mobile_no = request.POST.get('mobile_no', '').strip()
+            dob_str = request.POST.get('date_of_birth', '').strip()
+            city = request.POST.get('city', '').strip()
+            state = request.POST.get('state', '').strip() or 'Gujarat'
+            address = request.POST.get('address', '').strip()
+            pincode = request.POST.get('pincode', '').strip()
+
             if not school_user_id:
                 messages.error(request, "Please search and select a user by email first.")
-                return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
-            
-            if not password:
-                messages.error(request, "Password is required.")
                 return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
             if not branch_id:
@@ -1028,51 +1037,43 @@ def school_others_view(request):
                 messages.error(request, f"'{school_user.full_name}' is registered as a student and cannot be assigned any other role.")
                 return redirect(f"{reverse('school_others')}?branch_id={branch_id}")
             
-            # Find or create User
-            user = None
-            existing_user = User.objects.filter(email=school_user.email, first_name=school_user.first_name, last_name=school_user.last_name).first()
-            if existing_user:
-                user = existing_user
-                if password:
-                    user.set_password(password)
-                    user.save()
-            else:
-                base_username = school_user.email
-                username = base_username
-                if User.objects.filter(username=username).exists():
-                    username = f"{base_username.split('@')[0]}_{school_user.id}@{base_username.split('@')[1]}" if '@' in base_username else f"{base_username}_{school_user.id}"
-                
-                user_role = 'SCHOOL STAFF'
-                if role.upper() == 'TEACHER':
-                    user_role = 'TEACHER'
-                elif role.upper() == 'STUDENT':
-                    user_role = 'STUDENT'
-                    
-                user = User.objects.create_user(
-                    username=username,
-                    email=school_user.email,
-                    password=password,
-                    first_name=school_user.first_name,
-                    last_name=school_user.last_name,
-                    role=user_role
-                )
-            
-            from django.contrib.auth.hashers import make_password as hash_pw
+            user = school_user.user
+            if mobile_no:
+                user.mobile_no = mobile_no
+                user.save()
+
+            dob = None
+            if dob_str:
+                try:
+                    from django.utils.dateparse import parse_date
+                    dob = parse_date(dob_str)
+                except Exception:
+                    pass
+
             from django.db import IntegrityError
-            
             role_obj, _ = Role.objects.get_or_create(role_name=role.upper())
             SchoolRole.objects.get_or_create(role=role_obj, school=inst)
             
+            # Resolve active academic year from session or institution default
+            active_year_id = request.session.get('academic_year_id') or inst.current_academic_year_id
+
             try:
                 StaffMember.objects.create(
-                    user=school_user.user,
+                    user=user,
                     institution=inst,
                     branch=branch,
                     email=school_user.email,
-                    password=hash_pw(password),
+                    password=user.password,
                     role=role_obj,
                     role_name=role,
-                    status='active'
+                    status='active',
+                    date_of_birth=dob,
+                    city=city,
+                    state=state,
+                    address=address,
+                    pincode=pincode,
+                    mobile_no=mobile_no,
+                    academic_year_id=active_year_id,
                 )
                 messages.success(request, f"Staff member '{school_user.full_name}' registered successfully!")
             except IntegrityError as e:
@@ -1099,6 +1100,7 @@ def school_others_view(request):
         'branches': branches,
         'mediums': mediums,
         'custom_roles': CustomRole.objects.filter(institution=inst),
+        'available_roles': Role.objects.exclude(role_name__in=['STUDENT', 'TEACHER', 'student', 'teacher', 'USER', 'user', 'SCHOOL_ADMIN', 'school_admin']),
         'query': q,
         'branch_filter_id': branch_filter_id,
         'selected_branch_ids': selected_branch_ids,
@@ -1213,13 +1215,19 @@ def school_classes_view(request):
             name = request.POST.get('name', '').strip()
             section = request.POST.get('section', '').strip()
             branch_id = request.POST.get('branch_id', '')
+            medium_id = request.POST.get('medium', '').strip()
             if name and branch_id:
+                if not medium_id:
+                    messages.error(request, "Please select a medium.")
+                    return redirect(f"{reverse('school_classes')}?branch_id={branch_id}")
                 branch = get_object_or_404(Branch, id=branch_id, institution=inst)
                 section_val = section or None
-                if SchoolClass.objects.filter(branch=branch, name=name, section=section_val).exists():
-                    messages.error(request, f"Class '{name}' already exists in {branch.name}.")
+                from .models import Medium
+                medium_obj = get_object_or_404(Medium, id=medium_id, institution=inst)
+                if SchoolClass.objects.filter(branch=branch, name=name, section=section_val, medium=medium_obj).exists():
+                    messages.error(request, f"Class '{name}' with section '{section or '—'}' and medium '{medium_obj.name}' already exists in {branch.name}.")
                 else:
-                    SchoolClass.objects.create(branch=branch, name=name, section=section_val)
+                    SchoolClass.objects.create(branch=branch, name=name, section=section_val, medium=medium_obj)
                     messages.success(request, f"Class '{name}' added successfully.")
             return redirect(f"{reverse('school_classes')}?branch_id={branch_id}")
 
@@ -1585,6 +1593,7 @@ def school_user_lookup_api(request):
     for su in qs:
         is_teacher = Teacher.objects.filter(branch__institution=inst, user=su.user).exists()
         is_student = Student.objects.filter(branch__institution=inst, user=su.user).exists()
+        is_staff = StaffMember.objects.filter(branch__institution=inst, user=su.user).exists()
         results.append({
             'id': su.id,
             'first_name': su.first_name,
@@ -1596,6 +1605,7 @@ def school_user_lookup_api(request):
             'date_of_birth': su.date_of_birth.strftime('%Y-%m-%d') if su.date_of_birth else '',
             'is_teacher': is_teacher,
             'is_student': is_student,
+            'is_staff': is_staff,
         })
 
     return JsonResponse({'results': results})
@@ -1818,4 +1828,70 @@ def school_events_view(request):
         'current_tab': 'events',
     }
     return render(request, 'school_admin/events.html', context)
+
+
+@school_admin_required
+def school_set_academic_year_view(request):
+    """Sets the active academic year in the school admin session and redirects back."""
+    if request.method == 'POST':
+        year_id = request.POST.get('academic_year_id', '').strip()
+        if year_id:
+            year = AcademicYear.objects.filter(pk=year_id, is_active=True).first()
+            if year:
+                request.session['academic_year_id'] = year.pk
+                messages.success(request, f"Switched to academic year: {year.name}")
+            else:
+                messages.error(request, 'Invalid or inactive academic year selected.')
+        else:
+            # Clear session — fall back to institution default
+            request.session.pop('academic_year_id', None)
+            messages.success(request, 'Academic year reset to institution default.')
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER') or reverse('school_overview')
+    return redirect(next_url)
+
+
+import os
+from django.conf import settings
+from django.http import FileResponse, Http404
+
+@school_admin_required
+def student_template_csv(request):
+    file_path = os.path.join(settings.BASE_DIR, 'school_admin', 'sample_templates', 'students_sample.csv')
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename='students_sample.csv')
+    raise Http404("CSV Template file not found")
+
+
+@school_admin_required
+def student_template_xlsx(request):
+    file_path = os.path.join(settings.BASE_DIR, 'school_admin', 'sample_templates', 'students_sample.xlsx')
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, 'rb'), as_attachment=True, filename='students_sample.xlsx')
+    raise Http404("Excel Template file not found")
+
+
+@school_admin_required
+def student_import_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid request method.'}, status=400)
+    
+    uploaded_file = request.FILES.get('file')
+    branch_id = request.POST.get('branch_id', '').strip()
+    
+    if not uploaded_file:
+        return JsonResponse({'error': 'No file uploaded.'}, status=400)
+        
+    if not branch_id:
+        return JsonResponse({'error': 'Please select a branch.'}, status=400)
+        
+    profile = get_school_profile(request.user)
+    inst = profile.institution
+    branch = get_object_or_404(Branch, id=branch_id, institution=inst)
+    
+    from school_admin.services.student_import import StudentImportService
+    importer = StudentImportService()
+    result = importer.run(uploaded_file, inst, branch)
+    
+    return JsonResponse(result.to_dict())
+
 

@@ -24,4 +24,5 @@ urlpatterns = [
     path('branches/toggle/<int:branch_id>/', views.toggle_branch_view, name='toggle_branch'),
     path('permission/', views.permission_view, name='permission'),
     path('select-profile/', views.select_profile_view, name='select_profile'),
+    path('academic-years/', views.academic_years_view, name='academic_years'),
 ]

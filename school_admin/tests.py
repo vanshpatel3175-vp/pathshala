@@ -195,7 +195,6 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertIsNotNone(student)
         self.assertEqual(student.name, 'Student Jane')
         self.assertEqual(student.branch, self.branch)
-        self.assertEqual(student.uid_no, 'UID12345')
         self.assertEqual(student.roll_no, 'R10')
         self.assertEqual(student.roll_number, 'R10')
         self.assertEqual(student.grno, 'GR999')
@@ -214,7 +213,6 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertEqual(student_profile.parent_mobile_no, '9876543210')
         self.assertEqual(student_profile.gardian_name, 'Jane Guardian')
         self.assertEqual(student_profile.gardian_mobile_no, '9876543211')
-        self.assertEqual(student_profile.uid_no, 'UID12345')
         self.assertEqual(student_profile.roll_no, 'R10')
         self.assertEqual(student_profile.grno, 'GR999')
         
@@ -266,13 +264,13 @@ class TeacherRegistrationAndLoginTest(TestCase):
         self.assertEqual(student.name, 'Student Jane Updated Doe')
         
         # Verify Django auth User is synchronized
-        user = User.objects.filter(email='jane@testschool.com').first()
+        user.refresh_from_db()
         self.assertIsNotNone(user)
         self.assertEqual(user.first_name, 'Student Jane Updated')
         self.assertEqual(user.last_name, 'Doe')
 
-    def test_register_dual_role_user(self):
-        # Pre-register user in directory
+    def test_register_dual_role_user_prevented(self):
+        # Pre-register the user
         user = User.objects.create_user(
             username='dual@testschool.com',
             email='dual@testschool.com',
@@ -299,7 +297,7 @@ class TeacherRegistrationAndLoginTest(TestCase):
         })
         self.assertEqual(resp1.status_code, 302)
 
-        # 2. Register as student (cross-promotion)
+        # 2. Register as student (should be prevented)
         resp2 = self.client.post(reverse('school_students'), {
             'school_user_id': school_user.id,
             'password': 'newdualpassword',
@@ -307,20 +305,15 @@ class TeacherRegistrationAndLoginTest(TestCase):
         })
         self.assertEqual(resp2.status_code, 302)
 
-        # Verify both Teacher and Student records exist linked to same user
+        # Verify Teacher record exists but Student does NOT
         teacher = Teacher.objects.filter(email_id='dual@testschool.com').first()
         student = Student.objects.filter(email_id='dual@testschool.com').first()
         self.assertIsNotNone(teacher)
-        self.assertIsNotNone(student)
+        self.assertIsNone(student)
 
         # Verify a single User record exists
         user_count = User.objects.filter(email='dual@testschool.com').count()
         self.assertEqual(user_count, 1)
-
-        # Verify both profiles are linked to the same auth User
-        user = User.objects.get(email='dual@testschool.com')
-        self.assertEqual(user.teacher_profile.teacher, teacher)
-        self.assertEqual(user.student_profile.student, student)
 
 
 # ─── Holiday Tests ──────────────────────────────────────────────────────────
@@ -1241,6 +1234,176 @@ class RegisterStaffMemberTest(TestCase):
         self.assertEqual(response.status_code, 302)
         from school_admin.models import StaffMember
         self.assertTrue(StaffMember.objects.filter(email_id='staffmember@test.com').exists())
+
+
+from django.core.files.uploadedfile import SimpleUploadedFile
+from super_admin.models import AcademicYear
+from school_admin.models import SchoolClass, Medium, Student
+from student.models import UserProfile
+
+class StudentImportServiceTest(TestCase):
+    def setUp(self):
+        # Create Institution
+        self.institution = Institution.objects.create(
+            name="Import Test School",
+            email="admin@importschool.com",
+            status="active",
+            expired_date="2030-01-01T00:00:00Z"
+        )
+        # Create Branch
+        self.branch = Branch.objects.create(
+            institution=self.institution,
+            name="Main Branch",
+            city="Navsari",
+            status="active"
+        )
+        # Create Academic Year
+        self.academic_year = AcademicYear.objects.create(
+            name="2024-2025",
+            is_active=True
+        )
+        # Create Medium
+        self.medium = Medium.objects.create(
+            institution=self.institution,
+            name="English"
+        )
+        # Create Class
+        self.school_class = SchoolClass.objects.create(
+            branch=self.branch,
+            name="Class 1",
+            section="A",
+            medium=self.medium
+        )
+        # Create School Admin User and log in
+        self.admin_user = User.objects.create_user(
+            username="admin@importschool.com",
+            email="admin@importschool.com",
+            password="password123",
+            role="SCHOOL STAFF"
+        )
+        self.admin_profile = SchoolAdminProfile.objects.create(
+            user=self.admin_user,
+            institution=self.institution,
+            city="Navsari"
+        )
+        self.client = Client()
+        self.client.login(username="admin@importschool.com", password="password123")
+
+    def test_import_valid_csv(self):
+        csv_data = (
+            "First Name,Middle Name,Last Name,Gender,Date of Birth,Mobile Number,Alternate Mobile,Email,Blood Group,"
+            "Admission Number,Roll Number,Admission Date,Academic Year,Class,Section,Medium,Aadhaar Number,UDISE Number,"
+            "Category (General/OBC/SC/ST),Religion,Caste,Nationality,City,State,Address Line 1,Address Line 2,Pincode,"
+            "Father Name,Father Mobile,Father Occupation,Mother Name,Mother Mobile,Guardian Name,Guardian Mobile,Guardian Relation\n"
+            "Rahul,,Patel,Male,15/08/2012,9876543210,,rahul.patel@import.com,B+,ADM-001,1,01/06/2024,2024-2025,Class 1,A,English,123456789012,,General,Hindu,Patel,Indian,Surat,Gujarat,123 Main Street,,395001,Suresh Patel,9876543211,Engineer,Meena Patel,9876543212,,,\n"
+        )
+        uploaded_file = SimpleUploadedFile("students.csv", csv_data.encode('utf-8'), content_type="text/csv")
+        
+        from school_admin.services.student_import import StudentImportService
+        importer = StudentImportService()
+        result = importer.run(uploaded_file, self.institution, self.branch)
+        
+        self.assertEqual(result.success, 1)
+        self.assertEqual(result.failed, 0)
+        self.assertEqual(result.total, 1)
+        
+        # Verify student created in database
+        student = Student.objects.filter(email_id="rahul.patel@import.com").first()
+        self.assertIsNotNone(student)
+        self.assertEqual(student.name, "Rahul Patel")
+        self.assertEqual(student.school_class, self.school_class)
+        self.assertEqual(student.academic_year, self.academic_year)
+        self.assertEqual(student.gr_number, "ADM-001")
+        self.assertEqual(student.roll_number, "1")
+        
+        # Verify UserProfile personal info
+        profile = UserProfile.objects.get(user=student.user)
+        self.assertEqual(profile.gender, "Male")
+        self.assertEqual(profile.blood_group, "B+")
+        self.assertEqual(profile.father_name, "Suresh Patel")
+
+    def test_import_missing_required_field(self):
+        # Missing "Last Name"
+        csv_data = (
+            "First Name,Middle Name,Last Name,Gender,Date of Birth,Mobile Number,Alternate Mobile,Email,Blood Group,"
+            "Admission Number,Roll Number,Admission Date,Academic Year,Class,Section,Medium,Aadhaar Number,UDISE Number,"
+            "Category (General/OBC/SC/ST),Religion,Caste,Nationality,City,State,Address Line 1,Address Line 2,Pincode,"
+            "Father Name,Father Mobile,Father Occupation,Mother Name,Mother Mobile,Guardian Name,Guardian Mobile,Guardian Relation\n"
+            "Rahul,, ,Male,15/08/2012,9876543210,,rahul.patel@import.com,B+,ADM-001,1,01/06/2024,2024-2025,Class 1,A,English,123456789012,,General,Hindu,Patel,Indian,Surat,Gujarat,123 Main Street,,395001,Suresh Patel,9876543211,Engineer,Meena Patel,9876543212,,,\n"
+        )
+        uploaded_file = SimpleUploadedFile("students.csv", csv_data.encode('utf-8'), content_type="text/csv")
+        
+        from school_admin.services.student_import import StudentImportService
+        importer = StudentImportService()
+        result = importer.run(uploaded_file, self.institution, self.branch)
+        
+        self.assertEqual(result.success, 0)
+        self.assertEqual(result.failed, 1)
+        self.assertTrue(any("Last Name" in e.column for e in result.errors))
+
+    def test_import_invalid_academic_year_or_class(self):
+        # Academic year "2025-2026" does not exist in DB setup
+        csv_data = (
+            "First Name,Middle Name,Last Name,Gender,Date of Birth,Mobile Number,Alternate Mobile,Email,Blood Group,"
+            "Admission Number,Roll Number,Admission Date,Academic Year,Class,Section,Medium,Aadhaar Number,UDISE Number,"
+            "Category (General/OBC/SC/ST),Religion,Caste,Nationality,City,State,Address Line 1,Address Line 2,Pincode,"
+            "Father Name,Father Mobile,Father Occupation,Mother Name,Mother Mobile,Guardian Name,Guardian Mobile,Guardian Relation\n"
+            "Rahul,,Patel,Male,15/08/2012,9876543210,,rahul.patel@import.com,B+,ADM-001,1,01/06/2024,2025-2026,Class 1,A,English,123456789012,,General,Hindu,Patel,Indian,Surat,Gujarat,123 Main Street,,395001,Suresh Patel,9876543211,Engineer,Meena Patel,9876543212,,,\n"
+        )
+        uploaded_file = SimpleUploadedFile("students.csv", csv_data.encode('utf-8'), content_type="text/csv")
+        
+        from school_admin.services.student_import import StudentImportService
+        importer = StudentImportService()
+        result = importer.run(uploaded_file, self.institution, self.branch)
+        
+        self.assertEqual(result.success, 0)
+        self.assertEqual(result.failed, 1)
+        self.assertTrue(any("Academic Year" in e.column for e in result.errors))
+
+    def test_import_auto_email_generation(self):
+        # Email field is blank -> should auto-generate
+        csv_data = (
+            "First Name,Middle Name,Last Name,Gender,Date of Birth,Mobile Number,Alternate Mobile,Email,Blood Group,"
+            "Admission Number,Roll Number,Admission Date,Academic Year,Class,Section,Medium,Aadhaar Number,UDISE Number,"
+            "Category (General/OBC/SC/ST),Religion,Caste,Nationality,City,State,Address Line 1,Address Line 2,Pincode,"
+            "Father Name,Father Mobile,Father Occupation,Mother Name,Mother Mobile,Guardian Name,Guardian Mobile,Guardian Relation\n"
+            "Rahul,,Patel,Male,15/08/2012,9876543210,,,B+,ADM-999,1,01/06/2024,2024-2025,Class 1,A,English,123456789012,,General,Hindu,Patel,Indian,Surat,Gujarat,123 Main Street,,395001,Suresh Patel,9876543211,Engineer,Meena Patel,9876543212,,,\n"
+        )
+        uploaded_file = SimpleUploadedFile("students.csv", csv_data.encode('utf-8'), content_type="text/csv")
+        
+        from school_admin.services.student_import import StudentImportService
+        importer = StudentImportService()
+        result = importer.run(uploaded_file, self.institution, self.branch)
+        
+        self.assertEqual(result.success, 1)
+        
+        student = Student.objects.filter(gr_number="ADM-999").first()
+        self.assertIsNotNone(student)
+        self.assertTrue(student.email_id.startswith("rahul.patel.adm-999"))
+        self.assertTrue(student.email_id.endswith("@student.local"))
+
+    def test_import_api_endpoint(self):
+        # Post directly to the URL to check view layer integration
+        csv_data = (
+            "First Name,Middle Name,Last Name,Gender,Date of Birth,Mobile Number,Alternate Mobile,Email,Blood Group,"
+            "Admission Number,Roll Number,Admission Date,Academic Year,Class,Section,Medium,Aadhaar Number,UDISE Number,"
+            "Category (General/OBC/SC/ST),Religion,Caste,Nationality,City,State,Address Line 1,Address Line 2,Pincode,"
+            "Father Name,Father Mobile,Father Occupation,Mother Name,Mother Mobile,Guardian Name,Guardian Mobile,Guardian Relation\n"
+            "Rahul,,Patel,Male,15/08/2012,9876543210,,rahul.api@import.com,B+,ADM-888,1,01/06/2024,2024-2025,Class 1,A,English,123456789012,,General,Hindu,Patel,Indian,Surat,Gujarat,123 Main Street,,395001,Suresh Patel,9876543211,Engineer,Meena Patel,9876543212,,,\n"
+        )
+        uploaded_file = SimpleUploadedFile("students.csv", csv_data.encode('utf-8'), content_type="text/csv")
+        
+        response = self.client.post(
+            reverse('student_import'),
+            {'file': uploaded_file, 'branch_id': self.branch.id}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['success'], 1)
+        self.assertEqual(data['failed'], 0)
+        self.assertEqual(data['total'], 1)
+
 
 
 

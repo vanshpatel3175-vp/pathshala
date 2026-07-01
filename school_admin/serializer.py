@@ -688,8 +688,7 @@ class StudentProfileSerializer(serializers.ModelSerializer):
         return up.roll_no if up else None
 
     def get_uid_no(self, obj):
-        up = self._get_user_profile(obj)
-        return up.uid_no if up else None
+        return None
 
     def get_grno(self, obj):
         up = self._get_user_profile(obj)

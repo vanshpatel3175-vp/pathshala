@@ -52,7 +52,8 @@
                             Inquiries
                             {% if pending_applications_count %}
                             <span class="badge badge-awaiting"
-                                style="margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; text-transform: none;">{{ pending_applications_count }}</span>
+                                style="margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; text-transform: none;">{{
+                                pending_applications_count }}</span>
                             {% endif %}
                         </a>
                     </li>
@@ -63,7 +64,8 @@
                             Branch Requests
                             {% if pending_branch_requests_count %}
                             <span class="badge badge-awaiting"
-                                style="margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; text-transform: none;">{{ pending_branch_requests_count }}</span>
+                                style="margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; text-transform: none;">{{
+                                pending_branch_requests_count }}</span>
                             {% endif %}
                         </a>
                     </li>
@@ -72,6 +74,13 @@
                             class="sidebar-link {% if current_tab == 'permission' %}active{% endif %}">
                             <i class="fa-solid fa-lock"></i>
                             Permission
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'academic_years' %}"
+                            class="sidebar-link {% if current_tab == 'academic_years' %}active{% endif %}">
+                            <i class="fa-solid fa-lock"></i>
+                            Academic_Year
                         </a>
                     </li>
                 </ul>

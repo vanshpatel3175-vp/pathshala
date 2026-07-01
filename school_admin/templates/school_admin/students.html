@@ -19,8 +19,17 @@
         <p>List, search, and register student accounts across all branches</p>
         {% endif %}
     </div>
-    <div>
-        <button class="btn btn-primary" onclick="openDrawer('add-student-form-card', 'student-user-search')">
+    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <a href="{% url 'student_template_csv' %}" class="btn btn-secondary" style="padding: 10px 16px;">
+            <i class="fa-solid fa-file-csv" style="color: var(--color-primary); margin-right: 6px;"></i> CSV Template
+        </a>
+        <a href="{% url 'student_template_xlsx' %}" class="btn btn-secondary" style="padding: 10px 16px;">
+            <i class="fa-solid fa-file-excel" style="color: var(--color-primary); margin-right: 6px;"></i> Excel Template
+        </a>
+        <button class="btn btn-secondary" style="padding: 10px 16px;" onclick="openImportModal()">
+            <i class="fa-solid fa-file-import" style="color: var(--color-primary); margin-right: 6px;"></i> Import Students
+        </button>
+        <button class="btn btn-primary" style="padding: 10px 20px;" onclick="openDrawer('add-student-form-card', 'student-user-search')">
             <i class="fa-solid fa-plus"></i> Register Student
         </button>
     </div>
@@ -864,4 +873,6 @@
         }
     }
 </script>
+
+{% include 'school_admin/student_import_modal.html' %}
 {% endblock %}

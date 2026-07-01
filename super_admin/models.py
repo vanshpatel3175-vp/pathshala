@@ -1,4 +1,17 @@
 from django.db import models
+
+
+class AcademicYear(models.Model):
+    """Global academic year labels managed by the Superadmin (e.g. '2026-2027')."""
+    name = models.CharField(max_length=50, unique=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'academic_year'
+        ordering = ['-name']
+
+    def __str__(self):
+        return self.name
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
@@ -134,6 +147,13 @@ class Institution(models.Model):
     plan = models.CharField(max_length=100, default='Standard')
     activation_requested = models.BooleanField(default=False)
     features = models.JSONField(default=default_features, blank=True)
+    current_academic_year = models.ForeignKey(
+        'AcademicYear',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='institutions',
+    )
 
     def __str__(self):
         return self.name

@@ -1,0 +1,339 @@
+<!-- Student Import Modal -->
+<div id="student-import-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div class="glass-panel" style="width: 100%; max-width: 650px; border-radius: 16px; border: 1px solid var(--border-color); background: rgba(18, 38, 36, 0.95); box-shadow: 0 20px 50px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+        <!-- Modal Header -->
+        <div style="padding: 20px 25px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+            <h3 style="font-size: 1.25rem; font-family: var(--font-heading); margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-file-import" style="color: var(--color-primary);"></i> Bulk Import Students
+            </h3>
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.9rem; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeImportModal()">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div style="padding: 25px; overflow-y: auto; flex: 1;">
+            
+            <!-- Branch Selector Section -->
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Select Branch/School *</label>
+                <select id="import-branch-select" class="form-control" style="width: 100%; padding: 10px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary);">
+                    <option value="">-- Select Branch --</option>
+                    {% for br in branches %}
+                        <option value="{{ br.id }}" {% if branch_filter_id == br.id|stringformat:"s" %}selected{% endif %}>{{ br.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Upload Area -->
+            <div id="import-drop-zone" style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px 20px; text-align: center; background: rgba(0, 0, 0, 0.2); transition: all 0.3s ease; cursor: pointer;">
+                <i class="fa-solid fa-cloud-arrow-up" style="font-size: 3rem; color: var(--color-primary); margin-bottom: 15px;"></i>
+                <h4 style="font-size: 1.1rem; margin-bottom: 8px; color: var(--text-primary);">Drag & Drop File Here</h4>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Only CSV (.csv) and Excel (.xlsx) files are supported.</p>
+                <button class="btn btn-secondary" style="pointer-events: none;">Browse File</button>
+                <input type="file" id="import-file-input" accept=".csv,.xlsx" style="display: none;">
+            </div>
+
+            <!-- Selected File Details / Progress -->
+            <div id="import-status-container" style="display: none; margin-top: 20px; padding: 15px; border-radius: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <span id="import-filename" style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">filename.csv</span>
+                    <span id="import-filesize" style="font-size: 0.8rem; color: var(--text-muted);">0 KB</span>
+                </div>
+                <div style="width: 100%; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; margin-bottom: 10px;">
+                    <div id="import-progress-bar" style="width: 0%; height: 100%; background: var(--color-primary); transition: width 0.1s ease;"></div>
+                </div>
+                <div id="import-status-text" style="font-size: 0.85rem; color: var(--text-muted);">Uploading file...</div>
+            </div>
+
+            <!-- Results Summary Dashboard -->
+            <div id="import-results-container" style="display: none; margin-top: 25px;">
+                <h4 style="font-size: 1rem; margin-bottom: 15px; color: var(--text-primary); border-left: 3px solid var(--color-primary); padding-left: 10px;">Import Summary</h4>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <div style="background: rgba(255, 255, 255, 0.05); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid var(--border-color);">
+                        <div id="res-total" style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">0</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Total Rows</div>
+                    </div>
+                    <div style="background: rgba(46, 204, 113, 0.1); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid rgba(46, 204, 113, 0.3);">
+                        <div id="res-success" style="font-size: 1.5rem; font-weight: 700; color: #2ecc71;">0</div>
+                        <div style="font-size: 0.75rem; color: #2ecc71;">Success</div>
+                    </div>
+                    <div style="background: rgba(231, 76, 60, 0.1); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid rgba(231, 76, 60, 0.3);">
+                        <div id="res-failed" style="font-size: 1.5rem; font-weight: 700; color: #e74c3c;">0</div>
+                        <div style="font-size: 0.75rem; color: #e74c3c;">Failed</div>
+                    </div>
+                    <div style="background: rgba(241, 196, 15, 0.1); padding: 12px; border-radius: 8px; text-align: center; border: 1px solid rgba(241, 196, 15, 0.3);">
+                        <div id="res-skipped" style="font-size: 1.5rem; font-weight: 700; color: #f1c40f;">0</div>
+                        <div style="font-size: 0.75rem; color: #f1c40f;">Skipped</div>
+                    </div>
+                </div>
+
+                <!-- Error Report Area -->
+                <div id="import-errors-section" style="display: none;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <h5 style="font-size: 0.95rem; margin: 0; color: var(--text-primary);">Error Log</h5>
+                        <button id="download-errors-btn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-download"></i> Download Error Report
+                        </button>
+                    </div>
+                    <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; max-height: 200px; overflow-y: auto; background: rgba(0, 0, 0, 0.2);">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: left;">
+                            <thead>
+                                <tr style="background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid var(--border-color);">
+                                    <th style="padding: 10px 15px; color: var(--text-primary); font-weight: 600;">Row</th>
+                                    <th style="padding: 10px 15px; color: var(--text-primary); font-weight: 600;">Field</th>
+                                    <th style="padding: 10px 15px; color: var(--text-primary); font-weight: 600;">Message</th>
+                                </tr>
+                            </thead>
+                            <tbody id="import-errors-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div style="padding: 15px 25px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: flex-end; gap: 12px;">
+            <button id="import-cancel-btn" class="btn btn-secondary" onclick="closeImportModal()">Cancel</button>
+            <button id="import-submit-btn" class="btn btn-primary" disabled style="display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-upload"></i> Start Import
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let importFile = null;
+    let importErrorsData = []; // To cache errors for CSV download
+
+    function openImportModal() {
+        const modal = document.getElementById('student-import-modal');
+        modal.style.setProperty('display', 'flex', 'important');
+        resetImportState();
+    }
+
+    function closeImportModal() {
+        const modal = document.getElementById('student-import-modal');
+        modal.style.setProperty('display', 'none', 'important');
+    }
+
+    function resetImportState() {
+        importFile = null;
+        importErrorsData = [];
+        document.getElementById('import-file-input').value = '';
+        document.getElementById('import-status-container').style.display = 'none';
+        document.getElementById('import-results-container').style.display = 'none';
+        document.getElementById('import-errors-section').style.display = 'none';
+        document.getElementById('import-progress-bar').style.width = '0%';
+        document.getElementById('import-submit-btn').disabled = true;
+        document.getElementById('import-submit-btn').innerHTML = '<i class="fa-solid fa-upload"></i> Start Import';
+        
+        const dropZone = document.getElementById('import-drop-zone');
+        dropZone.style.display = 'block';
+        dropZone.style.borderColor = 'var(--border-color)';
+        dropZone.style.background = 'rgba(0, 0, 0, 0.2)';
+    }
+
+    // Drag and drop event handling
+    const dropZone = document.getElementById('import-drop-zone');
+    const fileInput = document.getElementById('import-file-input');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--color-primary)';
+        dropZone.style.background = 'rgba(18, 38, 36, 0.3)';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = 'var(--border-color)';
+        dropZone.style.background = 'rgba(0, 0, 0, 0.2)';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer.files.length > 0) {
+            handleFileSelection(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            handleFileSelection(fileInput.files[0]);
+        }
+    });
+
+    function handleFileSelection(file) {
+        const allowedExtensions = /(\.csv|\.xlsx)$/i;
+        if (!allowedExtensions.exec(file.name)) {
+            alert('Unsupported file type. Please upload a .csv or .xlsx file.');
+            return;
+        }
+
+        importFile = file;
+        
+        // Show file details
+        document.getElementById('import-filename').innerText = file.name;
+        document.getElementById('import-filesize').innerText = formatBytes(file.size);
+        document.getElementById('import-status-container').style.display = 'block';
+        document.getElementById('import-status-text').innerText = 'File selected. Ready to import.';
+        document.getElementById('import-progress-bar').style.width = '0%';
+        
+        // Enable submit button
+        document.getElementById('import-submit-btn').disabled = false;
+    }
+
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // Submit import request
+    document.getElementById('import-submit-btn').addEventListener('click', () => {
+        const branchSelect = document.getElementById('import-branch-select');
+        const branchId = branchSelect.value;
+        if (!branchId) {
+            alert('Please select a branch.');
+            return;
+        }
+        if (!importFile) return;
+
+        // Disable UI
+        document.getElementById('import-submit-btn').disabled = true;
+        document.getElementById('import-submit-btn').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Importing...';
+        document.getElementById('import-cancel-btn').disabled = true;
+        branchSelect.disabled = true;
+        
+        // Form Data
+        const formData = new FormData();
+        formData.append('file', importFile);
+        formData.append('branch_id', branchId);
+        
+        // AJAX Request with Upload Progress tracking
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', "{% url 'student_import' %}", true);
+        xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+        
+        xhr.upload.onprogress = function(e) {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                document.getElementById('import-progress-bar').style.width = percent + '%';
+                document.getElementById('import-status-text').innerText = `Uploading file... ${percent}%`;
+            }
+        };
+
+        xhr.onload = function() {
+            document.getElementById('import-cancel-btn').disabled = false;
+            branchSelect.disabled = false;
+            
+            if (xhr.status === 200) {
+                const res = JSON.parse(xhr.responseText);
+                displayImportResults(res);
+            } else {
+                let errorMsg = 'An unexpected error occurred during import.';
+                try {
+                    const res = JSON.parse(xhr.responseText);
+                    errorMsg = res.error || errorMsg;
+                } catch(e) {}
+                document.getElementById('import-status-text').innerText = 'Import failed.';
+                alert(errorMsg);
+                document.getElementById('import-submit-btn').innerHTML = '<i class="fa-solid fa-upload"></i> Start Import';
+                document.getElementById('import-submit-btn').disabled = false;
+            }
+        };
+
+        xhr.onerror = function() {
+            document.getElementById('import-cancel-btn').disabled = false;
+            branchSelect.disabled = false;
+            document.getElementById('import-status-text').innerText = 'Network error.';
+            alert('Network error occurred.');
+            document.getElementById('import-submit-btn').innerHTML = '<i class="fa-solid fa-upload"></i> Start Import';
+            document.getElementById('import-submit-btn').disabled = false;
+        };
+
+        xhr.send(formData);
+    });
+
+    function displayImportResults(res) {
+        // Update summary numbers
+        document.getElementById('res-total').innerText = res.total;
+        document.getElementById('res-success').innerText = res.success;
+        document.getElementById('res-failed').innerText = res.failed;
+        document.getElementById('res-skipped').innerText = res.skipped;
+
+        // Hide upload dropzone, update status text
+        document.getElementById('import-drop-zone').style.display = 'none';
+        document.getElementById('import-status-text').innerText = `Import complete in ${res.execution_time}s.`;
+        document.getElementById('import-progress-bar').style.width = '100%';
+        
+        // Show results summary
+        document.getElementById('import-results-container').style.display = 'block';
+
+        // Render error table
+        const tbody = document.getElementById('import-errors-tbody');
+        tbody.innerHTML = '';
+        importErrorsData = res.errors || [];
+
+        if (importErrorsData.length > 0) {
+            document.getElementById('import-errors-section').style.display = 'block';
+            importErrorsData.forEach(err => {
+                const tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--border-color)';
+                
+                const tdRow = document.createElement('td');
+                tdRow.style.padding = '10px 15px';
+                tdRow.style.color = 'var(--text-muted)';
+                tdRow.innerText = err.row;
+                
+                const tdCol = document.createElement('td');
+                tdCol.style.padding = '10px 15px';
+                tdCol.style.fontWeight = '600';
+                tdCol.innerText = err.column;
+                
+                const tdMsg = document.createElement('td');
+                tdMsg.style.padding = '10px 15px';
+                tdMsg.style.color = '#e74c3c';
+                tdMsg.innerText = err.message;
+                
+                tr.appendChild(tdRow);
+                tr.appendChild(tdCol);
+                tr.appendChild(tdMsg);
+                tbody.appendChild(tr);
+            });
+        } else {
+            document.getElementById('import-errors-section').style.display = 'none';
+        }
+
+        // Keep start button text to Done
+        document.getElementById('import-submit-btn').innerHTML = '<i class="fa-solid fa-check"></i> Done';
+        document.getElementById('import-submit-btn').disabled = true;
+    }
+
+    // Download Error Report as CSV
+    document.getElementById('download-errors-btn').addEventListener('click', () => {
+        if (importErrorsData.length === 0) return;
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Row,Column,Error Message\n";
+        
+        importErrorsData.forEach(err => {
+            const rowStr = `"${err.row}","${err.column.replace(/"/g, '""')}","${err.message.replace(/"/g, '""')}"\n`;
+            csvContent += rowStr;
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `student_import_errors_${new Date().getTime()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>

@@ -45,6 +45,7 @@ class UserRole(models.Model):
     role = models.ForeignKey('super_admin.Role', on_delete=models.CASCADE, db_column='role_id', related_name='user_roles')
     institution = models.ForeignKey('super_admin.Institution', on_delete=models.CASCADE, db_column='institute_id', related_name='user_roles')
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, db_column='branch_id', null=True, blank=True, related_name='user_roles')
+    academic_year = models.ForeignKey('super_admin.AcademicYear', on_delete=models.SET_NULL, null=True, blank=True, related_name='user_roles')
 
     class Meta:
         db_table = 'userRole'
@@ -63,9 +64,15 @@ class RoleProfile(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, db_column='branch_id', null=True, blank=True, related_name='role_profiles')
     address_record = models.ForeignKey('super_admin.Address', on_delete=models.SET_NULL, null=True, blank=True, db_column='address_id', related_name='role_profiles')
     permissions = models.JSONField(default=dict, blank=True)
+    academic_year = models.ForeignKey('super_admin.AcademicYear', on_delete=models.SET_NULL, null=True, blank=True, related_name='role_profiles')
+    # Year-specific student fields (stored directly on RoleProfile so they are per-academic-year)
+    school_class = models.ForeignKey('SchoolClass', on_delete=models.SET_NULL, null=True, blank=True, related_name='rp_student_profiles')
+    roll_number = models.CharField(max_length=50, blank=True, null=True)
+    gr_number = models.CharField(max_length=100, blank=True, null=True)
+    udise_number = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
-        unique_together = ('user', 'role', 'institution')
+        unique_together = ('user', 'role', 'institution', 'academic_year')
         db_table = 'role_profile'
 
     def __str__(self):
@@ -123,6 +130,12 @@ class RoleProfile(models.Model):
             profile.date_of_birth = self._temp_date_of_birth
             profile.save()
             del self._temp_date_of_birth
+
+        if self.role_name == 'STUDENT':
+            from student.models import UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=self.user)
+            profile.school_class = self.school_class
+            profile.save()
 
         # Sync to UserRole
         if role_obj:
@@ -350,70 +363,22 @@ class RoleProfile(models.Model):
             self.address_record.pincode = value or ""
             self.address_record.save()
 
-    # Student specific properties
-    @property
-    def school_class(self):
-        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
-            return self.user_profile.school_class
-        return None
-
-    @school_class.setter
-    def school_class(self, value):
-        if self.role_name == 'STUDENT':
-            profile = self._get_or_create_user_profile()
-            profile.school_class = value
-            profile.save()
-
-    @property
-    def school_class_id(self):
-        return self.school_class.id if self.school_class else None
-
+    # Student specific properties — stored directly on RoleProfile (per-academic-year)
     @property
     def roll_no(self):
-        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
-            return self.user_profile.roll_no
-        return ""
+        return self.roll_number or ""
 
     @roll_no.setter
     def roll_no(self, value):
-        if self.role_name == 'STUDENT':
-            profile = self._get_or_create_user_profile()
-            profile.roll_no = value
-            profile.save()
-
-    @property
-    def roll_number(self):
-        return self.roll_no
-
-    @roll_number.setter
-    def roll_number(self, value):
-        self.roll_no = value
-
-    @property
-    def uid_no(self):
-        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
-            return self.user_profile.uid_no
-        return ""
-
-    @uid_no.setter
-    def uid_no(self, value):
-        if self.role_name == 'STUDENT':
-            profile = self._get_or_create_user_profile()
-            profile.uid_no = value
-            profile.save()
+        self.roll_number = value
 
     @property
     def grno(self):
-        if self.role_name == 'STUDENT' and hasattr(self, 'user_profile') and self.user_profile:
-            return self.user_profile.grno
-        return ""
+        return self.gr_number or ""
 
     @grno.setter
     def grno(self, value):
-        if self.role_name == 'STUDENT':
-            profile = self._get_or_create_user_profile()
-            profile.grno = value
-            profile.save()
+        self.gr_number = value
 
     @property
     def parent_full_name(self):
@@ -607,6 +572,7 @@ class SchoolClass(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.CASCADE, related_name='classes')
     name = models.CharField(max_length=100)
     section = models.CharField(max_length=50, blank=True, null=True)
+    medium = models.ForeignKey('Medium', on_delete=models.SET_NULL, null=True, blank=True, related_name='classes')
     teacher = models.ForeignKey(
         'Teacher',
         on_delete=models.SET_NULL,
